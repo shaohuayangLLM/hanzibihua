@@ -1,12 +1,21 @@
+// 多音字读音接口
+export interface PinyinReading {
+  pinyin: string;
+  meaning: string;
+  words: { word: string; pinyin: string; meaning: string }[];
+}
+
 export interface CharacterInfo {
   character: string;
-  pinyin: string;
+  pinyin: string; // 主要读音
   meaning: string;
   strokeCount: number;
   radicalInfo: string;
   structure?: string; // 结构：左右结构、上下结构等
   words: { word: string; pinyin: string; meaning: string }[];
   sentences: string[];
+  // 多音字支持
+  additionalReadings?: PinyinReading[];
 }
 
 // Common first-grade characters with their information

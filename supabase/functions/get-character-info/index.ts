@@ -32,7 +32,7 @@ serve(async (req) => {
 
 {
   "character": "${character}",
-  "pinyin": "带声调的拼音，如 dà、xiǎo",
+  "pinyin": "主要读音（带声调，如 dà、xiǎo）",
   "meaning": "简单易懂的解释，适合一年级学生，不超过50字",
   "strokeCount": 笔画数（数字），
   "radicalInfo": "部首：X",
@@ -43,7 +43,16 @@ serve(async (req) => {
     {"word": "组词3", "pinyin": "拼音", "meaning": "简单释义"},
     {"word": "组词4", "pinyin": "拼音", "meaning": "简单释义"}
   ],
-  "sentences": ["简单例句1（10-15字）", "简单例句2（10-15字）"]
+  "sentences": ["简单例句1（10-15字）", "简单例句2（10-15字）"],
+  "additionalReadings": [
+    {
+      "pinyin": "其他读音（带声调）",
+      "meaning": "这个读音的含义",
+      "words": [
+        {"word": "组词", "pinyin": "拼音", "meaning": "释义"}
+      ]
+    }
+  ]
 }
 
 要求：
@@ -51,7 +60,9 @@ serve(async (req) => {
 2. 解释要简单，适合6-7岁儿童
 3. 组词选择常用词，尽量与儿童生活相关
 4. 例句要短小简单
-5. 只返回JSON，不要有任何其他说明文字`;
+5. 如果这个字是多音字，请在additionalReadings中列出其他读音及对应的组词
+6. 如果不是多音字，additionalReadings可以是空数组[]
+7. 只返回JSON，不要有任何其他说明文字`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',

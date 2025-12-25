@@ -1,26 +1,46 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CharacterInput } from "@/components/CharacterInput";
 import { StrokeDisplay } from "@/components/StrokeDisplay";
 import { StrokeSteps } from "@/components/StrokeSteps";
 import { CharacterDetails } from "@/components/CharacterDetails";
+import { CategoryBrowser } from "@/components/CategoryBrowser";
+import { LearningProgress } from "@/components/LearningProgress";
 import { getCharacterInfo, CharacterInfo } from "@/data/characterInfo";
-import { Pencil, Sparkles, Loader2 } from "lucide-react";
+import { useLearningProgress } from "@/hooks/useLearningProgress";
+import { Pencil, Sparkles, Loader2, BookMarked, FolderOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Index = () => {
   const [character, setCharacter] = useState<string>("");
   const [characterInfo, setCharacterInfo] = useState<CharacterInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("learn");
+
+  const {
+    markAsLearned,
+    toggleMastered,
+    removeCharacter,
+    clearAllProgress,
+    isLearned,
+    getLearnedCharacters,
+    getStats,
+  } = useLearningProgress();
+
+  // Create a Set of learned characters for efficient lookup
+  const learnedSet = new Set(getLearnedCharacters().map((r) => r.character));
 
   const handleCharacterSubmit = async (char: string) => {
     setCharacter(char);
     setCharacterInfo(null);
+    setActiveTab("learn"); // Switch to learn tab when submitting
     
     // First check local database
     const dbInfo = getCharacterInfo(char);
     if (dbInfo) {
       setCharacterInfo(dbInfo);
+      markAsLearned(char);
       return;
     }
     
@@ -50,9 +70,11 @@ const Index = () => {
         structure: data.structure,
         words: Array.isArray(data.words) ? data.words : [],
         sentences: Array.isArray(data.sentences) ? data.sentences : [],
+        additionalReadings: Array.isArray(data.additionalReadings) ? data.additionalReadings : [],
       };
 
       setCharacterInfo(info);
+      markAsLearned(char);
     } catch (error) {
       console.error('Failed to fetch character info:', error);
       toast.error(error instanceof Error ? error.message : '获取汉字信息失败，请稍后再试');
@@ -85,7 +107,7 @@ const Index = () => {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-10">
+      <main className="max-w-4xl mx-auto px-4 py-8 space-y-8">
         {/* Hero section */}
         <section className="text-center space-y-4 animate-fade-in">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm font-medium">
@@ -105,60 +127,106 @@ const Index = () => {
           <CharacterInput onSubmit={handleCharacterSubmit} />
         </section>
 
-        {/* Loading state */}
-        {isLoading && (
-          <div className="flex flex-col items-center justify-center py-12 animate-fade-in">
-            <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
-            <p className="text-muted-foreground">正在获取汉字信息...</p>
-          </div>
-        )}
+        {/* Tabs for different views */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="learn" className="gap-2">
+              <Pencil className="h-4 w-4" />
+              学习
+            </TabsTrigger>
+            <TabsTrigger value="browse" className="gap-2">
+              <FolderOpen className="h-4 w-4" />
+              分类
+            </TabsTrigger>
+            <TabsTrigger value="progress" className="gap-2">
+              <BookMarked className="h-4 w-4" />
+              进度
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Results section */}
-        {character && !isLoading && (
-          <section className="space-y-8 animate-fade-in">
-            {/* Character display */}
-            <div className="flex flex-col lg:flex-row gap-8 items-start">
-              {/* Left: Big character and animation */}
-              <div className="w-full lg:w-auto flex flex-col items-center gap-6">
-                {/* Large character display */}
-                <div className="relative">
-                  <div className="w-32 h-32 rounded-2xl bg-secondary flex items-center justify-center">
-                    <span className="text-7xl font-brush text-foreground">
-                      {character}
-                    </span>
+          {/* Learn Tab */}
+          <TabsContent value="learn" className="mt-6">
+            {/* Loading state */}
+            {isLoading && (
+              <div className="flex flex-col items-center justify-center py-12 animate-fade-in">
+                <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
+                <p className="text-muted-foreground">正在获取汉字信息...</p>
+              </div>
+            )}
+
+            {/* Results section */}
+            {character && !isLoading && (
+              <section className="space-y-8 animate-fade-in">
+                {/* Character display */}
+                <div className="flex flex-col lg:flex-row gap-8 items-start">
+                  {/* Left: Big character and animation */}
+                  <div className="w-full lg:w-auto flex flex-col items-center gap-6">
+                    {/* Large character display */}
+                    <div className="relative">
+                      <div className="w-32 h-32 rounded-2xl bg-secondary flex items-center justify-center">
+                        <span className="text-7xl font-brush text-foreground">
+                          {character}
+                        </span>
+                      </div>
+                      {isLearned(character) && (
+                        <div className="absolute -top-2 -right-2 px-2 py-1 bg-primary text-primary-foreground text-xs rounded-full">
+                          已学习
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Stroke animation */}
+                    <StrokeDisplay character={character} />
+                  </div>
+
+                  {/* Right: Steps and details */}
+                  <div className="flex-1 w-full space-y-6">
+                    {/* Stroke steps */}
+                    <StrokeSteps character={character} />
+
+                    {/* Character details */}
+                    {characterInfo && <CharacterDetails info={characterInfo} />}
                   </div>
                 </div>
+              </section>
+            )}
 
-                {/* Stroke animation */}
-                <StrokeDisplay character={character} />
+            {/* Empty state */}
+            {!character && !isLoading && (
+              <div className="text-center py-16 animate-fade-in">
+                <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-secondary flex items-center justify-center">
+                  <span className="text-4xl">✏️</span>
+                </div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">
+                  开始学习吧！
+                </h3>
+                <p className="text-muted-foreground">
+                  在上方输入一个汉字，或者从分类中选择开始学习
+                </p>
               </div>
+            )}
+          </TabsContent>
 
-              {/* Right: Steps and details */}
-              <div className="flex-1 w-full space-y-6">
-                {/* Stroke steps */}
-                <StrokeSteps character={character} />
+          {/* Browse Tab */}
+          <TabsContent value="browse" className="mt-6">
+            <CategoryBrowser
+              onSelectCharacter={handleCharacterSubmit}
+              learnedCharacters={learnedSet}
+            />
+          </TabsContent>
 
-                {/* Character details */}
-                {characterInfo && <CharacterDetails info={characterInfo} />}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Empty state */}
-        {!character && !isLoading && (
-          <div className="text-center py-16 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-secondary flex items-center justify-center">
-              <span className="text-4xl">✏️</span>
-            </div>
-            <h3 className="text-xl font-semibold text-foreground mb-2">
-              开始学习吧！
-            </h3>
-            <p className="text-muted-foreground">
-              在上方输入一个汉字，或者点击推荐的字开始学习
-            </p>
-          </div>
-        )}
+          {/* Progress Tab */}
+          <TabsContent value="progress" className="mt-6">
+            <LearningProgress
+              stats={getStats()}
+              learnedCharacters={getLearnedCharacters()}
+              onSelectCharacter={handleCharacterSubmit}
+              onToggleMastered={toggleMastered}
+              onRemoveCharacter={removeCharacter}
+              onClearAll={clearAllProgress}
+            />
+          </TabsContent>
+        </Tabs>
       </main>
 
       {/* Footer */}

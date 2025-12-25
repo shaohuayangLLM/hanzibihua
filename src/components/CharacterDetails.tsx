@@ -1,5 +1,5 @@
-import { CharacterInfo } from "@/data/characterInfo";
-import { BookOpen, MessageCircle, Layers, Info, Hash, Grid3X3, Type, Volume2 } from "lucide-react";
+import { CharacterInfo, PinyinReading } from "@/data/characterInfo";
+import { BookOpen, MessageCircle, Layers, Info, Hash, Grid3X3, Type, Volume2, Music } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -40,6 +40,8 @@ export const CharacterDetails = ({ info }: CharacterDetailsProps) => {
     window.speechSynthesis.getVoices();
   }
 
+  const hasAdditionalReadings = info.additionalReadings && info.additionalReadings.length > 0;
+
   return (
     <div className="w-full space-y-6 animate-fade-in">
       {/* Basic Info Cards */}
@@ -51,6 +53,9 @@ export const CharacterDetails = ({ info }: CharacterDetailsProps) => {
           </div>
           <p className="text-xs text-muted-foreground mb-1">拼音</p>
           <p className="text-2xl font-semibold text-foreground">{info.pinyin}</p>
+          {hasAdditionalReadings && (
+            <p className="text-xs text-primary mt-1">多音字</p>
+          )}
           {info.pinyin && info.pinyin !== "暂无" && (
             <Button
               variant="ghost"
@@ -124,6 +129,7 @@ export const CharacterDetails = ({ info }: CharacterDetailsProps) => {
           <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
             <Layers className="h-5 w-5 text-accent" />
             常用组词
+            <span className="text-sm font-normal text-muted-foreground">（{info.pinyin}）</span>
           </h3>
           <div className="grid grid-cols-2 gap-3">
             {info.words.map((word, index) => (
@@ -145,6 +151,61 @@ export const CharacterDetails = ({ info }: CharacterDetailsProps) => {
                 >
                   <Volume2 className="h-3.5 w-3.5" />
                 </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Additional Readings (多音字) */}
+      {hasAdditionalReadings && (
+        <div className="card-warm rounded-2xl p-5 border-2 border-primary/20">
+          <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+            <Music className="h-5 w-5 text-primary" />
+            多音字读音
+          </h3>
+          <div className="space-y-4">
+            {info.additionalReadings!.map((reading, idx) => (
+              <div key={idx} className="bg-background/50 rounded-xl p-4 border border-border/50">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-2xl font-brush text-foreground">{info.character}</span>
+                  <span className="text-xl font-semibold text-primary">{reading.pinyin}</span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => speak(info.character, 0.6)}
+                    title="朗读"
+                  >
+                    <Volume2 className="h-4 w-4" />
+                  </Button>
+                </div>
+                <p className="text-sm text-muted-foreground mb-3">{reading.meaning}</p>
+                {reading.words && reading.words.length > 0 && (
+                  <div className="grid grid-cols-2 gap-2">
+                    {reading.words.map((word, wordIdx) => (
+                      <div
+                        key={wordIdx}
+                        className="bg-secondary/50 rounded-lg p-2 group relative"
+                      >
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-lg font-brush">{word.word}</span>
+                          <span className="text-xs text-muted-foreground">{word.pinyin}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">{word.meaning}</p>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => speak(word.word, 0.7)}
+                          title="朗读"
+                        >
+                          <Volume2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -189,7 +250,9 @@ export const CharacterDetails = ({ info }: CharacterDetailsProps) => {
         <div>
           <p className="text-sm font-medium text-accent">学习小贴士</p>
           <p className="text-sm text-foreground/70 mt-1">
-            点击 <Volume2 className="h-3.5 w-3.5 inline" /> 按钮可以听到正确的读音哦！跟着笔画顺序多写几遍，记住每一笔的顺序吧！
+            点击 <Volume2 className="h-3.5 w-3.5 inline" /> 按钮可以听到正确的读音哦！
+            {hasAdditionalReadings && "这是一个多音字，记得学习不同读音的用法！"}
+            跟着笔画顺序多写几遍，记住每一笔的顺序吧！
           </p>
         </div>
       </div>
