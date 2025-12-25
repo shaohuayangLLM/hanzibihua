@@ -196,18 +196,24 @@ export const characterDatabase: Record<string, CharacterInfo> = {
 };
 
 // Get character info, returns a basic info if not in database
-export const getCharacterInfo = (char: string): CharacterInfo => {
+export const getCharacterInfo = (char: string): CharacterInfo | null => {
   if (characterDatabase[char]) {
     return characterDatabase[char];
   }
   
-  // Return basic info for characters not in database
+  // Return null for characters not in database
+  // The component will fetch stroke count from HanziWriter
+  return null;
+};
+
+// Create basic info for unknown characters
+export const createBasicInfo = (char: string, strokeCount: number): CharacterInfo => {
   return {
     character: char,
-    pinyin: "—",
+    pinyin: "暂无",
     meaning: "这个字的详细信息暂未收录，请查阅字典了解更多。",
-    strokeCount: 0,
-    radicalInfo: "部首信息暂缺",
+    strokeCount: strokeCount,
+    radicalInfo: "暂无",
     words: [],
     sentences: [],
   };
