@@ -1,18 +1,35 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CharacterInput } from "@/components/CharacterInput";
 import { StrokeDisplay } from "@/components/StrokeDisplay";
 import { StrokeSteps } from "@/components/StrokeSteps";
 import { CharacterDetails } from "@/components/CharacterDetails";
-import { getCharacterInfo, CharacterInfo } from "@/data/characterInfo";
+import { getCharacterInfo, createBasicInfo, CharacterInfo } from "@/data/characterInfo";
 import { Pencil, Sparkles } from "lucide-react";
+import HanziWriter from "hanzi-writer";
 
 const Index = () => {
   const [character, setCharacter] = useState<string>("");
   const [characterInfo, setCharacterInfo] = useState<CharacterInfo | null>(null);
 
-  const handleCharacterSubmit = (char: string) => {
+  const handleCharacterSubmit = async (char: string) => {
     setCharacter(char);
-    setCharacterInfo(getCharacterInfo(char));
+    const dbInfo = getCharacterInfo(char);
+    
+    if (dbInfo) {
+      setCharacterInfo(dbInfo);
+    } else {
+      // For unknown characters, try to get stroke count from HanziWriter
+      try {
+        const charData = await HanziWriter.loadCharacterData(char);
+        if (charData && 'strokes' in charData) {
+          setCharacterInfo(createBasicInfo(char, charData.strokes.length));
+        } else {
+          setCharacterInfo(createBasicInfo(char, 0));
+        }
+      } catch {
+        setCharacterInfo(createBasicInfo(char, 0));
+      }
+    }
   };
 
   return (

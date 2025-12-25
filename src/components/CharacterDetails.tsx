@@ -26,7 +26,7 @@ export const CharacterDetails = ({ info }: CharacterDetailsProps) => {
           </div>
           <p className="text-xs text-muted-foreground mb-1">笔画</p>
           <p className="text-2xl font-semibold text-foreground">
-            {info.strokeCount > 0 ? `${info.strokeCount}画` : "—"}
+            {info.strokeCount > 0 ? `${info.strokeCount}画` : "暂无"}
           </p>
         </div>
 
@@ -37,7 +37,7 @@ export const CharacterDetails = ({ info }: CharacterDetailsProps) => {
           </div>
           <p className="text-xs text-muted-foreground mb-1">部首</p>
           <p className="text-2xl font-semibold text-foreground">
-            {info.radicalInfo.replace("部首：", "") || "—"}
+            {info.radicalInfo && info.radicalInfo !== "暂无" ? info.radicalInfo.replace("部首：", "") : "暂无"}
           </p>
         </div>
       </div>
