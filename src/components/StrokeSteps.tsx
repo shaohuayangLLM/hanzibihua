@@ -1,79 +1,86 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import HanziWriter from "hanzi-writer";
 
 interface StrokeStepsProps {
   character: string;
 }
 
+interface CharacterData {
+  strokes: string[];
+  medians: number[][][];
+}
+
 export const StrokeSteps = ({ character }: StrokeStepsProps) => {
-  const [totalStrokes, setTotalStrokes] = useState(0);
-  const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [charData, setCharData] = useState<CharacterData | null>(null);
 
   useEffect(() => {
     if (!character) return;
 
+    setCharData(null);
+
     HanziWriter.loadCharacterData(character).then((data) => {
       if (data) {
-        setTotalStrokes(data.strokes.length);
+        setCharData(data as CharacterData);
       }
     });
   }, [character]);
 
-  useEffect(() => {
-    if (totalStrokes === 0) return;
+  if (!charData || charData.strokes.length === 0) return null;
 
-    // Create writers for each step
-    stepRefs.current.forEach((ref, index) => {
-      if (!ref) return;
-      ref.innerHTML = "";
-
-      const writer = HanziWriter.create(ref, character, {
-        width: 80,
-        height: 80,
-        padding: 5,
-        strokeColor: "#3d3226",
-        outlineColor: "#e8e4df",
-        drawingColor: "#e04a3a",
-        showOutline: true,
-        showCharacter: false,
-        strokeAnimationSpeed: 2,
-        delayBetweenStrokes: 100,
-      });
-
-      // Show strokes up to current step with animation
-      setTimeout(() => {
-        // Show completed strokes instantly
-        for (let i = 0; i < index; i++) {
-          writer.animateStroke(i);
-        }
-        // Animate current stroke
-        if (index < totalStrokes) {
-          setTimeout(() => {
-            writer.animateStroke(index);
-          }, 100 * index);
-        }
-      }, index * 150);
-    });
-  }, [character, totalStrokes]);
-
-  if (totalStrokes === 0) return null;
+  const transformData = HanziWriter.getScalingTransform(80, 80, 5);
 
   return (
     <div className="w-full">
       <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
         <span className="w-1.5 h-6 bg-primary rounded-full" />
-        笔顺分步演示
+        笔顺分步演示（一笔一画写汉字）
       </h3>
       
       <div className="flex flex-wrap gap-3 justify-center">
-        {Array.from({ length: totalStrokes }, (_, i) => (
-          <div key={i} className="flex flex-col items-center">
-            <div
-              ref={(el) => (stepRefs.current[i] = el)}
-              className="w-20 h-20 rounded-xl bg-card border-2 border-border stroke-grid"
-            />
+        {charData.strokes.map((_, stepIndex) => (
+          <div key={`${character}-step-${stepIndex}`} className="flex flex-col items-center">
+            <div className="w-20 h-20 rounded-xl bg-card border-2 border-border stroke-grid overflow-hidden">
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="80" 
+                height="80"
+                className="w-full h-full"
+              >
+                {/* Grid lines */}
+                <line x1="0" y1="40" x2="80" y2="40" stroke="hsl(var(--stroke-outline))" strokeWidth="0.5" strokeDasharray="2,2" />
+                <line x1="40" y1="0" x2="40" y2="80" stroke="hsl(var(--stroke-outline))" strokeWidth="0.5" strokeDasharray="2,2" />
+                
+                {/* Character strokes */}
+                <g transform={transformData.transform}>
+                  {/* Outline - all strokes in light gray */}
+                  {charData.strokes.map((strokePath, i) => (
+                    <path
+                      key={`outline-${i}`}
+                      d={strokePath}
+                      fill="hsl(var(--stroke-outline))"
+                      opacity="0.3"
+                    />
+                  ))}
+                  
+                  {/* Previously completed strokes in black */}
+                  {charData.strokes.slice(0, stepIndex).map((strokePath, i) => (
+                    <path
+                      key={`complete-${i}`}
+                      d={strokePath}
+                      fill="hsl(var(--stroke-complete))"
+                    />
+                  ))}
+                  
+                  {/* Current stroke in red */}
+                  <path
+                    d={charData.strokes[stepIndex]}
+                    fill="hsl(var(--stroke-active))"
+                  />
+                </g>
+              </svg>
+            </div>
             <span className="text-xs text-muted-foreground mt-1 font-medium">
-              第{i + 1}笔
+              第{stepIndex + 1}笔
             </span>
           </div>
         ))}
