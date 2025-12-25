@@ -1,34 +1,73 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { CharacterInput } from "@/components/CharacterInput";
 import { StrokeDisplay } from "@/components/StrokeDisplay";
 import { StrokeSteps } from "@/components/StrokeSteps";
 import { CharacterDetails } from "@/components/CharacterDetails";
-import { getCharacterInfo, createBasicInfo, CharacterInfo } from "@/data/characterInfo";
-import { Pencil, Sparkles } from "lucide-react";
-import HanziWriter from "hanzi-writer";
+import { getCharacterInfo, CharacterInfo } from "@/data/characterInfo";
+import { Pencil, Sparkles, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Index = () => {
   const [character, setCharacter] = useState<string>("");
   const [characterInfo, setCharacterInfo] = useState<CharacterInfo | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleCharacterSubmit = async (char: string) => {
     setCharacter(char);
-    const dbInfo = getCharacterInfo(char);
+    setCharacterInfo(null);
     
+    // First check local database
+    const dbInfo = getCharacterInfo(char);
     if (dbInfo) {
       setCharacterInfo(dbInfo);
-    } else {
-      // For unknown characters, try to get stroke count from HanziWriter
-      try {
-        const charData = await HanziWriter.loadCharacterData(char);
-        if (charData && 'strokes' in charData) {
-          setCharacterInfo(createBasicInfo(char, charData.strokes.length));
-        } else {
-          setCharacterInfo(createBasicInfo(char, 0));
-        }
-      } catch {
-        setCharacterInfo(createBasicInfo(char, 0));
+      return;
+    }
+    
+    // If not in local database, fetch from AI
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('get-character-info', {
+        body: { character: char }
+      });
+
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error(error.message || '获取汉字信息失败');
       }
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      // Validate and set character info
+      const info: CharacterInfo = {
+        character: data.character || char,
+        pinyin: data.pinyin || "暂无",
+        meaning: data.meaning || "暂无释义",
+        strokeCount: data.strokeCount || 0,
+        radicalInfo: data.radicalInfo || "暂无",
+        structure: data.structure,
+        words: Array.isArray(data.words) ? data.words : [],
+        sentences: Array.isArray(data.sentences) ? data.sentences : [],
+      };
+
+      setCharacterInfo(info);
+    } catch (error) {
+      console.error('Failed to fetch character info:', error);
+      toast.error(error instanceof Error ? error.message : '获取汉字信息失败，请稍后再试');
+      // Set basic info as fallback
+      setCharacterInfo({
+        character: char,
+        pinyin: "暂无",
+        meaning: "获取信息失败，请稍后再试",
+        strokeCount: 0,
+        radicalInfo: "暂无",
+        words: [],
+        sentences: [],
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -66,8 +105,16 @@ const Index = () => {
           <CharacterInput onSubmit={handleCharacterSubmit} />
         </section>
 
+        {/* Loading state */}
+        {isLoading && (
+          <div className="flex flex-col items-center justify-center py-12 animate-fade-in">
+            <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
+            <p className="text-muted-foreground">正在获取汉字信息...</p>
+          </div>
+        )}
+
         {/* Results section */}
-        {character && (
+        {character && !isLoading && (
           <section className="space-y-8 animate-fade-in">
             {/* Character display */}
             <div className="flex flex-col lg:flex-row gap-8 items-start">
@@ -99,7 +146,7 @@ const Index = () => {
         )}
 
         {/* Empty state */}
-        {!character && (
+        {!character && !isLoading && (
           <div className="text-center py-16 animate-fade-in" style={{ animationDelay: "0.2s" }}>
             <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-secondary flex items-center justify-center">
               <span className="text-4xl">✏️</span>
