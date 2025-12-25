@@ -1,5 +1,5 @@
 import { CharacterInfo } from "@/data/characterInfo";
-import { BookOpen, MessageCircle, Layers, Info } from "lucide-react";
+import { BookOpen, MessageCircle, Layers, Info, Hash, Grid3X3, Type } from "lucide-react";
 
 interface CharacterDetailsProps {
   info: CharacterInfo;
@@ -8,14 +8,37 @@ interface CharacterDetailsProps {
 export const CharacterDetails = ({ info }: CharacterDetailsProps) => {
   return (
     <div className="w-full space-y-6 animate-fade-in">
-      {/* Pinyin and basic info */}
-      <div className="text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary text-secondary-foreground">
-          <span className="text-xl font-semibold">{info.pinyin}</span>
-          <span className="text-muted-foreground">·</span>
-          <span className="text-sm">{info.strokeCount > 0 ? `${info.strokeCount}笔` : ""}</span>
-          <span className="text-muted-foreground">·</span>
-          <span className="text-sm">{info.radicalInfo}</span>
+      {/* Basic Info Cards */}
+      <div className="grid grid-cols-3 gap-3">
+        {/* Pinyin */}
+        <div className="card-warm rounded-2xl p-4 text-center">
+          <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Type className="h-5 w-5 text-primary" />
+          </div>
+          <p className="text-xs text-muted-foreground mb-1">拼音</p>
+          <p className="text-2xl font-semibold text-foreground">{info.pinyin}</p>
+        </div>
+
+        {/* Stroke count */}
+        <div className="card-warm rounded-2xl p-4 text-center">
+          <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-accent/10 flex items-center justify-center">
+            <Hash className="h-5 w-5 text-accent" />
+          </div>
+          <p className="text-xs text-muted-foreground mb-1">笔画</p>
+          <p className="text-2xl font-semibold text-foreground">
+            {info.strokeCount > 0 ? `${info.strokeCount}画` : "—"}
+          </p>
+        </div>
+
+        {/* Radical */}
+        <div className="card-warm rounded-2xl p-4 text-center">
+          <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-secondary flex items-center justify-center">
+            <Grid3X3 className="h-5 w-5 text-secondary-foreground" />
+          </div>
+          <p className="text-xs text-muted-foreground mb-1">部首</p>
+          <p className="text-2xl font-semibold text-foreground">
+            {info.radicalInfo.replace("部首：", "") || "—"}
+          </p>
         </div>
       </div>
 
@@ -23,7 +46,7 @@ export const CharacterDetails = ({ info }: CharacterDetailsProps) => {
       <div className="card-warm rounded-2xl p-5">
         <h3 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
           <Info className="h-5 w-5 text-primary" />
-          字义
+          字义解释
         </h3>
         <p className="text-foreground/80 leading-relaxed">{info.meaning}</p>
       </div>
@@ -33,7 +56,7 @@ export const CharacterDetails = ({ info }: CharacterDetailsProps) => {
         <div className="card-warm rounded-2xl p-5">
           <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
             <Layers className="h-5 w-5 text-accent" />
-            组词
+            常用组词
           </h3>
           <div className="grid grid-cols-2 gap-3">
             {info.words.map((word, index) => (
@@ -57,7 +80,7 @@ export const CharacterDetails = ({ info }: CharacterDetailsProps) => {
         <div className="card-warm rounded-2xl p-5">
           <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
             <MessageCircle className="h-5 w-5 text-primary" />
-            例句
+            例句造句
           </h3>
           <div className="space-y-3">
             {info.sentences.map((sentence, index) => (
