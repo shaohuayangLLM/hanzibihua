@@ -4,6 +4,7 @@ export interface CharacterInfo {
   meaning: string;
   strokeCount: number;
   radicalInfo: string;
+  structure?: string; // 结构：左右结构、上下结构等
   words: { word: string; pinyin: string; meaning: string }[];
   sentences: string[];
 }
