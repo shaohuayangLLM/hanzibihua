@@ -3181,19 +3181,6 @@ export const characterDatabase: Record<string, CharacterInfo> = {
     ],
     sentences: ["这条鱼真大。", "我喜欢吃面条。"],
   },
-  "只": {
-    character: "只",
-    pinyin: "zhī",
-    meaning: "只是量词，用于某些动物。",
-    strokeCount: 5,
-    radicalInfo: "部首：口",
-    structure: "上下结构",
-    words: [
-      { word: "一只", pinyin: "yī zhī", meaning: "一个（动物）" },
-      { word: "只有", pinyin: "zhǐ yǒu", meaning: "仅仅有" },
-    ],
-    sentences: ["我有一只小猫。", "只有努力才能成功。"],
-  },
   "猫": {
     character: "猫",
     pinyin: "māo",
