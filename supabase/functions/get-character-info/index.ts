@@ -36,7 +36,7 @@ serve(async (req) => {
   "meaning": "简单易懂的解释，适合一年级学生，不超过50字",
   "strokeCount": 笔画数（数字），
   "radicalInfo": "部首：X",
-  "structure": "结构类型，如：独体字、左右结构、上下结构、半包围结构、全包围结构等",
+  "structure": "结构类型",
   "words": [
     {"word": "组词1", "pinyin": "拼音", "meaning": "简单释义"},
     {"word": "组词2", "pinyin": "拼音", "meaning": "简单释义"},
@@ -62,7 +62,19 @@ serve(async (req) => {
 4. 例句要短小简单
 5. 如果这个字是多音字，请在additionalReadings中列出其他读音及对应的组词
 6. 如果不是多音字，additionalReadings可以是空数组[]
-7. 只返回JSON，不要有任何其他说明文字`;
+7. 只返回JSON，不要有任何其他说明文字
+
+【重要】关于"结构"字段，请务必准确判断：
+- 独体字：不能拆分的字，如"一、人、大、小、山、水、日、月、火"等
+- 左右结构：左右两部分组成，如"行（彳+亍）、好（女+子）、明（日+月）、林（木+木）"等
+- 上下结构：上下两部分组成，如"思（田+心）、花（艹+化）、草（艹+早）"等
+- 左中右结构：三部分左右排列，如"做、辩"等
+- 上中下结构：三部分上下排列，如"莫、暴"等
+- 半包围结构：如"问、闪、边、过、风"等
+- 全包围结构：如"国、回、园"等
+- 品字结构：如"森、品、晶"等
+
+请仔细分析汉字的组成部分，不要把合体字误判为独体字。`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -75,11 +87,11 @@ serve(async (req) => {
         messages: [
           { 
             role: 'system', 
-            content: '你是一个专业的汉语教育助手，专门为一年级小学生提供汉字学习资料。你的回答必须是纯JSON格式，不要包含任何markdown代码块标记或其他文字。' 
+            content: '你是一个专业的汉语教育助手，专门为一年级小学生提供汉字学习资料。你精通汉字结构分析，能准确判断汉字的结构类型。你的回答必须是纯JSON格式，不要包含任何markdown代码块标记或其他文字。' 
           },
           { role: 'user', content: prompt }
         ],
-        temperature: 0.3,
+        temperature: 0.2,
       }),
     });
 
