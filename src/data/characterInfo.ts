@@ -3364,6 +3364,7 @@ export const characterDatabase: Record<string, CharacterInfo> = {
     ],
     sentences: ["鹅鹅鹅，曲项向天歌。", "白鹅在水里游。"],
   },
+  ...({
   // ========== 一年级上册统编版生字 ==========
   "你": {
     character: "你",
@@ -4825,6 +4826,8 @@ export const characterDatabase: Record<string, CharacterInfo> = {
     ],
     sentences: ["我们去公园玩。", "公鸡打鸣了。"],
   },
+  }),
+  ...({
   // ========== 一年级下册统编版生字 ==========
   "春": {
     character: "春",
@@ -5713,6 +5716,9 @@ export const characterDatabase: Record<string, CharacterInfo> = {
     ],
     sentences: ["祝你平安！", "我们要和平相处。"],
   },
+  }),
+  ...({
+  // ========== 一年级下册统编版生字（续） ==========
   "办": {
     character: "办",
     pinyin: "bàn",
@@ -5908,6 +5914,7 @@ export const characterDatabase: Record<string, CharacterInfo> = {
     ],
     sentences: ["现在几点了？", "他点点头。"],
   },
+  }),
 };
 
 // Get character info, returns a basic info if not in database
