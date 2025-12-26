@@ -5,7 +5,7 @@ import { StrokeSteps } from "@/components/StrokeSteps";
 import { CharacterDetails } from "@/components/CharacterDetails";
 import { CategoryBrowser } from "@/components/CategoryBrowser";
 import { LearningProgress } from "@/components/LearningProgress";
-import { WritingPractice } from "@/components/WritingPractice";
+
 import { getCharacterInfo, CharacterInfo } from "@/data/characterInfo";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
 import { Pencil, Sparkles, Loader2, BookMarked, FolderOpen } from "lucide-react";
@@ -185,8 +185,6 @@ const Index = () => {
                     {/* Stroke steps */}
                     <StrokeSteps character={character} />
 
-                    {/* Writing practice */}
-                    <WritingPractice character={character} />
 
                     {/* Character details */}
                     {characterInfo && <CharacterDetails info={characterInfo} />}
