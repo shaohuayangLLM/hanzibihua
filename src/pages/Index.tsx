@@ -3,7 +3,8 @@ import { CharacterInput } from "@/components/CharacterInput";
 import { StrokeDisplay } from "@/components/StrokeDisplay";
 import { StrokeSteps } from "@/components/StrokeSteps";
 import { CharacterDetails } from "@/components/CharacterDetails";
-import { getCharacterInfo, CharacterInfo } from "@/data/characterInfo";
+import { TextbookSelector } from "@/components/TextbookSelector";
+import { getCharacterInfo, CharacterInfo, TextbookVolume } from "@/data/characterInfo";
 import { Pencil, Sparkles, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -12,7 +13,7 @@ const Index = () => {
   const [character, setCharacter] = useState<string>("");
   const [characterInfo, setCharacterInfo] = useState<CharacterInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [selectedVolume, setSelectedVolume] = useState<TextbookVolume>('all');
   const handleCharacterSubmit = async (char: string) => {
     setCharacter(char);
     setCharacterInfo(null);
@@ -101,8 +102,9 @@ const Index = () => {
           </p>
         </section>
 
-        {/* Input section */}
-        <section className="animate-scale-in" style={{ animationDelay: "0.1s" }}>
+        {/* Textbook selector and Input section */}
+        <section className="flex flex-col sm:flex-row gap-4 items-center justify-center animate-scale-in" style={{ animationDelay: "0.1s" }}>
+          <TextbookSelector value={selectedVolume} onChange={setSelectedVolume} />
           <CharacterInput onSubmit={handleCharacterSubmit} />
         </section>
 
