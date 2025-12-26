@@ -4,6 +4,7 @@ import { StrokeDisplay } from "@/components/StrokeDisplay";
 import { StrokeSteps } from "@/components/StrokeSteps";
 import { CharacterDetails } from "@/components/CharacterDetails";
 import { TextbookSelector } from "@/components/TextbookSelector";
+import { CharacterGrid } from "@/components/CharacterGrid";
 import { getCharacterInfo, type CharacterInfo } from "@/data/characterInfo";
 import { type TextbookVolume } from "@/data/types";
 import { Pencil, Sparkles, Loader2 } from "lucide-react";
@@ -15,12 +16,13 @@ const Index = () => {
   const [characterInfo, setCharacterInfo] = useState<CharacterInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedVolume, setSelectedVolume] = useState<TextbookVolume>('all');
+
   const handleCharacterSubmit = async (char: string) => {
     setCharacter(char);
     setCharacterInfo(null);
     
-    // First check local database
-    const dbInfo = getCharacterInfo(char);
+    // First check local database with volume filter
+    const dbInfo = getCharacterInfo(char, selectedVolume);
     if (dbInfo) {
       setCharacterInfo(dbInfo);
       return;
@@ -149,19 +151,15 @@ const Index = () => {
           </section>
         )}
 
-        {/* Empty state */}
+        {/* Character grid when textbook selected and no character being viewed */}
         {!character && !isLoading && (
-          <div className="text-center py-16 animate-fade-in">
-            <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-secondary flex items-center justify-center">
-              <span className="text-4xl">✏️</span>
-            </div>
-            <h3 className="text-xl font-semibold text-foreground mb-2">
-              开始学习吧！
-            </h3>
-            <p className="text-muted-foreground">
-              在上方输入一个汉字开始学习
-            </p>
-          </div>
+          <section className="animate-fade-in">
+            <CharacterGrid
+              volume={selectedVolume}
+              onSelect={handleCharacterSubmit}
+              selectedChar={character}
+            />
+          </section>
         )}
       </main>
 
