@@ -7,6 +7,7 @@ import { QuizStats } from "@/components/quiz/QuizStats";
 import { QuizProgress } from "@/components/quiz/QuizProgress";
 import { QuizControls } from "@/components/quiz/QuizControls";
 import { QuizModeSelector } from "@/components/quiz/QuizModeSelector";
+import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 
 // Quiz reducer
