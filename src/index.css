@@ -150,69 +150,49 @@
     box-shadow: var(--shadow-button);
   }
 
-  /* 米字格背景 - 用于汉字学习和练习 */
+  /* 米字格背景 - 简洁虚线版本，参考传统练习本样式 */
   .mizige {
     position: relative;
     background-color: #fff;
-    border: 2px solid #d45d3e;
+    border: 2px solid #e0e0e0;
   }
 
-  /* 米字格的线条 */
+  /* 米字格的虚线线条 */
   .mizige::before {
     content: '';
     position: absolute;
     inset: 0;
     background-image:
-      /* 虚线对角线 */
-      linear-gradient(45deg, transparent 49.5%, #e57373 49.5%, #e57373 50.5%, transparent 50.5%),
-      linear-gradient(-45deg, transparent 49.5%, #e57373 49.5%, #e57373 50.5%, transparent 50.5%),
-      /* 实线十字 */
-      linear-gradient(to right, #d45d3e 1px, transparent 1px),
-      linear-gradient(to bottom, #d45d3e 1px, transparent 1px);
+      /* 水平中线虚线 */
+      linear-gradient(to right, #ccc 50%, transparent 50%),
+      /* 垂直中线虚线 */
+      linear-gradient(to bottom, #ccc 50%, transparent 50%),
+      /* 对角虚线 */
+      linear-gradient(45deg, transparent 49.5%, #ddd 49.5%, #ddd 50.5%, transparent 50.5%),
+      linear-gradient(-45deg, transparent 49.5%, #ddd 49.5%, #ddd 50.5%, transparent 50.5%);
     background-size:
+      100% 2px,
+      2px 100%,
       100% 100%,
-      100% 100%,
-      50% 100%,
-      100% 50%;
+      100% 100%;
     background-position:
-      0 0,
-      0 0,
       center,
-      center;
+      center,
+      0 0,
+      0 0;
+    background-repeat: no-repeat;
     pointer-events: none;
     opacity: 0.6;
   }
 
-  /* 米字格的虚线对角线（更精细的版本） */
-  .mizige-dashed {
-    position: relative;
-    background-color: #fff;
-    border: 2px solid #d45d3e;
-  }
-
-  .mizige-dashed::before {
+  /* 外边框四角装饰（可选） */
+  .mizige::after {
     content: '';
     position: absolute;
-    inset: 0;
-    background-image:
-      /* 虚线对角线 */
-      repeating-linear-gradient(45deg, #e57373 0, #e57373 4px, transparent 4px, transparent 8px),
-      repeating-linear-gradient(-45deg, #e57373 0, #e57373 4px, transparent 4px, transparent 8px),
-      /* 实线十字中线 */
-      linear-gradient(to right, #d45d3e 1px, transparent 1px),
-      linear-gradient(to bottom, #d45d3e 1px, transparent 1px);
-    background-size:
-      100% 100%,
-      100% 100%,
-      50% 100%,
-      100% 50%;
-    background-position:
-      0 0,
-      0 0,
-      center,
-      center;
+    inset: 4px;
+    border: 1px dashed #e0e0e0;
+    border-radius: 4px;
     pointer-events: none;
-    opacity: 0.5;
   }
 
   .stroke-grid {
