@@ -91,11 +91,18 @@ const Index = () => {
               汉字笔顺学习
             </h1>
           </div>
-          <Link to="/quiz">
-            <Button variant="outline" size="sm">
-              拼音测试
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link to="/pinyin-basics">
+              <Button variant="outline" size="sm">
+                拼音基础
+              </Button>
+            </Link>
+            <Link to="/quiz">
+              <Button variant="outline" size="sm">
+                拼音测试
+              </Button>
+            </Link>
+          </div>
         </div>
       </header>
 
