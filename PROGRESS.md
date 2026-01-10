@@ -1,6 +1,70 @@
 # K12-Education 项目开发进度
 
-## 2025-01-10
+## 2025-01-10 (晚间) - 生产环境部署
+
+### 部署工作
+- **集成到个人主页** (`https://ainside.cn`)
+  - 重新构建项目最新版本 (`npm run build`)
+  - 将构建产物从 `K12-Education/dist/` 复制到 `portfolio-2025/k12/`
+  - 更新了最新的资源文件（CSS、JS、PWA文件）
+
+- **Vercel 路由配置**
+  - 创建 `vercel.json` 配置文件
+  - 配置 `/k12` 路由规则确保 SPA 正确访问
+  - 支持子路径 `/k12/*` 的动态路由
+
+- **Git 仓库管理**
+  - 更新 `.gitignore` 排除 K12-Education 源代码目录
+  - 只提交构建产物到 portfolio-2025 仓库
+  - 提交信息: "Update K12-Education project with latest build"
+  - 提交哈希: c725e64
+
+- **生产部署**
+  - 推送到 GitHub 远程仓库 (shaohuayangLLM/portfolio-2025)
+  - Vercel 自动构建和部署
+  - 部署成功并绑定到自定义域名 `https://ainside.cn`
+
+### 访问地址
+- 🌐 **生产环境**: https://ainside.cn/k12/
+- 💻 **本地开发**: http://localhost:8080/k12/
+- 📱 **主页入口**: https://ainside.cn (查看"K12 汉字学习"卡片)
+
+### 部署架构
+```
+portfolio-2025/                    # 主仓库
+├── k12/                          # K12应用构建产物
+│   ├── assets/                   # 静态资源
+│   │   ├── index-B99zuzaU.css   # 样式文件 (最新)
+│   │   └── index-Bt21lxRu.js    # 脚本文件 (最新)
+│   ├── index.html               # 入口文件
+│   ├── pwa-*.png                # PWA 图标
+│   └── sw.js                    # Service Worker
+├── K12-Education/               # 源代码目录 (已加入.gitignore)
+├── index.html                   # 个人主页
+└── vercel.json                  # Vercel 路由配置
+```
+
+### 技术细节
+- **构建工具**: Vite 5.4.19
+- **构建时间**: ~3秒
+- **构建大小**:
+  - CSS: 70.96 KB (gzip: 12.61 KB)
+  - JS: 669.48 KB (gzip: 204.79 KB)
+  - 总计: ~740 KB (gzip: ~217 KB)
+- **部署平台**: Vercel
+- **CDN**: 全球 CDN 加速
+- **域名**: ainside.cn (自定义域名)
+
+### 下次更新流程
+1. 在 `K12-Education/` 目录开发新功能
+2. 运行 `npm run build` 构建
+3. 复制 `dist/*` 到 `../k12/`
+4. Git 提交并推送到远程
+5. Vercel 自动部署
+
+---
+
+## 2025-01-10 (白天) - 功能开发
 
 ### 新增功能
 - **拼音基础学习页面** (`/pinyin-basics`)
