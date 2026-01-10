@@ -145,7 +145,7 @@ const PinyinQuiz = () => {
   };
 
   const handleExit = () => {
-    navigate('/k12/');
+    navigate('/');
   };
 
   const currentQuestion = state.questions[state.currentQuestion];
