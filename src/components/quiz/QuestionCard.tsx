@@ -36,9 +36,11 @@ export const QuestionCard = ({
         )}
 
         {/* 汉字显示 */}
-        <div className="py-8">
-          <div className="text-9xl font-kaiti text-foreground">
-            {character}
+        <div className="flex justify-center py-8">
+          <div className="w-40 h-40 mizige rounded-2xl flex items-center justify-center">
+            <span className="text-9xl font-kaiti text-foreground relative z-10">
+              {character}
+            </span>
           </div>
         </div>
 
