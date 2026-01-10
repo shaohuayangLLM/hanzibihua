@@ -61,37 +61,44 @@ export const getCharacterListByVolume = (volume: TextbookVolume): string[] => {
 
 // ==================== 拼音分类函数（专项训练用） ====================
 
+// 去掉拼音中的声调符号，转换为基本形式
+const removeTones = (pinyin: string): string => {
+  const toneMap: Record<string, string> = {
+    'ā': 'a', 'á': 'a', 'ǎ': 'a', 'à': 'a',
+    'ē': 'e', 'é': 'e', 'ě': 'e', 'è': 'e',
+    'ī': 'i', 'í': 'i', 'ǐ': 'i', 'ì': 'i',
+    'ō': 'o', 'ó': 'o', 'ǒ': 'o', 'ò': 'o',
+    'ū': 'u', 'ú': 'u', 'ǔ': 'u', 'ù': 'u',
+    'ǖ': 'ü', 'ǘ': 'ü', 'ǚ': 'ü', 'ǜ': 'ü',
+    'ü': 'u', 'v': 'u',
+  };
+  return pinyin.toLowerCase().replace(/[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü]/g, (m) => toneMap[m] || m);
+};
+
 // 判断是否为前鼻音 (an, en, in, un, ün)
 export const isFrontNasal = (pinyin: string): boolean => {
-  const lowerPinyin = pinyin.toLowerCase();
-  const frontNasals = ['an', 'en', 'in', 'un', 'ün'];
-  // 需要确保匹配的是完整音节末尾，不是拼音中间部分
-  return frontNasals.some(n => {
-    const pattern = new RegExp(`${n}$`);
-    return pattern.test(lowerPinyin);
-  });
+  const basePinyin = removeTones(pinyin);
+  const frontNasals = ['an', 'en', 'in', 'un'];
+  return frontNasals.some(n => basePinyin.endsWith(n));
 };
 
 // 判断是否为后鼻音 (ang, eng, ing, ong)
 export const isBackNasal = (pinyin: string): boolean => {
-  const lowerPinyin = pinyin.toLowerCase();
+  const basePinyin = removeTones(pinyin);
   const backNasals = ['ang', 'eng', 'ing', 'ong'];
-  return backNasals.some(n => {
-    const pattern = new RegExp(`${n}$`);
-    return pattern.test(lowerPinyin);
-  });
+  return backNasals.some(n => basePinyin.endsWith(n));
 };
 
 // 判断是否为平舌音 (z, c, s)
 export const isFlatTongue = (pinyin: string): boolean => {
-  const lowerPinyin = pinyin.toLowerCase();
-  return /^[zcs]/.test(lowerPinyin);
+  const basePinyin = removeTones(pinyin);
+  return /^[zcs]/.test(basePinyin);
 };
 
 // 判断是否为翘舌音 (zh, ch, sh, r)
 export const isCurledTongue = (pinyin: string): boolean => {
-  const lowerPinyin = pinyin.toLowerCase();
-  return /^(zh|ch|sh|r)/.test(lowerPinyin);
+  const basePinyin = removeTones(pinyin);
+  return /^(zh|ch|sh|r)/.test(basePinyin);
 };
 
 // 获取汉字的拼音类型
@@ -214,11 +221,50 @@ export const generateQuizQuestions = (
 
 // ==================== 专项训练题目生成 ====================
 
+// 从带声调的拼音中提取声调（1-4）
+const extractTone = (pinyin: string): number => {
+  const toneChars: Record<string, number> = {
+    'ā': 1, 'á': 2, 'ǎ': 3, 'à': 4,
+    'ē': 1, 'é': 2, 'ě': 3, 'è': 4,
+    'ī': 1, 'í': 2, 'ǐ': 3, 'ì': 4,
+    'ō': 1, 'ó': 2, 'ǒ': 3, 'ò': 4,
+    'ū': 1, 'ú': 2, 'ǔ': 3, 'ù': 4,
+    'ǖ': 1, 'ǘ': 2, 'ǚ': 3, 'ǜ': 4,
+  };
+  for (const char of pinyin) {
+    if (toneChars[char] !== undefined) {
+      return toneChars[char];
+    }
+  }
+  return 1; // 默认第一声
+};
+
+// 应用声调到拼音
+const applyTone = (pinyin: string, tone: number): string => {
+  const toneMap: Record<number, Record<string, string>> = {
+    1: { 'a': 'ā', 'e': 'ē', 'i': 'ī', 'o': 'ō', 'u': 'ū', 'ü': 'ǖ', 'v': 'ǖ' },
+    2: { 'a': 'á', 'e': 'é', 'i': 'í', 'o': 'ó', 'u': 'ú', 'ü': 'ǘ', 'v': 'ǘ' },
+    3: { 'a': 'ǎ', 'e': 'ě', 'i': 'ǐ', 'o': 'ǒ', 'u': 'ǔ', 'ü': 'ǚ', 'v': 'ǚ' },
+    4: { 'a': 'à', 'e': 'è', 'i': 'ì', 'o': 'ò', 'u': 'ù', 'ü': 'ǜ', 'v': 'ǜ' },
+  };
+
+  // 找到第一个元音并应用声调
+  const vowels = ['a', 'e', 'i', 'o', 'u', 'ü', 'v'];
+  for (let i = 0; i < pinyin.length; i++) {
+    const char = pinyin[i];
+    if (vowels.includes(char)) {
+      const tonedChar = toneMap[tone]?.[char] || char;
+      return pinyin.slice(0, i) + tonedChar + pinyin.slice(i + 1);
+    }
+  }
+  return pinyin;
+};
+
 // 转换鼻音类型（用于生成鼻音测试的干扰项）
 // 例如：guāng -> guān, shān -> shāng
 const convertNasal = (pinyin: string): string => {
-  const tone = pinyin.slice(-1); // 获取声调
-  const base = pinyin.slice(0, -1); // 去掉声调后的拼音
+  const tone = extractTone(pinyin);
+  const base = removeTones(pinyin);
 
   // 后鼻音转前鼻音
   const backToFront: Record<string, string> = {
@@ -233,21 +279,22 @@ const convertNasal = (pinyin: string): string => {
     'an': 'ang',
     'en': 'eng',
     'in': 'ing',
-    'un': 'ong',  // un -> ong（近似）
-    'ün': 'ong',  // ün -> ong（近似）
+    'un': 'ong',
   };
 
   // 先尝试后鼻音转前鼻音
   for (const [back, front] of Object.entries(backToFront)) {
     if (base.endsWith(back)) {
-      return base.slice(0, -back.length) + front + tone;
+      const converted = base.slice(0, -back.length) + front;
+      return applyTone(converted, tone);
     }
   }
 
   // 再尝试前鼻音转后鼻音
   for (const [front, back] of Object.entries(frontToBack)) {
     if (base.endsWith(front)) {
-      return base.slice(0, -front.length) + back + tone;
+      const converted = base.slice(0, -front.length) + back;
+      return applyTone(converted, tone);
     }
   }
 
