@@ -150,14 +150,14 @@
     box-shadow: var(--shadow-button);
   }
 
-  /* 米字格背景 - 简洁虚线版本，参考传统练习本样式 */
+  /* 田字格背景 - 只有水平和垂直中线 */
   .mizige {
     position: relative;
     background-color: #fff;
     border: 2px solid #e0e0e0;
   }
 
-  /* 米字格的虚线线条 */
+  /* 田字格的虚线线条 */
   .mizige::before {
     content: '';
     position: absolute;
@@ -166,33 +166,16 @@
       /* 水平中线虚线 */
       linear-gradient(to right, #ccc 50%, transparent 50%),
       /* 垂直中线虚线 */
-      linear-gradient(to bottom, #ccc 50%, transparent 50%),
-      /* 对角虚线 */
-      linear-gradient(45deg, transparent 49.5%, #ddd 49.5%, #ddd 50.5%, transparent 50.5%),
-      linear-gradient(-45deg, transparent 49.5%, #ddd 49.5%, #ddd 50.5%, transparent 50.5%);
+      linear-gradient(to bottom, #ccc 50%, transparent 50%);
     background-size:
       100% 2px,
-      2px 100%,
-      100% 100%,
-      100% 100%;
+      2px 100%;
     background-position:
       center,
-      center,
-      0 0,
-      0 0;
+      center;
     background-repeat: no-repeat;
     pointer-events: none;
     opacity: 0.6;
-  }
-
-  /* 外边框四角装饰（可选） */
-  .mizige::after {
-    content: '';
-    position: absolute;
-    inset: 4px;
-    border: 1px dashed #e0e0e0;
-    border-radius: 4px;
-    pointer-events: none;
   }
 
   .stroke-grid {
