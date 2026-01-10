@@ -162,6 +162,7 @@
     content: '';
     position: absolute;
     inset: 0;
+    z-index: 0;
     background-image:
       /* 水平中线虚线 - 浅灰色 */
       repeating-linear-gradient(
@@ -187,6 +188,13 @@
       center;
     background-repeat: no-repeat;
     pointer-events: none;
+  }
+
+  /* 确保 mizige 内的 SVG/canvas 内容在上层 */
+  .mizige svg,
+  .mizige canvas {
+    position: relative;
+    z-index: 1;
   }
 
   .stroke-grid {
