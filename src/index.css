@@ -150,11 +150,11 @@
     box-shadow: var(--shadow-button);
   }
 
-  /* 田字格背景 - 红色边框 + 浅灰色虚线中线 */
+  /* 田字格背景 - 黑色边框 + 浅灰色虚线中线 */
   .mizige {
     position: relative;
     background-color: #fff;
-    border: 2px solid #ff6b6b;
+    border: 2px solid #333;
   }
 
   /* 田字格的虚线线条 - 浅灰色不影响汉字 */
