@@ -214,6 +214,47 @@ export const generateQuizQuestions = (
 
 // ==================== 专项训练题目生成 ====================
 
+// 转换鼻音类型（用于生成鼻音测试的干扰项）
+// 例如：guāng -> guān, shān -> shāng
+const convertNasal = (pinyin: string): string => {
+  const tone = pinyin.slice(-1); // 获取声调
+  const base = pinyin.slice(0, -1); // 去掉声调后的拼音
+
+  // 后鼻音转前鼻音
+  const backToFront: Record<string, string> = {
+    'ang': 'an',
+    'eng': 'en',
+    'ing': 'in',
+    'ong': 'on',
+  };
+
+  // 前鼻音转后鼻音
+  const frontToBack: Record<string, string> = {
+    'an': 'ang',
+    'en': 'eng',
+    'in': 'ing',
+    'un': 'ong',  // un -> ong（近似）
+    'ün': 'ong',  // ün -> ong（近似）
+  };
+
+  // 先尝试后鼻音转前鼻音
+  for (const [back, front] of Object.entries(backToFront)) {
+    if (base.endsWith(back)) {
+      return base.slice(0, -back.length) + front + tone;
+    }
+  }
+
+  // 再尝试前鼻音转后鼻音
+  for (const [front, back] of Object.entries(frontToBack)) {
+    if (base.endsWith(front)) {
+      return base.slice(0, -front.length) + back + tone;
+    }
+  }
+
+  // 如果都不是，返回原拼音
+  return pinyin;
+};
+
 // 获取专项训练用的错误拼音（从相反类型中选择，增强干扰效果）
 const getSpecialWrongPinyins = (
   correctPinyin: string,
@@ -232,13 +273,18 @@ const getSpecialWrongPinyins = (
   const correctCategory = getPinyinCategory(correctPinyin, mode);
 
   if (mode === 'nasal') {
-    // 如果正确答案是前鼻音，干扰项选后鼻音，反之亦然
+    // 鼻音模式：生成转换后的拼音
+    const converted = convertNasal(correctPinyin);
+    if (converted !== correctPinyin) {
+      return [converted];
+    }
+    // 如果转换失败，使用数据库中的相反类型拼音
     oppositePinyins = uniquePinyins.filter(p => {
       const category = getPinyinCategory(p, mode);
       return category !== 'unknown' && category !== correctCategory;
     });
   } else if (mode === 'tongue') {
-    // 如果正确答案是平舌音，干扰项选翘舌音，反之亦然
+    // 舌位模式：平舌音和翘舌音保持四个选项
     oppositePinyins = uniquePinyins.filter(p => {
       const category = getPinyinCategory(p, mode);
       return category !== 'unknown' && category !== correctCategory;
@@ -301,7 +347,10 @@ export const generateSpecialQuizQuestions = (
     }
 
     // 使用专项训练的错误选项生成方式
-    const wrongOptions = getSpecialWrongPinyins(correctPinyin, 3, mode);
+    // 鼻音模式：2个选项（正确 + 转换后的相反类型）
+    // 舌位模式：4个选项（正确 + 3个干扰项）
+    const wrongCount = mode === 'nasal' ? 1 : 3;
+    const wrongOptions = getSpecialWrongPinyins(correctPinyin, wrongCount, mode);
     const options = shuffleArray([correctPinyin, ...wrongOptions]);
 
     questions.push({

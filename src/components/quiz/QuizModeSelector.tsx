@@ -17,9 +17,9 @@ export const QuizModeSelector = ({
   onCountChange,
 }: QuizModeSelectorProps) => {
   const modes = [
-    { value: 'comprehensive' as QuizMode, label: '综合测试', icon: Globe, description: '所有拼音类型混合测试' },
-    { value: 'nasal' as QuizMode, label: '鼻音区分', icon: Volume2, description: '前后鼻音专项训练' },
-    { value: 'tongue' as QuizMode, label: '舌位区分', icon: GraduationCap, description: '平翘舌音专项训练' },
+    { value: 'comprehensive' as QuizMode, label: '综合测试', icon: Globe, description: '所有拼音类型混合测试（4选项）' },
+    { value: 'nasal' as QuizMode, label: '鼻音区分', icon: Volume2, description: '前后鼻音二选一专项训练' },
+    { value: 'tongue' as QuizMode, label: '舌位区分', icon: GraduationCap, description: '平翘舌音专项训练（4选项）' },
   ];
 
   return (
@@ -75,7 +75,7 @@ export const QuizModeSelector = ({
         {/* 模式说明 */}
         {mode === 'nasal' && (
           <div className="text-sm text-muted-foreground bg-secondary/50 p-4 rounded-lg space-y-2">
-            <p className="font-medium text-foreground">鼻音区分训练：</p>
+            <p className="font-medium text-foreground">鼻音区分训练（2个选项）：</p>
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <span className="font-medium text-primary">前鼻音：</span>
@@ -86,7 +86,7 @@ export const QuizModeSelector = ({
                 <span>ang, eng, ing, ong</span>
               </div>
             </div>
-            <p className="text-xs mt-2">例如：山(shān) vs 光(guāng)</p>
+            <p className="text-xs mt-2">例如：光(guāng) vs guān（二选一）</p>
           </div>
         )}
         {mode === 'tongue' && (
