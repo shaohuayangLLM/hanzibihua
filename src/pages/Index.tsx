@@ -137,8 +137,8 @@ const Index = () => {
               <div className="w-full lg:w-auto flex flex-col items-center gap-6">
                 {/* Large character display */}
                 <div className="relative">
-                  <div className="w-32 h-32 rounded-2xl bg-secondary flex items-center justify-center">
-                    <span className="text-7xl font-brush text-foreground">
+                  <div className="w-32 h-32 rounded-2xl mizige flex items-center justify-center shadow-md">
+                    <span className="text-7xl font-kaiti text-foreground">
                       {character}
                     </span>
                   </div>
@@ -174,7 +174,7 @@ const Index = () => {
 
       {/* Footer */}
       <footer className="w-full py-6 px-4 border-t border-border/50 mt-auto">
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="text-center text-sm text-muted-foreground font-kaiti">
           专为一年级小朋友设计 ❤️ 快乐学汉字
         </p>
       </footer>

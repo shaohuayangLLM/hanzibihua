@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+/* 楷书字体 - 使用系统楷书优先，降级到 web 字体 */
+@import url('https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Long+Cang&family=Ma+Shan+Zheng&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -123,12 +124,19 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Noto Sans SC', sans-serif;
+    @apply bg-background text-foreground antialiased;
+    /* 楷书字体栈：系统楷书 -> web 楷书 -> 通用字体 */
+    font-family: 'STKaiti', 'KaiTi', '楷体', 'AR PL UKai CN', 'AR PL KaitiM GB',
+                 'Long Cang', 'Ma Shan Zheng', '楷体', serif;
+  }
+
+  .font-kaiti {
+    font-family: 'STKaiti', 'KaiTi', '楷体', 'AR PL UKai CN', 'AR PL KaitiM GB',
+                 'Long Cang', 'Ma Shan Zheng', serif;
   }
 
   .font-brush {
-    font-family: 'Ma Shan Zheng', cursive;
+    font-family: 'Ma Shan Zheng', 'Long Cang', cursive;
   }
 }
 
@@ -142,8 +150,73 @@
     box-shadow: var(--shadow-button);
   }
 
+  /* 米字格背景 - 用于汉字学习和练习 */
+  .mizige {
+    position: relative;
+    background-color: #fff;
+    border: 2px solid #d45d3e;
+  }
+
+  /* 米字格的线条 */
+  .mizige::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      /* 虚线对角线 */
+      linear-gradient(45deg, transparent 49.5%, #e57373 49.5%, #e57373 50.5%, transparent 50.5%),
+      linear-gradient(-45deg, transparent 49.5%, #e57373 49.5%, #e57373 50.5%, transparent 50.5%),
+      /* 实线十字 */
+      linear-gradient(to right, #d45d3e 1px, transparent 1px),
+      linear-gradient(to bottom, #d45d3e 1px, transparent 1px);
+    background-size:
+      100% 100%,
+      100% 100%,
+      50% 100%,
+      100% 50%;
+    background-position:
+      0 0,
+      0 0,
+      center,
+      center;
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  /* 米字格的虚线对角线（更精细的版本） */
+  .mizige-dashed {
+    position: relative;
+    background-color: #fff;
+    border: 2px solid #d45d3e;
+  }
+
+  .mizige-dashed::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      /* 虚线对角线 */
+      repeating-linear-gradient(45deg, #e57373 0, #e57373 4px, transparent 4px, transparent 8px),
+      repeating-linear-gradient(-45deg, #e57373 0, #e57373 4px, transparent 4px, transparent 8px),
+      /* 实线十字中线 */
+      linear-gradient(to right, #d45d3e 1px, transparent 1px),
+      linear-gradient(to bottom, #d45d3e 1px, transparent 1px);
+    background-size:
+      100% 100%,
+      100% 100%,
+      50% 100%,
+      100% 50%;
+    background-position:
+      0 0,
+      0 0,
+      center,
+      center;
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
   .stroke-grid {
-    background-image: 
+    background-image:
       linear-gradient(hsl(var(--stroke-outline)) 1px, transparent 1px),
       linear-gradient(90deg, hsl(var(--stroke-outline)) 1px, transparent 1px),
       linear-gradient(hsl(var(--stroke-outline) / 0.3) 1px, transparent 1px),

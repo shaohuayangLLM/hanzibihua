@@ -37,7 +37,7 @@ export const QuestionCard = ({
 
         {/* 汉字显示 */}
         <div className="py-8">
-          <div className="text-9xl font-brush text-foreground">
+          <div className="text-9xl font-kaiti text-foreground">
             {character}
           </div>
         </div>

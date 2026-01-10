@@ -112,12 +112,12 @@ export const StrokeDisplay = ({ character }: StrokeDisplayProps) => {
       <div className="relative">
         <div
           ref={containerRef}
-          className="w-[200px] h-[200px] rounded-2xl bg-card border-2 border-border stroke-grid flex items-center justify-center"
+          className="w-[200px] h-[200px] rounded-2xl mizige flex items-center justify-center shadow-md"
         />
-        
+
         {/* Stroke counter badge */}
-        <div className="absolute -top-3 -right-3 bg-primary text-primary-foreground text-sm font-bold px-3 py-1 rounded-full shadow-button">
-          {currentStroke}/{totalStrokes}笔
+        <div className="absolute -top-3 -right-3 bg-primary text-primary-foreground text-sm font-bold px-3 py-1 rounded-full shadow-button font-kaiti">
+          {currentStroke}/{totalStrokes} 笔
         </div>
       </div>
 
