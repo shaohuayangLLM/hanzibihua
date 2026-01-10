@@ -40,7 +40,11 @@
     --stroke-active: 0 80% 55%;
     --stroke-complete: 25 20% 25%;
     --stroke-outline: 200 20% 75%;
-    
+
+    /* Quiz colors */
+    --quiz-correct: 142 76% 36%;
+    --quiz-wrong: 0 84% 60%;
+
     /* Gradient backgrounds */
     --gradient-warm: linear-gradient(135deg, hsl(45 100% 96%) 0%, hsl(35 100% 94%) 100%);
     --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(45 50% 98%) 100%);
@@ -190,6 +194,39 @@
     to {
       opacity: 1;
       transform: scale(1);
+    }
+  }
+
+  /* Quiz animations */
+  .animate-correct-pulse {
+    animation: correct-pulse 0.5s ease-out;
+  }
+
+  @keyframes correct-pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.15);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .animate-wrong-shake {
+    animation: wrong-shake 0.5s ease-out;
+  }
+
+  @keyframes wrong-shake {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    20%, 60% {
+      transform: translateX(-8px);
+    }
+    40%, 80% {
+      transform: translateX(8px);
     }
   }
 }

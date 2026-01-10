@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { CharacterInput } from "@/components/CharacterInput";
 import { StrokeDisplay } from "@/components/StrokeDisplay";
 import { StrokeSteps } from "@/components/StrokeSteps";
@@ -10,6 +11,7 @@ import { type TextbookVolume } from "@/data/types";
 import { Pencil, Sparkles, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const [character, setCharacter] = useState<string>("");
@@ -80,13 +82,20 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="w-full py-6 px-4 border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto flex items-center justify-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-button">
-            <Pencil className="h-5 w-5 text-primary-foreground" />
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-button">
+              <Pencil className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <h1 className="text-2xl font-bold text-foreground">
+              汉字笔顺学习
+            </h1>
           </div>
-          <h1 className="text-2xl font-bold text-foreground">
-            汉字笔顺学习
-          </h1>
+          <Link to="/quiz">
+            <Button variant="outline" size="sm">
+              拼音测试
+            </Button>
+          </Link>
         </div>
       </header>
 
