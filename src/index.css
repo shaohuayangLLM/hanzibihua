@@ -150,32 +150,32 @@
     box-shadow: var(--shadow-button);
   }
 
-  /* 田字格背景 - 标准样式：红色实线边框 + 红色虚线中线 */
+  /* 田字格背景 - 红色边框 + 浅灰色虚线中线 */
   .mizige {
     position: relative;
     background-color: #fff;
     border: 2px solid #ff6b6b;
   }
 
-  /* 田字格的虚线线条 - 使用 SVG background 实现更好的虚线效果 */
+  /* 田字格的虚线线条 - 浅灰色不影响汉字 */
   .mizige::before {
     content: '';
     position: absolute;
     inset: 0;
     background-image:
-      /* 水平中线虚线 */
+      /* 水平中线虚线 - 浅灰色 */
       repeating-linear-gradient(
         to right,
-        #ff6b6b 0px,
-        #ff6b6b 8px,
+        #d0d0d0 0px,
+        #d0d0d0 8px,
         transparent 8px,
         transparent 16px
       ),
-      /* 垂直中线虚线 */
+      /* 垂直中线虚线 - 浅灰色 */
       repeating-linear-gradient(
         to bottom,
-        #ff6b6b 0px,
-        #ff6b6b 8px,
+        #d0d0d0 0px,
+        #d0d0d0 8px,
         transparent 8px,
         transparent 16px
       );
