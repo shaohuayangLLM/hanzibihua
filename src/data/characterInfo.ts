@@ -302,6 +302,47 @@ const convertNasal = (pinyin: string): string => {
   return pinyin;
 };
 
+// 转换舌位类型（用于生成舌位测试的干扰项）
+// 例如：shí -> sí, zǒu -> zhǒu, rì -> zì
+const convertTongue = (pinyin: string): string => {
+  const tone = extractTone(pinyin);
+  const base = removeTones(pinyin);
+
+  // 翘舌音转平舌音
+  const curledToFlat: Record<string, string> = {
+    'zh': 'z',
+    'ch': 'c',
+    'sh': 's',
+    'r': 'z',  // r 没有直接对应的平舌音，用 z 代替
+  };
+
+  // 平舌音转翘舌音
+  const flatToCurled: Record<string, string> = {
+    'z': 'zh',
+    'c': 'ch',
+    's': 'sh',
+  };
+
+  // 先尝试翘舌音转平舌音
+  for (const [curled, flat] of Object.entries(curledToFlat)) {
+    if (base.startsWith(curled)) {
+      const converted = flat + base.slice(curled.length);
+      return applyTone(converted, tone);
+    }
+  }
+
+  // 再尝试平舌音转翘舌音
+  for (const [flat, curled] of Object.entries(flatToCurled)) {
+    if (base.startsWith(flat)) {
+      const converted = curled + base.slice(flat.length);
+      return applyTone(converted, tone);
+    }
+  }
+
+  // 如果都不是，返回原拼音
+  return pinyin;
+};
+
 // 获取专项训练用的错误拼音（从相反类型中选择，增强干扰效果）
 const getSpecialWrongPinyins = (
   correctPinyin: string,
@@ -331,7 +372,12 @@ const getSpecialWrongPinyins = (
       return category !== 'unknown' && category !== correctCategory;
     });
   } else if (mode === 'tongue') {
-    // 舌位模式：平舌音和翘舌音保持四个选项
+    // 舌位模式：生成转换后的拼音
+    const converted = convertTongue(correctPinyin);
+    if (converted !== correctPinyin) {
+      return [converted];
+    }
+    // 如果转换失败，使用数据库中的相反类型拼音
     oppositePinyins = uniquePinyins.filter(p => {
       const category = getPinyinCategory(p, mode);
       return category !== 'unknown' && category !== correctCategory;
@@ -395,8 +441,8 @@ export const generateSpecialQuizQuestions = (
 
     // 使用专项训练的错误选项生成方式
     // 鼻音模式：2个选项（正确 + 转换后的相反类型）
-    // 舌位模式：4个选项（正确 + 3个干扰项）
-    const wrongCount = mode === 'nasal' ? 1 : 3;
+    // 舌位模式：2个选项（正确 + 转换后的相反类型）
+    const wrongCount = 1;
     const wrongOptions = getSpecialWrongPinyins(correctPinyin, wrongCount, mode);
     const options = shuffleArray([correctPinyin, ...wrongOptions]);
 
