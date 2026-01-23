@@ -35,6 +35,14 @@ export const CHINESE_MODULES: ChineseModule[] = [
     route: '/radicals',
   },
   {
+    id: 'stroke-names',
+    title: '笔画名称表',
+    icon: '㇀',
+    color: 'bg-orange-500',
+    description: '认识汉字的基本笔画',
+    route: '/stroke-names',
+  },
+  {
     id: 'polyphone',
     title: '多音字练习',
     icon: '📚',
@@ -73,6 +81,7 @@ export const CHINESE_MODULES: ChineseModule[] = [
     color: 'bg-indigo-500',
     description: '学习常见的词语搭配组合',
     route: '/word-collocation',
+    disabled: true,
   },
   {
     id: 'sentence-expansion',
@@ -81,14 +90,7 @@ export const CHINESE_MODULES: ChineseModule[] = [
     color: 'bg-teal-500',
     description: '把简单的句子扩写得更丰富',
     route: '/sentence-expansion',
-  },
-  {
-    id: 'stroke-names',
-    title: '笔画名称表',
-    icon: '㇀',
-    color: 'bg-orange-500',
-    description: '认识汉字的基本笔画',
-    route: '/stroke-names',
+    disabled: true,
   },
 ];
 

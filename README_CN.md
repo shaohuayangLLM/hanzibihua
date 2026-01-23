@@ -13,6 +13,7 @@
 | 功能 | 说明 |
 |------|------|
 | 🖊️ **笔画动画** | 使用 HanziWriter 库展示汉字的逐笔书写动画 |
+| 📋 **笔画名称表** | 30+ 种基本与复合笔画全量学习，支持高亮定位与动态演示 |
 | 📝 **笔顺步骤** | 分步骤展示每一笔的书写顺序 |
 | 🔤 **拼音释义** | 显示汉字的拼音、含义、部首、结构 |
 | 📚 **教材筛选** | 支持按一年级上册/下册筛选生字 |
@@ -72,6 +73,9 @@ K12-Education/
 │   │   ├── CharacterInput.tsx      # 汉字输入框
 │   │   ├── StrokeDisplay.tsx       # 笔画动画组件
 │   │   ├── StrokeSteps.tsx         # 笔顺步骤展示
+│   │   ├── strokes/                # 笔画名称专用组件
+│   │   │   ├── StrokeCardDisplay.tsx # 静态高亮缩略图
+│   │   │   └── StrokeAnimation.tsx   # 动态书写演示
 │   │   └── TextbookSelector.tsx    # 教材选择器
 │   ├── data/              # 数据文件
 │   │   ├── baseCharacters.ts       # 基础汉字数据
