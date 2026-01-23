@@ -10,6 +10,11 @@ import PinyinBasics from "./pages/PinyinBasics";
 import RadicalLearning from "./pages/RadicalLearning";
 import PolyphonePractice from "./pages/PolyphonePractice";
 import SimilarCharacters from "./pages/SimilarCharacters";
+import QuantityWordPractice from "./pages/QuantityWordPractice";
+import AntonymSynonymPractice from "./pages/AntonymSynonymPractice";
+import WordCollocationPractice from "./pages/WordCollocationPractice";
+import SentenceExpansionPractice from "./pages/SentenceExpansionPractice";
+import StrokeNames from "./pages/StrokeNames";
 import NotFound from "./pages/NotFound";
 import MathHome from "./pages/math/Home";
 import MathModulePage from "./pages/math/ModulePage";
@@ -32,6 +37,11 @@ const App = () => (
           <Route path="/radicals" element={<RadicalLearning />} />
           <Route path="/polyphone" element={<PolyphonePractice />} />
           <Route path="/similar-characters" element={<SimilarCharacters />} />
+          <Route path="/quantity-words" element={<QuantityWordPractice />} />
+          <Route path="/antonym-synonym" element={<AntonymSynonymPractice />} />
+          <Route path="/word-collocation" element={<WordCollocationPractice />} />
+          <Route path="/sentence-expansion" element={<SentenceExpansionPractice />} />
+          <Route path="/stroke-names" element={<StrokeNames />} />
           <Route path="/install" element={<Install />} />
           {/* Math Module Routes */}
           <Route path="/math" element={<MathHome />} />

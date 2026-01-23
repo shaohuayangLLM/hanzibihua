@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { CharacterInput } from "@/components/CharacterInput";
 import { StrokeDisplay } from "@/components/StrokeDisplay";
 import { StrokeSteps } from "@/components/StrokeSteps";
@@ -9,12 +9,11 @@ import Pencil from 'lucide-react/dist/esm/icons/pencil';
 import Sparkles from 'lucide-react/dist/esm/icons/sparkles';
 import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import Calculator from 'lucide-react/dist/esm/icons/calculator';
-import Menu from 'lucide-react/dist/esm/icons/menu';
-import X from 'lucide-react/dist/esm/icons/x';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { MATH_MODULES } from "@/data/math/modules";
+import { CHINESE_MODULES } from "@/data/chinese/modules";
 
 type Subject = 'chinese' | 'math';
 
@@ -24,7 +23,6 @@ const Index = () => {
   const [character, setCharacter] = useState<string>("");
   const [characterInfo, setCharacterInfo] = useState<CharacterInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleCharacterSubmit = async (char: string) => {
     setCharacter(char);
@@ -90,38 +88,19 @@ const Index = () => {
       {/* Header */}
       <header className="w-full py-4 px-4 border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto">
-          {/* 第一行：图标、标题和菜单按钮 */}
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-button ${subject === 'chinese' ? 'bg-primary' : 'bg-purple-500'}`}>
-                {subject === 'chinese' ? (
-                  <Pencil className="h-5 w-5 text-primary-foreground" />
-                ) : (
-                  <Calculator className="h-5 w-5 text-white" />
-                )}
-              </div>
-              <h1 className="text-xl font-bold text-foreground">
-                {subject === 'chinese' ? '一年级学习' : '一年级数学'}
-              </h1>
+          {/* 一行：图标、标题和学科切换 */}
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-button ${subject === 'chinese' ? 'bg-primary' : 'bg-purple-500'}`}>
+              {subject === 'chinese' ? (
+                <Pencil className="h-5 w-5 text-primary-foreground" />
+              ) : (
+                <Calculator className="h-5 w-5 text-white" />
+              )}
             </div>
+            <h1 className="text-xl font-bold text-foreground">
+              {subject === 'chinese' ? '一年级学习' : '一年级数学'}
+            </h1>
 
-            {/* 移动端菜单按钮 */}
-            {subject === 'chinese' && (
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors"
-              >
-                {mobileMenuOpen ? (
-                  <X className="h-5 w-5" />
-                ) : (
-                  <Menu className="h-5 w-5" />
-                )}
-              </button>
-            )}
-          </div>
-
-          {/* 第二行：学科切换和快速链接 */}
-          <div className="flex items-center justify-between gap-2">
             {/* Subject Tabs */}
             <div className="flex items-center gap-2">
               <button
@@ -145,88 +124,11 @@ const Index = () => {
                 🔢 数学
               </button>
             </div>
-
-            {/* Quick links - 桌面端显示 */}
-            {subject === 'chinese' && (
-              <div className="hidden md:flex items-center gap-2">
-                <Link to="/pinyin-basics" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="outline" size="sm">
-                    拼音基础
-                  </Button>
-                </Link>
-                <Link to="/quiz" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="outline" size="sm">
-                    拼音测试
-                  </Button>
-                </Link>
-                <Link to="/radicals" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="outline" size="sm">
-                    偏旁学习
-                  </Button>
-                </Link>
-                <Link to="/polyphone" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="outline" size="sm">
-                    多音字练习
-                  </Button>
-                </Link>
-                <Link to="/similar-characters" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="outline" size="sm">
-                    形近字
-                  </Button>
-                </Link>
-              </div>
-            )}
           </div>
-
-          {/* 移动端快速链接菜单 */}
-          {subject === 'chinese' && mobileMenuOpen && (
-            <div className="md:hidden mt-3 pt-3 border-t border-border/50 grid grid-cols-2 gap-2">
-              <Link
-                to="/pinyin-basics"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2 p-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
-              >
-                <span className="text-xl">🔤</span>
-                <span className="text-sm font-medium">拼音基础</span>
-              </Link>
-              <Link
-                to="/quiz"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2 p-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
-              >
-                <span className="text-xl">📝</span>
-                <span className="text-sm font-medium">拼音测试</span>
-              </Link>
-              <Link
-                to="/radicals"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2 p-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
-              >
-                <span className="text-xl">📖</span>
-                <span className="text-sm font-medium">偏旁学习</span>
-              </Link>
-              <Link
-                to="/polyphone"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2 p-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
-              >
-                <span className="text-xl">📚</span>
-                <span className="text-sm font-medium">多音字练习</span>
-              </Link>
-              <Link
-                to="/similar-characters"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2 p-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
-              >
-                <span className="text-xl">👀</span>
-                <span className="text-sm font-medium">形近字</span>
-              </Link>
-            </div>
-          )}
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-8">
+      <main className="max-w-4xl mx-auto px-4 py-6 space-y-8">
         {/* Chinese Subject Content */}
         {subject === 'chinese' && (
           <>
@@ -237,16 +139,84 @@ const Index = () => {
                 一年级小朋友专属
               </div>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-                一笔一画学汉字
+                选择学习模块
               </h2>
               <p className="text-muted-foreground max-w-md mx-auto">
-                输入一个汉字，看看它是怎么写的吧！
+                点击卡片开始学习，或在下方输入汉字查看笔画
               </p>
             </section>
 
-            {/* Input section */}
-            <section className="flex justify-center animate-scale-in" style={{ animationDelay: "0.1s" }}>
-              <CharacterInput onSubmit={handleCharacterSubmit} />
+            {/* Module Cards Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 animate-fade-in">
+              {CHINESE_MODULES.map((module) => (
+                <button
+                  key={module.id}
+                  onClick={() => !module.disabled && navigate(module.route)}
+                  disabled={module.disabled}
+                  className={`
+                    group relative p-6 rounded-2xl border-2
+                    shadow-md transition-all duration-300 text-left
+                    ${module.disabled
+                      ? 'bg-muted/30 border-muted opacity-50 cursor-not-allowed'
+                      : 'bg-card border-border hover:shadow-xl hover:scale-105 hover:border-primary active:scale-95'
+                    }
+                  `}
+                >
+                  {/* Icon */}
+                  <div className={`
+                    w-16 h-16 rounded-2xl ${module.color} flex items-center justify-center
+                    text-3xl mb-4 shadow-lg transition-transform pointer-events-none
+                    ${module.disabled ? 'grayscale opacity-50' : 'group-hover:scale-110'}
+                  `}>
+                    {module.icon}
+                  </div>
+
+                  {/* Title */}
+                  <h3 className={`text-xl font-bold mb-2 transition-colors pointer-events-none ${
+                    module.disabled ? 'text-muted-foreground' : 'text-foreground group-hover:text-primary'
+                  }`}>
+                    {module.title}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-sm text-muted-foreground mb-4 pointer-events-none">
+                    {module.description}
+                  </p>
+
+                  {/* Status indicator */}
+                  <div className={`flex items-center font-medium text-sm pointer-events-none ${
+                    module.disabled ? 'text-muted-foreground' : 'text-primary'
+                  }`}>
+                    {module.disabled ? (
+                      <>🚧 暂不可用</>
+                    ) : (
+                      <>
+                        开始学习
+                        <span className="ml-1 transform group-hover:translate-x-1 transition-transform">
+                          →
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {/* Character Learning Section */}
+            <section className="animate-fade-in">
+              <div className="text-center space-y-4 pt-8 border-t border-border/50">
+                <h2 className="text-2xl font-bold text-foreground">
+                  汉字笔画学习
+                </h2>
+                <p className="text-muted-foreground">
+                  输入一个汉字，查看它的笔画顺序和详细信息
+                </p>
+              </div>
+
+              {/* Input section */}
+              <div className="flex justify-center mt-6 animate-scale-in">
+                <CharacterInput onSubmit={handleCharacterSubmit} />
+              </div>
             </section>
 
             {/* Loading state */}
