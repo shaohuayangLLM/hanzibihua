@@ -1,4 +1,6 @@
-import { Trophy, Target, TrendingUp } from "lucide-react";
+import Trophy from 'lucide-react/dist/esm/icons/trophy';
+import Target from 'lucide-react/dist/esm/icons/target';
+import TrendingUp from 'lucide-react/dist/esm/icons/trending-up';
 import { Card, CardContent } from "@/components/ui/card";
 
 interface QuizStatsProps {

@@ -64,8 +64,12 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Noto Sans SC', 'system-ui', 'sans-serif'],
-        brush: ['Ma Shan Zheng', 'cursive'],
+        sans: [
+          '-apple-system', 'BlinkMacSystemFont', 'SF Pro Text',
+          'Helvetica Neue', 'sans-serif'
+        ],
+        kaiti: ['KaiTi', '楷体'],
+        brush: ['KaiTi', '楷体'],
       },
       borderRadius: {
         lg: "var(--radius)",

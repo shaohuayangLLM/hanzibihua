@@ -73,7 +73,7 @@ export type QuizDifficulty = 'easy' | 'medium' | 'hard';
 // ==================== 专项训练相关类型 ====================
 
 // 专项训练模式
-export type QuizMode = 'comprehensive' | 'nasal' | 'tongue';
+export type QuizMode = 'comprehensive' | 'nasal' | 'tongue' | 'pronunciation';
 
 // 鼻音类型
 export type NasalType = 'front' | 'back' | 'mixed';
@@ -90,10 +90,38 @@ export interface QuizConfig {
   volume?: TextbookVolume;
 }
 
+// ==================== 发音测试相关类型 ====================
+
+// 语音识别结果
+export interface RecognitionResult {
+  transcript: string;      // 识别的汉字
+  confidence: number;      // 识别置信度 0-1
+}
+
+// 发音测试答案接口
+export interface PronunciationAnswer extends QuizAnswer {
+  recognizedChar: string;  // 用户朗读识别的汉字
+  confidence: number;      // 识别置信度
+}
+
+// 发音测试匹配结果
+export interface MatchResult {
+  isMatch: boolean;
+  recognizedChar: string;
+  recognizedPinyin: string;
+  targetChar: string;
+  targetPinyin: string;
+  toneMatch: boolean;
+  pinyinMatch: boolean;
+}
+
 // 拼音测试动作类型
 export type QuizAction =
   | { type: 'START'; questions: QuizQuestion[] }
   | { type: 'ANSWER'; answer: QuizAnswer }
   | { type: 'NEXT' }
   | { type: 'RESTART' }
-  | { type: 'EXIT' };
+  | { type: 'EXIT' }
+  | { type: 'PRONUNCIATION_START' }
+  | { type: 'PRONUNCIATION_RESULT'; result: RecognitionResult }
+  | { type: 'PRONUNCIATION_RETRY' };

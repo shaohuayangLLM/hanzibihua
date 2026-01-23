@@ -1,6 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Volume2, Globe, GraduationCap } from "lucide-react";
+import Volume2 from 'lucide-react/dist/esm/icons/volume-2';
+import Globe from 'lucide-react/dist/esm/icons/globe';
+import GraduationCap from 'lucide-react/dist/esm/icons/graduation-cap';
+import Mic from 'lucide-react/dist/esm/icons/mic';
 import type { QuizMode } from "@/data/types";
 
 interface QuizModeSelectorProps {
@@ -20,6 +23,7 @@ export const QuizModeSelector = ({
     { value: 'comprehensive' as QuizMode, label: '综合测试', icon: Globe, description: '所有拼音类型混合测试（4选项）' },
     { value: 'nasal' as QuizMode, label: '鼻音区分', icon: Volume2, description: '前后鼻音二选一专项训练' },
     { value: 'tongue' as QuizMode, label: '舌位区分', icon: GraduationCap, description: '平翘舌音二选一专项训练' },
+    { value: 'pronunciation' as QuizMode, label: '发音测试', icon: Mic, description: '朗读汉字，智能识别评分' },
   ];
 
   return (
@@ -103,6 +107,23 @@ export const QuizModeSelector = ({
               </div>
             </div>
             <p className="text-xs mt-2">例如：石(shí) vs sí（二选一）</p>
+          </div>
+        )}
+        {mode === 'pronunciation' && (
+          <div className="text-sm text-muted-foreground bg-secondary/50 p-4 rounded-lg space-y-2">
+            <p className="font-medium text-foreground">发音测试（AI 评分）：</p>
+            <p>点击麦克风按钮，大声朗读显示的汉字</p>
+            <div className="space-y-1 mt-2">
+              <div className="flex items-center gap-2">
+                <span className="text-green-600 dark:text-green-400">✓</span>
+                <span>发音正确（拼音 + 声调）</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-red-600 dark:text-red-400">✗</span>
+                <span>发音不准，可以重试</span>
+              </div>
+            </div>
+            <p className="text-xs mt-2">需要使用 Chrome 或 Edge 浏览器</p>
           </div>
         )}
       </CardContent>

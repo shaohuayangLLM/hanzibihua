@@ -1,27 +1,39 @@
 import { useState, useMemo } from "react";
 import { getCharacterListByVolume, getCharacterInfo } from "@/data/characterInfo";
-import { TextbookVolume } from "@/data/types";
 import { CharacterFilter } from "./CharacterFilter";
 
 interface CharacterGridProps {
-  volume: TextbookVolume;
   onSelect: (char: string) => void;
   selectedChar?: string;
 }
 
-export function CharacterGrid({ volume, onSelect, selectedChar }: CharacterGridProps) {
+export function CharacterGrid({ onSelect, selectedChar }: CharacterGridProps) {
   const [filters, setFilters] = useState({ pinyin: "", radical: "" });
-  
-  const characters = getCharacterListByVolume(volume);
+
+  // Get characters from all volumes combined
+  const volumes: Array<'grade1Vol1' | 'grade1Vol2'> = ['grade1Vol1', 'grade1Vol2'];
+  const allCharacters = useMemo(() => {
+    const combined: string[] = [];
+    volumes.forEach(vol => {
+      combined.push(...getCharacterListByVolume(vol));
+    });
+    return combined;
+  }, []);
 
   // Filter characters based on pinyin and radical
   const filteredCharacters = useMemo(() => {
     if (!filters.pinyin && !filters.radical) {
-      return characters;
+      return allCharacters;
     }
 
-    return characters.filter((char) => {
-      const info = getCharacterInfo(char, volume);
+    return allCharacters.filter((char) => {
+      // Try each volume to get character info
+      let info = null;
+      for (const vol of volumes) {
+        info = getCharacterInfo(char, vol);
+        if (info) break;
+      }
+
       if (!info) return false;
 
       // Check pinyin filter (match start of pinyin without tones)
@@ -41,20 +53,12 @@ export function CharacterGrid({ volume, onSelect, selectedChar }: CharacterGridP
 
       return true;
     });
-  }, [characters, filters, volume]);
+  }, [allCharacters, filters]);
 
-  if (volume === 'all') {
+  if (allCharacters.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        <p>请选择一个教材查看生字表</p>
-      </div>
-    );
-  }
-
-  if (characters.length === 0) {
-    return (
-      <div className="text-center py-8 text-muted-foreground">
-        <p>该教材暂无生字数据</p>
+        <p>暂无生字数据</p>
       </div>
     );
   }
@@ -63,10 +67,10 @@ export function CharacterGrid({ volume, onSelect, selectedChar }: CharacterGridP
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-foreground">
-          生字表
+          一年级生字表
         </h3>
         <span className="text-sm text-muted-foreground">
-          共 {filteredCharacters.length} / {characters.length} 个生字
+          共 {filteredCharacters.length} / {allCharacters.length} 个生字
         </span>
       </div>
 
@@ -83,8 +87,8 @@ export function CharacterGrid({ volume, onSelect, selectedChar }: CharacterGridP
               className={`
                 aspect-square rounded-lg text-xl font-medium
                 transition-all duration-200 hover:scale-105
-                ${selectedChar === char 
-                  ? 'bg-primary text-primary-foreground shadow-button' 
+                ${selectedChar === char
+                  ? 'bg-primary text-primary-foreground shadow-button'
                   : 'bg-secondary text-foreground hover:bg-secondary/80'
                 }
               `}

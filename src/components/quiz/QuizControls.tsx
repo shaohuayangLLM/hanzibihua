@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Home, RotateCcw } from "lucide-react";
+import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
+import Home from 'lucide-react/dist/esm/icons/home';
+import RotateCcw from 'lucide-react/dist/esm/icons/rotate-ccw';
 import { Card, CardContent } from "@/components/ui/card";
 
 interface QuizControlsProps {

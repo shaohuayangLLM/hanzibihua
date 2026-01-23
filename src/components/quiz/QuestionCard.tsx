@@ -1,6 +1,9 @@
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Volume2 from 'lucide-react/dist/esm/icons/volume-2';
 import { QuizOptions } from "./QuizOptions";
 import { QuizFeedback } from "./QuizFeedback";
+import { usePinyinSpeech } from "@/hooks/usePinyinSpeech";
 
 interface QuestionCardProps {
   character: string;
@@ -25,6 +28,8 @@ export const QuestionCard = ({
   isCorrect,
   onAnswer,
 }: QuestionCardProps) => {
+  const { speak } = usePinyinSpeech({ rate: 0.7 });
+
   return (
     <Card className="w-full max-w-2xl mx-auto p-8">
       <div className="text-center space-y-6">
@@ -36,12 +41,22 @@ export const QuestionCard = ({
         )}
 
         {/* 汉字显示 */}
-        <div className="flex justify-center py-8">
-          <div className="w-40 h-40 mizige rounded-2xl flex items-center justify-center">
-            <span className="text-9xl font-kaiti text-foreground relative z-10">
+        <div className="flex flex-col items-center gap-3 py-6">
+          <div className="w-32 h-32 sm:w-40 sm:h-40 mizige rounded-2xl flex items-center justify-center">
+            <span className="text-7xl sm:text-9xl font-medium text-foreground relative z-10">
               {character}
             </span>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 hover:scale-105 transition-transform"
+            onClick={() => speak(character)}
+            title="朗读汉字"
+          >
+            <Volume2 className="h-4 w-4" />
+            读音
+          </Button>
         </div>
 
         {/* 题目 */}

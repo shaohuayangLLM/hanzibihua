@@ -1,7 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download, Smartphone, Check, Share, Plus, MoreVertical } from "lucide-react";
+import Download from 'lucide-react/dist/esm/icons/download';
+import Smartphone from 'lucide-react/dist/esm/icons/smartphone';
+import Check from 'lucide-react/dist/esm/icons/check';
+import Share from 'lucide-react/dist/esm/icons/share';
+import Plus from 'lucide-react/dist/esm/icons/plus';
+import MoreVertical from 'lucide-react/dist/esm/icons/more-vertical';
 import { useNavigate } from "react-router-dom";
 
 interface BeforeInstallPromptEvent extends Event {

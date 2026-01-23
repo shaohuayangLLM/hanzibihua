@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
 import { PinyinTypeSelector } from "@/components/pinyinBasics/PinyinTypeSelector";
 import { PinyinGrid } from "@/components/pinyinBasics/PinyinGrid";
 import { PinyinDetailDialog } from "@/components/pinyinBasics/PinyinDetailDialog";
@@ -37,7 +37,7 @@ const PinyinBasics = () => {
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <h1 className="text-2xl font-bold text-foreground font-kaiti">
+            <h1 className="text-2xl font-bold text-foreground">
               拼音基础
             </h1>
           </div>

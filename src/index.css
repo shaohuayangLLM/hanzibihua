@@ -1,5 +1,5 @@
-/* 楷书字体 - 使用系统楷书优先，降级到 web 字体 */
-@import url('https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Long+Cang&family=Ma+Shan+Zheng&display=swap');
+/* Google Fonts - 仅用于笔刷字体 */
+@import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Long+Cang&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -125,18 +125,18 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    /* 楷书字体栈：系统楷书 -> web 楷书 -> 通用字体 */
-    font-family: 'STKaiti', 'KaiTi', '楷体', 'AR PL UKai CN', 'AR PL KaitiM GB',
-                 'Long Cang', 'Ma Shan Zheng', '楷体', serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   .font-kaiti {
-    font-family: 'STKaiti', 'KaiTi', '楷体', 'AR PL UKai CN', 'AR PL KaitiM GB',
-                 'Long Cang', 'Ma Shan Zheng', serif;
+    font-family: 'KaiTi', '楷体' !important;
   }
 
   .font-brush {
-    font-family: 'Ma Shan Zheng', 'Long Cang', cursive;
+    font-family: 'KaiTi', '楷体';
   }
 }
 

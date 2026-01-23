@@ -1,5 +1,14 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "devCommand": "npm run dev"
+  "devCommand": "npm run dev",
+  "env": {
+    "BAIDU_API_KEY": "FEDDwsd0CTWWf07ehKk3Fhmo",
+    "BAIDU_SECRET_KEY": "rZxFhIX5j4UCQo7ZKrToUr9Pt2HVjIFG"
+  },
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  }
 }

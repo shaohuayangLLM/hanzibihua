@@ -1,14 +1,17 @@
-import { useReducer, useState } from "react";
+import { useReducer, useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { generateQuizQuestions, generateSpecialQuizQuestions } from "@/data/characterInfo";
-import { QuizState, QuizAction, QuizAnswer, QuizMode } from "@/data/types";
+import { QuizState, QuizAction, QuizAnswer, QuizMode, RecognitionResult, MatchResult } from "@/data/types";
 import { QuestionCard } from "@/components/quiz/QuestionCard";
 import { QuizStats } from "@/components/quiz/QuizStats";
 import { QuizProgress } from "@/components/quiz/QuizProgress";
 import { QuizControls } from "@/components/quiz/QuizControls";
 import { QuizModeSelector } from "@/components/quiz/QuizModeSelector";
+import { PronunciationTestCard } from "@/components/quiz/PronunciationTestCard";
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
+import Pencil from 'lucide-react/dist/esm/icons/pencil';
+import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
+import { matchPronunciation } from "@/utils/pinyinMatcher";
 
 // Quiz reducer
 const quizReducer = (state: QuizState, action: QuizAction): QuizState => {
@@ -75,6 +78,42 @@ const quizReducer = (state: QuizState, action: QuizAction): QuizState => {
         maxStreak: 0,
       };
 
+    case 'PRONUNCIATION_START':
+      return state;
+
+    case 'PRONUNCIATION_RESULT':
+      // Match the pronunciation
+      const currentQ = state.questions[state.currentQuestion];
+      const matchResult = matchPronunciation(
+        action.result.transcript,
+        currentQ.character,
+        currentQ.correctPinyin
+      );
+
+      // Create answer record
+      const pronAnswerRecord: QuizAnswer = {
+        character: currentQ.character,
+        selectedAnswer: matchResult.recognizedPinyin,
+        correctAnswer: currentQ.correctPinyin,
+        isCorrect: matchResult.isMatch,
+      };
+
+      const isPronCorrect = matchResult.isMatch;
+      const newPronCorrectCount = state.correctCount + (isPronCorrect ? 1 : 0);
+      const newPronStreak = isPronCorrect ? state.streak + 1 : 0;
+      const newPronMaxStreak = Math.max(state.maxStreak, newPronStreak);
+
+      return {
+        ...state,
+        answers: [...state.answers, pronAnswerRecord],
+        correctCount: newPronCorrectCount,
+        streak: newPronStreak,
+        maxStreak: newPronMaxStreak,
+      };
+
+    case 'PRONUNCIATION_RETRY':
+      return state;
+
     default:
       return state;
   }
@@ -101,14 +140,74 @@ const PinyinQuiz = () => {
   const [quizMode, setQuizMode] = useState<QuizMode>('comprehensive');
   const [questionCount, setQuestionCount] = useState(10);
 
+  // Pronunciation mode state
+  const [pronunciationResult, setPronunciationResult] = useState<MatchResult | null>(null);
+
+  // Handle pronunciation final result
+  const handleFinalResult = useCallback((finalTranscript: string, finalConfidence: number) => {
+    if (quizMode !== 'pronunciation' || pronunciationResult !== null) return;
+
+    const result: RecognitionResult = {
+      transcript: finalTranscript,
+      confidence: finalConfidence,
+    };
+    dispatch({ type: 'PRONUNCIATION_RESULT', result });
+
+    // Calculate match result for display
+    const currentQ = state.questions[state.currentQuestion];
+    const matchResult = matchPronunciation(
+      finalTranscript,
+      currentQ.character,
+      currentQ.correctPinyin
+    );
+    setPronunciationResult(matchResult);
+
+    // Auto-advance after showing result for correct answers
+    if (matchResult.isMatch) {
+      setTimeout(() => {
+        dispatch({ type: 'NEXT' });
+        setSelectedAnswer(null);
+        setShowFeedback(false);
+        setPronunciationResult(null);
+        resetTranscript();
+      }, 2000);
+    }
+  }, [quizMode, pronunciationResult, state.questions, state.currentQuestion]);
+
+  // Use browser's Web Speech API
+  const {
+    isSupported: speechSupported,
+    isListening,
+    transcript,
+    confidence,
+    startListening,
+    stopListening,
+    resetTranscript,
+  } = useSpeechRecognition({
+    lang: 'zh-CN',
+    continuous: false,
+    interimResults: true,
+    maxAlternatives: 3,
+    onFinalResult: handleFinalResult,
+  });
+
+  // Handle start - for pronunciation mode, we don't need options
   const handleStart = () => {
-    const questions = quizMode === 'comprehensive'
-      ? generateQuizQuestions(questionCount, 'all')
-      : generateSpecialQuizQuestions(quizMode, questionCount, 'all');
+    let questions;
+    if (quizMode === 'pronunciation') {
+      // For pronunciation mode, use comprehensive questions but we won't use the options
+      questions = generateQuizQuestions(questionCount, 'all');
+    } else {
+      questions = quizMode === 'comprehensive'
+        ? generateQuizQuestions(questionCount, 'all')
+        : generateSpecialQuizQuestions(quizMode, questionCount, 'all');
+    }
 
     dispatch({ type: 'START', questions });
     setSelectedAnswer(null);
     setShowFeedback(false);
+    setPronunciationResult(null);
+    resetTranscript();
   };
 
   const handleAnswer = (answer: string) => {
@@ -136,12 +235,28 @@ const PinyinQuiz = () => {
     dispatch({ type: 'NEXT' });
     setSelectedAnswer(null);
     setShowFeedback(false);
+    setPronunciationResult(null);
+    resetTranscript();
   };
 
   const handleRestart = () => {
     dispatch({ type: 'RESTART' });
     setSelectedAnswer(null);
     setShowFeedback(false);
+    setPronunciationResult(null);
+    resetTranscript();
+  };
+
+  // Pronunciation mode handlers
+  const handleStartRecord = () => {
+    dispatch({ type: 'PRONUNCIATION_START' });
+    startListening();
+  };
+
+  const handleRetry = () => {
+    setPronunciationResult(null);
+    resetTranscript();
+    dispatch({ type: 'PRONUNCIATION_RETRY' });
   };
 
   const handleExit = () => {
@@ -203,18 +318,32 @@ const PinyinQuiz = () => {
               total={state.totalQuestions}
             />
 
-            {/* Question Card */}
-            <QuestionCard
-              character={currentQuestion.character}
-              contextSentence={currentQuestion.contextSentence}
-              options={currentQuestion.options}
-              questionNumber={state.currentQuestion + 1}
-              totalQuestions={state.totalQuestions}
-              selectedAnswer={selectedAnswer}
-              showFeedback={showFeedback}
-              isCorrect={isCorrect}
-              onAnswer={handleAnswer}
-            />
+            {/* Question Card - conditional based on mode */}
+            {quizMode === 'pronunciation' ? (
+              <PronunciationTestCard
+                character={currentQuestion.character}
+                correctPinyin={currentQuestion.correctPinyin}
+                questionNumber={state.currentQuestion + 1}
+                totalQuestions={state.totalQuestions}
+                isRecording={isListening}
+                result={pronunciationResult}
+                onStartRecord={handleStartRecord}
+                onRetry={handleRetry}
+                browserSupported={speechSupported}
+              />
+            ) : (
+              <QuestionCard
+                character={currentQuestion.character}
+                contextSentence={currentQuestion.contextSentence}
+                options={currentQuestion.options}
+                questionNumber={state.currentQuestion + 1}
+                totalQuestions={state.totalQuestions}
+                selectedAnswer={selectedAnswer}
+                showFeedback={showFeedback}
+                isCorrect={isCorrect}
+                onAnswer={handleAnswer}
+              />
+            )}
 
             {/* Controls */}
             <QuizControls
@@ -223,7 +352,7 @@ const PinyinQuiz = () => {
               onNext={handleNext}
               onRestart={handleRestart}
               onExit={handleExit}
-              canGoNext={showFeedback}
+              canGoNext={showFeedback || (quizMode === 'pronunciation' && pronunciationResult?.isMatch === true)}
             />
           </div>
         )}

@@ -24,3 +24,8 @@ dist-ssr
 *.sw?
 .vercel
 .env*.local
+
+# Learning materials and reference files
+一年级数学上
+一年级上偏旁关联*.xlsx
+一年级语文上学期知识点汇总.docx

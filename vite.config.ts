@@ -16,6 +16,8 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
+      // 不自动生成 registerSW.js
+      selfDeletingScope: true,
       includeAssets: ["favicon.ico", "pwa-192x192.png", "pwa-512x512.png"],
       manifest: {
         name: "汉字笔画学习",
@@ -61,6 +63,9 @@ export default defineConfig(({ mode }) => ({
             },
           },
         ],
+        // 强制立即更新 Service Worker
+        clientsClaim: true,
+        skipWaiting: true,
       },
     }),
   ].filter(Boolean),
