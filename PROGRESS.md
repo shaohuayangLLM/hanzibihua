@@ -1,5 +1,113 @@
 # K12-Education 项目开发进度
 
+## 2026-01-31 - 拼音组合练习功能
+
+### 新增功能
+- **拼音组合练习页面** (`/pinyin-combination`)
+  - 声母 × 韵母组合表格展示
+  - 370+ 个有效拼音组合数据
+  - 6 个声母分组按字母顺序排列（b p m f / d t n l / g k h / j q x / zh ch sh r / z c s）
+  - 只显示有有效组合的韵母行，节省空间
+  - 点击单元格展开详情弹窗，查看所有声调和例字
+
+### 数据结构设计
+- **拼音组合数据类型** (`src/types/pinyin.ts`)
+  - `CombinationData`: 按韵母索引的组合数据
+  - `CombinationItem`: 单个声母-韵母组合
+  - `ToneData`: 声调数据（拼音、声调、例字）
+  - `ToneExample`: 例字数据（汉字、词语、完整拼音）
+
+- **声母分组数据** (`src/data/pinyin/combinations/groups/`)
+  - `lipInitials.ts`: b p m f 唇音组合
+  - `tipInitials.ts`: d t n l 舌尖中音组合
+  - `rootInitials.ts`: g k h 舌根音组合
+  - `tongueInitials.ts`: j q x 舌面音组合
+  - `curlInitials.ts`: zh ch sh r 翘舌音组合
+  - `flatInitials.ts`: z c s 平舌音组合
+
+- **组合规则验证** (`src/data/pinyin/combinations/invalidRules.ts`)
+  - 基于《汉语拼音方案》的四呼拼合规则
+  - 齐齿呼（i 开头）、撮口呼（ü 开头）
+  - 合口呼（u 开头）、开口呼（a o e 开头）
+  - 声母分组有效性验证函数
+
+### UI 组件
+- **CombinationGrid**: 经典表格布局
+  - 固定表头（声母）和固定列（韵母）
+  - 单元格显示所有声调（最多4个）+ 汉字
+  - 斑马纹行背景，易于区分
+  - 点击展开详情，支持朗读
+
+- **CombinationDetailDialog**: 详情弹窗
+  - 显示所有声调的完整信息
+  - 田字格展示例字
+  - 词语和拼音展示
+  - 点击朗读功能
+
+### 布局设计
+- 设计了 4 种布局方案并创建了设计文档
+  - 方案一：经典表格（采用）
+  - 方案二：列表式
+  - 方案三：卡片瀑布流
+  - 方案四：分栏导航
+
+### 新增文件
+```
+src/types/pinyin.ts                           # 拼音相关类型定义
+src/pages/PinyinCombination.tsx               # 拼音组合页面
+src/components/pinyin/combination/
+  ├── CombinationGrid.tsx                     # 表格布局组件
+  └── CombinationCard.tsx                     # 卡片组件（废弃）
+src/data/pinyin/combinations/
+  ├── index.ts                                # 数据导出入口
+  ├── invalidRules.ts                         # 组合规则验证
+  └── groups/
+      ├── lipInitials.ts                      # b p m f 组合数据
+      ├── tipInitials.ts                      # d t n l 组合数据
+      ├── rootInitials.ts                     # g k h 组合数据
+      ├── tongueInitials.ts                   # j q x 组合数据
+      ├── curlInitials.ts                     # zh ch sh r 组合数据
+      └── flatInitials.ts                     # z c s 组合数据
+拼音组合布局设计.md                           # 布局设计文档
+```
+
+### 修改文件
+```
+src/App.tsx                                   # 添加 /pinyin-combination 路由
+src/pages/Index.tsx                           # 添加"拼音组合"入口按钮
+```
+
+### 技术实现
+- 使用 Map 构建双重索引查找（韵母 → 声母 → 组合）
+- CSS Grid 实现响应式表格布局
+- sticky 定位实现固定表头和固定列
+- 斑马纹背景通过行索引奇偶判断
+- 详情弹窗使用 fixed 定位和 backdrop 模糊
+
+### 数据修正
+- 根据 Excel 标准文件修正了组合数据
+  - 添加 `m+e` (me, 么)
+  - 添加 `sh+ei` (shei, 谁)
+  - 确认 `f+ao`、`t+ei` 无效
+  - 确认 `z,c,s` 不能与 `ua` 组合
+  - 确认 `zh,ch,sh` 可以与 `uang` 组合
+
+### 提交历史
+```
+[本次开发待提交]
+```
+
+---
+
+## 2026-01-24 - 形近字数据清理
+
+### 修正内容
+- **移除错误形近字条目**（`src/data/similarCharacters.ts`）
+  - 删除 13 组不准确的形近字组合（如：参/参、采/彩、后/候、配/佩、同/司、错/昨、明/名、运/动、某/梅、苹/凭、宽/宣、洲/舟、轻/青）。
+  - 形近字条目总数更新为 62 组。
+
+---
+
 ## 2025-01-23 - 笔画名称表功能重构与数据深炼
 
 ### 重大更新
@@ -454,10 +562,10 @@ src/data/characterInfo.ts # 添加前后鼻音、平翘舌音转换逻辑
 - [x] 按教材筛选汉字
 - [x] 拼音发音功能（Web Speech API）
 - [x] 偏旁部首学习（29个一年级上册偏旁）
+- [x] 拼音组合练习（370+ 组合，6个声母分组）
 
 ### 待开发
 - [ ] 发音口型动画
-- [ ] 拼音组合练习
 - [ ] 声调标注学习
 - [ ] 拼音书写练习
 - [ ] 用户学习进度保存

@@ -5,8 +5,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Install from "./pages/Install";
+import StrokeLearning from "./pages/StrokeLearning";
 import PinyinQuiz from "./pages/PinyinQuiz";
 import PinyinBasics from "./pages/PinyinBasics";
+import PinyinCombination from "./pages/PinyinCombination";
 import RadicalLearning from "./pages/RadicalLearning";
 import PolyphonePractice from "./pages/PolyphonePractice";
 import SimilarCharacters from "./pages/SimilarCharacters";
@@ -15,6 +17,9 @@ import AntonymSynonymPractice from "./pages/AntonymSynonymPractice";
 import WordCollocationPractice from "./pages/WordCollocationPractice";
 import SentenceExpansionPractice from "./pages/SentenceExpansionPractice";
 import StrokeNames from "./pages/StrokeNames";
+import CharacterFinder from "./pages/CharacterFinder";
+import FindDifferentGame from "./pages/FindDifferentGame";
+import PuzzleGame from "./pages/PuzzleGame";
 import NotFound from "./pages/NotFound";
 import MathHome from "./pages/math/Home";
 import MathModulePage from "./pages/math/ModulePage";
@@ -32,8 +37,10 @@ const App = () => (
       <BrowserRouter basename="/k12">
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/stroke-learning" element={<StrokeLearning />} />
           <Route path="/quiz" element={<PinyinQuiz />} />
           <Route path="/pinyin-basics" element={<PinyinBasics />} />
+          <Route path="/pinyin-combination" element={<PinyinCombination />} />
           <Route path="/radicals" element={<RadicalLearning />} />
           <Route path="/polyphone" element={<PolyphonePractice />} />
           <Route path="/similar-characters" element={<SimilarCharacters />} />
@@ -42,6 +49,9 @@ const App = () => (
           <Route path="/word-collocation" element={<WordCollocationPractice />} />
           <Route path="/sentence-expansion" element={<SentenceExpansionPractice />} />
           <Route path="/stroke-names" element={<StrokeNames />} />
+          <Route path="/character-finder" element={<CharacterFinder />} />
+          <Route path="/find-different" element={<FindDifferentGame />} />
+          <Route path="/puzzle-game" element={<PuzzleGame />} />
           <Route path="/install" element={<Install />} />
           {/* Math Module Routes */}
           <Route path="/math" element={<MathHome />} />

@@ -1,17 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CharacterInput } from "@/components/CharacterInput";
-import { StrokeDisplay } from "@/components/StrokeDisplay";
-import { StrokeSteps } from "@/components/StrokeSteps";
-import { CharacterDetails } from "@/components/CharacterDetails";
-import { getCharacterInfo, type CharacterInfo } from "@/data/characterInfo";
 import Pencil from 'lucide-react/dist/esm/icons/pencil';
 import Sparkles from 'lucide-react/dist/esm/icons/sparkles';
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import Calculator from 'lucide-react/dist/esm/icons/calculator';
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { MATH_MODULES } from "@/data/math/modules";
 import { CHINESE_MODULES } from "@/data/chinese/modules";
 
@@ -20,68 +11,6 @@ type Subject = 'chinese' | 'math';
 const Index = () => {
   const navigate = useNavigate();
   const [subject, setSubject] = useState<Subject>('chinese');
-  const [character, setCharacter] = useState<string>("");
-  const [characterInfo, setCharacterInfo] = useState<CharacterInfo | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleCharacterSubmit = async (char: string) => {
-    setCharacter(char);
-    setCharacterInfo(null);
-
-    // First check local database
-    const dbInfo = getCharacterInfo(char);
-    if (dbInfo) {
-      setCharacterInfo(dbInfo);
-      return;
-    }
-    
-    // If not in local database, fetch from AI
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('get-character-info', {
-        body: { character: char }
-      });
-
-      if (error) {
-        console.error('Edge function error:', error);
-        throw new Error(error.message || '获取汉字信息失败');
-      }
-
-      if (data.error) {
-        throw new Error(data.error);
-      }
-
-      // Validate and set character info
-      const info: CharacterInfo = {
-        character: data.character || char,
-        pinyin: data.pinyin || "暂无",
-        meaning: data.meaning || "暂无释义",
-        strokeCount: data.strokeCount || 0,
-        radicalInfo: data.radicalInfo || "暂无",
-        structure: data.structure,
-        words: Array.isArray(data.words) ? data.words : [],
-        sentences: Array.isArray(data.sentences) ? data.sentences : [],
-        additionalReadings: Array.isArray(data.additionalReadings) ? data.additionalReadings : [],
-      };
-
-      setCharacterInfo(info);
-    } catch (error) {
-      console.error('Failed to fetch character info:', error);
-      toast.error(error instanceof Error ? error.message : '获取汉字信息失败，请稍后再试');
-      // Set basic info as fallback
-      setCharacterInfo({
-        character: char,
-        pinyin: "暂无",
-        meaning: "获取信息失败，请稍后再试",
-        strokeCount: 0,
-        radicalInfo: "暂无",
-        words: [],
-        sentences: [],
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -142,7 +71,7 @@ const Index = () => {
                 选择学习模块
               </h2>
               <p className="text-muted-foreground max-w-md mx-auto">
-                点击卡片开始学习，或在下方输入汉字查看笔画
+                点击卡片开始学习，探索汉字的奥秘
               </p>
             </section>
 
@@ -201,63 +130,6 @@ const Index = () => {
                 </button>
               ))}
             </div>
-
-            {/* Character Learning Section */}
-            <section className="animate-fade-in">
-              <div className="text-center space-y-4 pt-8 border-t border-border/50">
-                <h2 className="text-2xl font-bold text-foreground">
-                  汉字笔画学习
-                </h2>
-                <p className="text-muted-foreground">
-                  输入一个汉字，查看它的笔画顺序和详细信息
-                </p>
-              </div>
-
-              {/* Input section */}
-              <div className="flex justify-center mt-6 animate-scale-in">
-                <CharacterInput onSubmit={handleCharacterSubmit} />
-              </div>
-            </section>
-
-            {/* Loading state */}
-            {isLoading && (
-              <div className="flex flex-col items-center justify-center py-12 animate-fade-in">
-                <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
-                <p className="text-muted-foreground">正在获取汉字信息...</p>
-              </div>
-            )}
-
-            {/* Results section */}
-            {character && !isLoading && (
-              <section className="space-y-8 animate-fade-in">
-                {/* Character display */}
-                <div className="flex flex-col lg:flex-row gap-8 items-start">
-                  {/* Left: Big character and animation */}
-                  <div className="w-full lg:w-auto flex flex-col items-center gap-6">
-                    {/* Large character display */}
-                    <div className="relative">
-                      <div className="w-32 h-32 rounded-2xl mizige flex items-center justify-center shadow-md">
-                        <span className="text-7xl font-kaiti text-foreground">
-                          {character}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Stroke animation */}
-                    <StrokeDisplay character={character} />
-                  </div>
-
-                  {/* Right: Steps and details */}
-                  <div className="flex-1 w-full space-y-6">
-                    {/* Stroke steps */}
-                    <StrokeSteps character={character} />
-
-                    {/* Character details */}
-                    {characterInfo && <CharacterDetails info={characterInfo} />}
-                  </div>
-                </div>
-              </section>
-            )}
           </>
         )}
 
