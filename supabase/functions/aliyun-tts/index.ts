@@ -1,5 +1,5 @@
-// 阿里云 Qwen3-TTS 语音合成 API
-// 使用 Model Studio API (基于 HTTP 调用)
+// 阿里云 Qwen-TTS 语音合成 API
+// 官方文档: https://help.aliyun.com/zh/model-studio/qwen-tts-api
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 
@@ -18,7 +18,7 @@ serve(async (req) => {
   }
 
   try {
-    const { text, model = 'cosyvoice-v1', voice = 'longxiaochun', speed = 1.0 } = await req.json();
+    const { text, model = 'qwen3-tts-flash', voice = 'Cherry', language_type = 'Chinese' } = await req.json();
 
     if (!text) {
       return new Response(
@@ -27,20 +27,17 @@ serve(async (req) => {
       );
     }
 
-    // 调用阿里云 Model Studio API
-    const apiUrl = 'https://dashscope.aliyuncs.com/api/v1/services/audio/tts-generation';
+    // 调用阿里云 Qwen-TTS API（正确的端点和格式）
+    const apiUrl = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation';
 
     const requestBody = {
       model,
-      input: {
-        text,
-      },
-      parameters: {
-        text_type: 'PlainText',
-        voice,
-        speed_rate: speed,
-      },
+      input: { text },
+      voice,
+      language_type,
     };
+
+    console.log('Calling Qwen-TTS API:', JSON.stringify(requestBody));
 
     const response = await fetch(apiUrl, {
       method: 'POST',
@@ -53,7 +50,7 @@ serve(async (req) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Aliyun TTS API error:', errorText);
+      console.error('Aliyun Qwen-TTS API error:', errorText);
       return new Response(
         JSON.stringify({ error: 'TTS API failed', details: errorText }),
         { status: response.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -62,9 +59,22 @@ serve(async (req) => {
 
     const data = await response.json();
 
-    // 返回音频 URL 或 base64 数据
+    // 检查响应状态
+    if (data.status_code !== 200) {
+      console.error('Qwen-TTS API error:', data);
+      return new Response(
+        JSON.stringify({ error: data.message || 'Unknown error', code: data.code }),
+        { status: data.status_code, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // 返回音频 URL
     return new Response(
-      JSON.stringify(data),
+      JSON.stringify({
+        audio_url: data.output?.audio?.url,
+        audio_id: data.output?.audio?.id,
+        characters: data.usage?.characters,
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 

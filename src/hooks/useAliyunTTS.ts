@@ -58,20 +58,23 @@ class AudioCacheManager {
     try {
       const { supabase } = await import('@/integrations/supabase/client');
       const { data, error } = await supabase.functions.invoke('aliyun-tts', {
-        body: { text, model: 'cosyvoice-v1', voice: voice || 'longxiaochun' },
+        body: {
+          text,
+          model: 'qwen3-tts-flash',
+          voice: voice || 'Cherry',
+          language_type: 'Chinese'
+        },
       });
 
-      if (data && !error) {
+      if (data && !error && data.audio_url) {
         // 如果返回的是音频 URL
-        if (data.output?.audio_url) {
-          const audio = new Audio(data.output.audio_url);
-          await new Promise((resolve, reject) => {
-            audio.addEventListener('canplaythrough', resolve);
-            audio.addEventListener('error', reject);
-            setTimeout(reject, 10000); // 10秒超时
-          });
-          return audio;
-        }
+        const audio = new Audio(data.audio_url);
+        await new Promise((resolve, reject) => {
+          audio.addEventListener('canplaythrough', resolve);
+          audio.addEventListener('error', reject);
+          setTimeout(reject, 10000); // 10秒超时
+        });
+        return audio;
       }
     } catch (error) {
       console.warn('Aliyun TTS failed, falling back to browser TTS:', error);
@@ -139,14 +142,13 @@ const audioCache = new AudioCacheManager();
 
 interface UseAliyunTTSOptions {
   voice?: string;
-  speed?: number;
   onPlayStart?: () => void;
   onPlayEnd?: () => void;
   onError?: (error: Error) => void;
 }
 
 export const useAliyunTTS = (options: UseAliyunTTSOptions = {}) => {
-  const { voice, speed = 1.0, onPlayStart, onPlayEnd, onError } = options;
+  const { voice = 'Cherry', onPlayStart, onPlayEnd, onError } = options;
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);

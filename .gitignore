@@ -30,3 +30,4 @@ dist-ssr
 一年级上偏旁关联*.xlsx
 一年级语文上学期知识点汇总.docx
 .vercel/
+.env.local
