@@ -1,5 +1,9 @@
 import { useCallback, useRef, useState } from 'react';
 
+// 阿里云 Qwen-TTS API 配置
+const ALIYUN_API_KEY = 'sk-02ec9469925d458f87276961356a0a10';
+const API_URL = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation';
+
 // 音频缓存管理器
 class AudioCacheManager {
   private cache: Map<string, HTMLAudioElement> = new Map();
@@ -54,34 +58,61 @@ class AudioCacheManager {
 
   // 加载音频（带降级方案）
   private async loadAudio(text: string, voice?: string): Promise<HTMLAudioElement> {
-    // 1. 尝试从 Supabase Edge Function 获取
+    // 1. 直接调用阿里云 Qwen-TTS API
     try {
-      const { supabase } = await import('@/integrations/supabase/client');
-      const { data, error } = await supabase.functions.invoke('aliyun-tts', {
-        body: {
-          text,
-          model: 'qwen3-tts-flash',
-          voice: voice || 'Cherry',
-          language_type: 'Chinese'
+      console.log('[Aliyun TTS] Calling API:', { text, voice });
+
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${ALIYUN_API_KEY}`,
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          model: 'qwen3-tts-flash',
+          input: { text },
+          voice: voice || 'Cherry',
+          language_type: 'Chinese',
+        }),
       });
 
-      if (data && !error && data.audio_url) {
-        // 如果返回的是音频 URL
-        const audio = new Audio(data.audio_url);
-        await new Promise((resolve, reject) => {
-          audio.addEventListener('canplaythrough', resolve);
-          audio.addEventListener('error', reject);
-          setTimeout(reject, 10000); // 10秒超时
-        });
-        return audio;
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: response.statusText }));
+        console.error('[Aliyun TTS] API error:', errorData);
+        throw new Error(errorData.message || 'TTS API failed');
       }
-    } catch (error) {
-      console.warn('Aliyun TTS failed, falling back to browser TTS:', error);
-    }
 
-    // 2. 降级到浏览器语音合成（使用 Edge Speech 或 Web Speech API）
-    return this.createSpeechAudio(text);
+      const data = await response.json();
+
+      // 检查响应状态
+      if (data.status_code !== 200) {
+        console.error('[Aliyun TTS] API error:', data);
+        throw new Error(data.message || 'Unknown error');
+      }
+
+      // 获取音频 URL
+      const audioUrl = data.output?.audio?.url;
+      if (!audioUrl) {
+        throw new Error('No audio URL in response');
+      }
+
+      console.log('[Aliyun TTS] Success:', { audioId: data.output?.audio?.id });
+
+      // 创建 Audio 对象并等待加载
+      const audio = new Audio(audioUrl);
+      await new Promise((resolve, reject) => {
+        audio.addEventListener('canplaythrough', resolve);
+        audio.addEventListener('error', reject);
+        setTimeout(reject, 15000); // 15秒超时
+      });
+
+      return audio;
+    } catch (error) {
+      console.warn('[Aliyun TTS] Failed, falling back to browser TTS:', error);
+
+      // 2. 降级到浏览器语音合成
+      return this.createSpeechAudio(text);
+    }
   }
 
   // 使用浏览器语音合成创建音频
