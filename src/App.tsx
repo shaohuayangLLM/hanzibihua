@@ -26,6 +26,9 @@ import MathModulePage from "./pages/math/ModulePage";
 import MathTestPage from "./pages/math/TestPage";
 import MathResultPage from "./pages/math/ResultPage";
 import KnowledgePage from "./pages/math/KnowledgePage";
+import LetterSounds from "./pages/english/LetterSounds";
+import CVCPractice from "./pages/english/CVCPractice";
+import PhonicsRules from "./pages/english/PhonicsRules";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +62,10 @@ const App = () => (
           <Route path="/math/knowledge/:moduleId" element={<KnowledgePage />} />
           <Route path="/math/test/:moduleId" element={<MathTestPage />} />
           <Route path="/math/result/:sessionId" element={<MathResultPage />} />
+          {/* English Module Routes */}
+          <Route path="/english/letter-sounds" element={<LetterSounds />} />
+          <Route path="/english/cvc-practice" element={<CVCPractice />} />
+          <Route path="/english/phonics-rules" element={<PhonicsRules />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
