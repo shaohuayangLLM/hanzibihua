@@ -1,8 +1,9 @@
 import { useCallback, useRef, useState } from 'react';
 
-// 阿里云 Qwen-TTS API 配置
-const ALIYUN_API_KEY = 'sk-02ec9469925d458f87276961356a0a10';
-const API_URL = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation';
+// Supabase Edge Function 配置
+const EDGE_FUNCTION_URL = import.meta.env.VITE_SUPABASE_URL
+  ? `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/aliyun-tts`
+  : '/functions/v1/aliyun-tts';
 
 // 音频缓存管理器
 class AudioCacheManager {
@@ -58,19 +59,19 @@ class AudioCacheManager {
 
   // 加载音频（带降级方案）
   private async loadAudio(text: string, voice?: string): Promise<HTMLAudioElement> {
-    // 1. 直接调用阿里云 Qwen-TTS API
+    // 1. 调用 Supabase Edge Function（代理到阿里云 Qwen-TTS）
     try {
-      console.log('[Aliyun TTS] Calling API:', { text, voice });
+      console.log('[Aliyun TTS] Calling Edge Function:', { text, voice });
 
-      const response = await fetch(API_URL, {
+      const response = await fetch(EDGE_FUNCTION_URL, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${ALIYUN_API_KEY}`,
           'Content-Type': 'application/json',
+          // Supabase 会自动添加 authorization header
         },
         body: JSON.stringify({
+          text,
           model: 'qwen3-tts-flash',
-          input: { text },
           voice: voice || 'Cherry',
           language_type: 'Chinese',
         }),
@@ -78,25 +79,19 @@ class AudioCacheManager {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: response.statusText }));
-        console.error('[Aliyun TTS] API error:', errorData);
-        throw new Error(errorData.message || 'TTS API failed');
+        console.error('[Aliyun TTS] Edge Function error:', errorData);
+        throw new Error(errorData.error || errorData.message || 'TTS API failed');
       }
 
       const data = await response.json();
 
-      // 检查响应状态
-      if (data.status_code !== 200) {
-        console.error('[Aliyun TTS] API error:', data);
-        throw new Error(data.message || 'Unknown error');
-      }
-
       // 获取音频 URL
-      const audioUrl = data.output?.audio?.url;
+      const audioUrl = data.audio_url;
       if (!audioUrl) {
         throw new Error('No audio URL in response');
       }
 
-      console.log('[Aliyun TTS] Success:', { audioId: data.output?.audio?.id });
+      console.log('[Aliyun TTS] Success:', { audioId: data.audio_id, characters: data.characters });
 
       // 创建 Audio 对象并等待加载
       const audio = new Audio(audioUrl);
@@ -179,7 +174,7 @@ interface UseAliyunTTSOptions {
 }
 
 export const useAliyunTTS = (options: UseAliyunTTSOptions = {}) => {
-  const { voice = 'Cherry', onPlayStart, onPlayEnd, onError } = options;
+  const { voice = 'Aixia', onPlayStart, onPlayEnd, onError } = options;
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);

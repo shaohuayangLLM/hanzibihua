@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Volume2 from 'lucide-react/dist/esm/icons/volume-2';
+import { RotateCw } from 'lucide-react';
 import { type PinyinBasicType } from "@/data/pinyinBasics";
 import { getPinyinTypeColor } from "@/data/pinyinBasics";
 import { usePinyinSpeech } from "@/hooks/usePinyinSpeech";
@@ -13,7 +14,7 @@ interface PinyinCardProps {
 
 export const PinyinCard = ({ pinyin, type, onClick }: PinyinCardProps) => {
   const colors = getPinyinTypeColor(type);
-  const { speak } = usePinyinSpeech({ rate: 0.8 });
+  const { speak, isLoading } = usePinyinSpeech({ rate: 0.8 });
 
   const handleSpeak = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -41,9 +42,14 @@ export const PinyinCard = ({ pinyin, type, onClick }: PinyinCardProps) => {
           hover:bg-background
         `}
         onClick={handleSpeak}
+        disabled={isLoading}
         title="朗读拼音"
       >
-        <Volume2 className="h-4 w-4" />
+        {isLoading ? (
+          <RotateCw className="h-4 w-4 animate-spin" />
+        ) : (
+          <Volume2 className="h-4 w-4" />
+        )}
       </Button>
       <div className={`min-h-24 flex items-center justify-center ${colors.text} pointer-events-none`}>
         <span className="text-3xl md:text-4xl font-medium">

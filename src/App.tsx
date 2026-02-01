@@ -29,6 +29,7 @@ import KnowledgePage from "./pages/math/KnowledgePage";
 import LetterSounds from "./pages/english/LetterSounds";
 import CVCPractice from "./pages/english/CVCPractice";
 import PhonicsRules from "./pages/english/PhonicsRules";
+import { VoiceTest } from "./pages/VoiceTest";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +67,7 @@ const App = () => (
           <Route path="/english/letter-sounds" element={<LetterSounds />} />
           <Route path="/english/cvc-practice" element={<CVCPractice />} />
           <Route path="/english/phonics-rules" element={<PhonicsRules />} />
+          <Route path="/voice-test" element={<VoiceTest />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

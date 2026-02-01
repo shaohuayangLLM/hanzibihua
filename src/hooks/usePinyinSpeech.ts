@@ -5,7 +5,7 @@ import { useAliyunTTS } from './useAliyunTTS';
 interface PinyinSpeechOptions {
   rate?: number;
   pitch?: number;
-  useAliyunTTS?: boolean; // 是否使用阿里云 TTS
+  enableAliyunTTS?: boolean; // 是否使用阿里云 TTS
 }
 
 /**
@@ -16,13 +16,14 @@ interface PinyinSpeechOptions {
  * @returns speak function and browser support status
  */
 export const usePinyinSpeech = (options: PinyinSpeechOptions = {}) => {
-  const { rate = 0.9, pitch = 1.1, useAliyunTTS: useAliyunTTS = true } = options;
-  const [useAliyun, setUseAliyun] = useState(useAliyunTTS);
+  const { rate = 0.9, pitch = 1.1, enableAliyunTTS = true } = options;
+  const [useAliyun, setUseAliyun] = useState(enableAliyunTTS);
 
   // 阿里云 TTS Hook
   const aliyunTTS = useAliyunTTS({
-    voice: 'longxiaochun', // 龙小春 - 适合儿童的中文女声
-    speed: rate,
+    voice: 'Aixia', // 阿里云 TTS 音色 - 甜美女声
+    onPlayStart: () => {},
+    onPlayEnd: () => {},
     onError: (error) => {
       console.warn('Aliyun TTS failed, falling back to browser TTS:', error);
       setUseAliyun(false);

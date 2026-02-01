@@ -5,7 +5,7 @@
  */
 
 import { useState } from "react";
-import { Volume2 } from "lucide-react";
+import { Volume2, RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePinyinSpeech } from "@/hooks/usePinyinSpeech";
 import type { CombinationItem } from "@/types/pinyin";
@@ -31,7 +31,7 @@ interface CombinationCardProps {
 }
 
 export function CombinationCard({ item }: CombinationCardProps) {
-  const { speak } = usePinyinSpeech({ rate: 0.7, pitch: 1.1 });
+  const { speak, isLoading } = usePinyinSpeech({ rate: 0.7, pitch: 1.1 });
 
   // 默认选择第一个声调
   const [selectedToneIndex, setSelectedToneIndex] = useState(0);
@@ -62,8 +62,9 @@ export function CombinationCard({ item }: CombinationCardProps) {
             size="icon"
             className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6"
             onClick={handleSpeak}
+            disabled={isLoading}
           >
-            <Volume2 className="h-3 w-3 text-emerald-600" />
+            {isLoading ? <RotateCw className="h-3 w-3 animate-spin" /> : <Volume2 className="h-3 w-3 text-emerald-600" />}
           </Button>
         </div>
 

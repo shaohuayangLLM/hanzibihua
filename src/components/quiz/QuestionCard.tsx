@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Volume2 from 'lucide-react/dist/esm/icons/volume-2';
+import { Volume2, RotateCw } from 'lucide-react';
 import { QuizOptions } from "./QuizOptions";
 import { QuizFeedback } from "./QuizFeedback";
 import { usePinyinSpeech } from "@/hooks/usePinyinSpeech";
@@ -28,7 +28,7 @@ export const QuestionCard = ({
   isCorrect,
   onAnswer,
 }: QuestionCardProps) => {
-  const { speak } = usePinyinSpeech({ rate: 0.7 });
+  const { speak, isLoading } = usePinyinSpeech({ rate: 0.7 });
 
   return (
     <Card className="w-full max-w-2xl mx-auto p-8">
@@ -52,9 +52,10 @@ export const QuestionCard = ({
             size="sm"
             className="gap-2 hover:scale-105 transition-transform"
             onClick={() => speak(character)}
+            disabled={isLoading}
             title="朗读汉字"
           >
-            <Volume2 className="h-4 w-4" />
+            {isLoading ? <RotateCw className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4" />}
             读音
           </Button>
         </div>

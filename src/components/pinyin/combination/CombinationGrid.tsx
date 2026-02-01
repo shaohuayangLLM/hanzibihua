@@ -4,7 +4,7 @@
  */
 
 import { useState } from "react";
-import { Volume2, X } from "lucide-react";
+import { Volume2, X, RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePinyinSpeech } from "@/hooks/usePinyinSpeech";
 import type { CombinationData } from "@/types/pinyin";
@@ -25,7 +25,7 @@ const TONE_COLORS: Record<number, string> = {
 };
 
 export function CombinationGrid({ data, initials, finals }: CombinationGridProps) {
-  const { speak } = usePinyinSpeech({ rate: 0.7, pitch: 1.1 });
+  const { speak, isLoading } = usePinyinSpeech({ rate: 0.7, pitch: 1.1 });
   const [selectedCell, setSelectedCell] = useState<{ final: string; initial: string } | null>(null);
 
   // 构建查找映射：final -> initial -> item
@@ -187,8 +187,9 @@ export function CombinationGrid({ data, initials, finals }: CombinationGridProps
                         size="icon"
                         className="h-8 w-8"
                         onClick={(e) => handleSpeak(tone.combination, e)}
+                        disabled={isLoading}
                       >
-                        <Volume2 className="h-4 w-4 text-emerald-600" />
+                        {isLoading ? <RotateCw className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4 text-emerald-600" />}
                       </Button>
                     </div>
                   </div>

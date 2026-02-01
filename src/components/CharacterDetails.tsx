@@ -1,40 +1,16 @@
 import { CharacterInfo, PinyinReading } from "@/data/characterInfo";
-import { BookOpen, MessageCircle, Layers, Info, Hash, Grid3X3, Type, Volume2, Music } from "lucide-react";
+import { BookOpen, MessageCircle, Layers, Info, Hash, Grid3X3, Type, Volume2, Music, RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { usePinyinSpeech } from "@/hooks/usePinyinSpeech";
 import { toast } from "sonner";
 
 interface CharacterDetailsProps {
   info: CharacterInfo;
 }
 
-// Web Speech API for TTS
-const speak = (text: string, rate: number = 0.8) => {
-  if (!('speechSynthesis' in window)) {
-    toast.error('您的浏览器不支持语音朗读功能');
-    return;
-  }
-
-  // Cancel any ongoing speech
-  window.speechSynthesis.cancel();
-
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'zh-CN';
-  utterance.rate = rate;
-  utterance.pitch = 1.1; // Slightly higher pitch for kid-friendly voice
-  
-  // Try to find a Chinese voice
-  const voices = window.speechSynthesis.getVoices();
-  const chineseVoice = voices.find(voice => 
-    voice.lang.includes('zh') || voice.lang.includes('CN')
-  );
-  if (chineseVoice) {
-    utterance.voice = chineseVoice;
-  }
-
-  window.speechSynthesis.speak(utterance);
-};
-
 export const CharacterDetails = ({ info }: CharacterDetailsProps) => {
+  const { speak, isLoading } = usePinyinSpeech({ rate: 0.7 });
+
   // Load voices when component mounts (needed for some browsers)
   if ('speechSynthesis' in window) {
     window.speechSynthesis.getVoices();
@@ -61,10 +37,11 @@ export const CharacterDetails = ({ info }: CharacterDetailsProps) => {
               variant="ghost"
               size="icon"
               className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={() => speak(info.character, 0.6)}
+              onClick={() => speak(info.character)}
+              disabled={isLoading}
               title="朗读"
             >
-              <Volume2 className="h-4 w-4" />
+              {isLoading ? <RotateCw className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4" />}
             </Button>
           )}
         </div>
@@ -114,10 +91,11 @@ export const CharacterDetails = ({ info }: CharacterDetailsProps) => {
             variant="ghost"
             size="icon"
             className="h-8 w-8 ml-auto"
-            onClick={() => speak(info.meaning, 0.9)}
+            onClick={() => speak(info.meaning)}
+            disabled={isLoading}
             title="朗读释义"
           >
-            <Volume2 className="h-4 w-4" />
+            {isLoading ? <RotateCw className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4" />}
           </Button>
         </h3>
         <p className="text-foreground/80 leading-relaxed">{info.meaning}</p>
@@ -146,10 +124,11 @@ export const CharacterDetails = ({ info }: CharacterDetailsProps) => {
                   variant="ghost"
                   size="icon"
                   className="absolute top-2 right-2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={() => speak(word.word, 0.7)}
+                  onClick={() => speak(word.word)}
+                  disabled={isLoading}
                   title="朗读"
                 >
-                  <Volume2 className="h-3.5 w-3.5" />
+                  {isLoading ? <RotateCw className="h-3.5 w-3.5 animate-spin" /> : <Volume2 className="h-3.5 w-3.5" />}
                 </Button>
               </div>
             ))}
@@ -174,10 +153,11 @@ export const CharacterDetails = ({ info }: CharacterDetailsProps) => {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => speak(info.character, 0.6)}
+                    onClick={() => speak(info.character)}
+                    disabled={isLoading}
                     title="朗读"
                   >
-                    <Volume2 className="h-4 w-4" />
+                    {isLoading ? <RotateCw className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4" />}
                   </Button>
                 </div>
                 <p className="text-sm text-muted-foreground mb-3">{reading.meaning}</p>
@@ -197,10 +177,11 @@ export const CharacterDetails = ({ info }: CharacterDetailsProps) => {
                           variant="ghost"
                           size="icon"
                           className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => speak(word.word, 0.7)}
+                          onClick={() => speak(word.word)}
+                          disabled={isLoading}
                           title="朗读"
                         >
-                          <Volume2 className="h-3 w-3" />
+                          {isLoading ? <RotateCw className="h-3 w-3 animate-spin" /> : <Volume2 className="h-3 w-3" />}
                         </Button>
                       </div>
                     ))}
@@ -233,10 +214,11 @@ export const CharacterDetails = ({ info }: CharacterDetailsProps) => {
                   variant="ghost"
                   size="icon"
                   className="h-7 w-7 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={() => speak(sentence, 0.9)}
+                  onClick={() => speak(sentence)}
+                  disabled={isLoading}
                   title="朗读例句"
                 >
-                  <Volume2 className="h-3.5 w-3.5" />
+                  {isLoading ? <RotateCw className="h-3.5 w-3.5 animate-spin" /> : <Volume2 className="h-3.5 w-3.5" />}
                 </Button>
               </div>
             ))}

@@ -1,4 +1,7 @@
-project_id = "cesinsaxyskxfgdkzlec"
+project_id = "hkdbjzgavamkutpdpyxn"
 
 [functions.get-character-info]
+verify_jwt = false
+
+[functions.aliyun-tts]
 verify_jwt = false

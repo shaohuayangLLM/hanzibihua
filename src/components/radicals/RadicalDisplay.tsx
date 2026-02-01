@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Volume2 } from "lucide-react";
+import { Volume2, RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getRadicalInfo } from "@/data/radicalData";
 import { usePinyinSpeech } from "@/hooks/usePinyinSpeech";
@@ -11,7 +11,7 @@ interface RadicalDisplayProps {
 }
 
 export const RadicalDisplay = ({ radical }: RadicalDisplayProps) => {
-  const { speak } = usePinyinSpeech({ rate: 0.7 });
+  const { speak, isLoading } = usePinyinSpeech({ rate: 0.7 });
   const info = getRadicalInfo(radical);
 
   if (!info) return null;
@@ -32,9 +32,10 @@ export const RadicalDisplay = ({ radical }: RadicalDisplayProps) => {
               variant="outline"
               className="h-14 w-14 rounded-full shrink-0 hover:scale-110 transition-transform"
               onClick={() => speak(info.name)}
+              disabled={isLoading}
               title="朗读偏旁名称"
             >
-              <Volume2 className="h-6 w-6" />
+              {isLoading ? <RotateCw className="h-6 w-6 animate-spin" /> : <Volume2 className="h-6 w-6" />}
             </Button>
           </div>
 
@@ -88,9 +89,10 @@ export const RadicalDisplay = ({ radical }: RadicalDisplayProps) => {
                     size="icon"
                     className="absolute -top-2 -right-2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity bg-background/90 backdrop-blur-sm"
                     onClick={() => speak(char)}
+                    disabled={isLoading}
                     title="朗读"
                   >
-                    <Volume2 className="h-3.5 w-3.5" />
+                    {isLoading ? <RotateCw className="h-3.5 w-3.5 animate-spin" /> : <Volume2 className="h-3.5 w-3.5" />}
                   </Button>
                 </div>
                 {charInfo && (

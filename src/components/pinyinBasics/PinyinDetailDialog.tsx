@@ -5,7 +5,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import Volume2 from 'lucide-react/dist/esm/icons/volume-2';
+import { Volume2, RotateCw } from 'lucide-react';
 import { type PinyinBasicItem, type PinyinBasicType, getPinyinTypeLabel } from "@/data/pinyinBasics";
 import { usePinyinSpeech } from "@/hooks/usePinyinSpeech";
 
@@ -22,7 +22,7 @@ export const PinyinDetailDialog = ({
   open,
   onOpenChange,
 }: PinyinDetailDialogProps) => {
-  const { speak } = usePinyinSpeech({ rate: 0.7 });
+  const { speak, isLoading } = usePinyinSpeech({ rate: 0.7 });
 
   if (!item) return null;
 
@@ -40,9 +40,10 @@ export const PinyinDetailDialog = ({
                 size="icon"
                 className="h-8 w-8"
                 onClick={() => speak(item.pinyin)}
+                disabled={isLoading}
                 title="朗读拼音"
               >
-                <Volume2 className="h-4 w-4" />
+                {isLoading ? <RotateCw className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4" />}
               </Button>
             </DialogTitle>
           </div>
@@ -59,9 +60,10 @@ export const PinyinDetailDialog = ({
                     size="icon"
                     className="h-9 w-9 flex-shrink-0 opacity-60 group-hover:opacity-100 hover:scale-110 transition-all"
                     onClick={() => speak(example.char)}
+                    disabled={isLoading}
                     title="朗读汉字"
                   >
-                    <Volume2 className="h-4 w-4" />
+                    {isLoading ? <RotateCw className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4" />}
                   </Button>
                   <div className="flex flex-col gap-1">
                     <div className="w-20 h-20 mizige rounded-lg flex items-center justify-center">
