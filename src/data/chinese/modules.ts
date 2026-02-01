@@ -11,12 +11,28 @@ export interface ChineseModule {
 // 语文学习模块配置
 export const CHINESE_MODULES: ChineseModule[] = [
   {
+    id: 'stroke-learning',
+    title: '笔画学习',
+    icon: '✏️',
+    color: 'bg-rose-500',
+    description: '输入汉字，查看笔画顺序、动画和详细信息',
+    route: '/stroke-learning',
+  },
+  {
     id: 'pinyin-basics',
     title: '拼音基础',
     icon: '🔤',
     color: 'bg-blue-500',
     description: '学习声母、韵母、整体认读音节',
     route: '/pinyin-basics',
+  },
+  {
+    id: 'pinyin-combination',
+    title: '拼音组合练习',
+    icon: '🔗',
+    color: 'bg-emerald-500',
+    description: '学习声母和韵母的组合拼读',
+    route: '/pinyin-combination',
   },
   {
     id: 'pinyin-quiz',
@@ -43,6 +59,14 @@ export const CHINESE_MODULES: ChineseModule[] = [
     route: '/stroke-names',
   },
   {
+    id: 'character-finder',
+    title: '汉字查找',
+    icon: '🔍',
+    color: 'bg-rose-500',
+    description: '按拼音或部首查找汉字',
+    route: '/character-finder',
+  },
+  {
     id: 'polyphone',
     title: '多音字练习',
     icon: '📚',
@@ -57,6 +81,22 @@ export const CHINESE_MODULES: ChineseModule[] = [
     color: 'bg-orange-500',
     description: '区分形近字，避免写错字',
     route: '/similar-characters',
+  },
+  {
+    id: 'find-different',
+    title: '找不同',
+    icon: '🎯',
+    color: 'bg-red-500',
+    description: '九宫格游戏，找出不一样的形近字',
+    route: '/find-different',
+  },
+  {
+    id: 'puzzle-game',
+    title: '汉字推理',
+    icon: '🧩',
+    color: 'bg-indigo-500',
+    description: '观察规律，逻辑推理，锻炼思维',
+    route: '/puzzle-game',
   },
   {
     id: 'quantity-words',

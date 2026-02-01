@@ -96,46 +96,6 @@ export const SIMILAR_CHAR_GROUPS: SimilarCharGroup[] = [
     hint: "石撇长，右撇短"
   },
   {
-    id: "can-can",
-    characters: [
-      { char: "参", pinyin: "cān", meaning: "参加", example: "参加" },
-      { char: "参", pinyin: "shēn", meaning: "人参", example: "人参" }
-    ],
-    hint: "参是多音字"
-  },
-  {
-    id: "cai-chai",
-    characters: [
-      { char: "采", pinyin: "cǎi", meaning: "采花", example: "采蜜" },
-      { char: "彩", pinyin: "cǎi", meaning: "彩色", example: "彩虹" }
-    ],
-    hint: "采有三撇，彩有三撇但右边不同"
-  },
-  {
-    id: "hou-hou",
-    characters: [
-      { char: "后", pinyin: "hòu", meaning: "后面", example: "前后" },
-      { char: "候", pinyin: "hòu", meaning: "时候", example: "时候" }
-    ],
-    hint: "后没有竖，候有一竖"
-  },
-  {
-    id: "pei-pei",
-    characters: [
-      { char: "佩", pinyin: "pèi", meaning: "佩服", example: "佩服" },
-      { char: "配", pinyin: "pèi", meaning: "配合", example: "配合" }
-    ],
-    hint: "佩右边有一竖，配右边有一横"
-  },
-  {
-    id: "tong-tong",
-    characters: [
-      { char: "同", pinyin: "tóng", meaning: "相同", example: "同学" },
-      { char: "司", pinyin: "sī", meaning: "司机", example: "公司" }
-    ],
-    hint: "同是框里一横，司是框里一撇"
-  },
-  {
     id: "mian-mian",
     characters: [
       { char: "免", pinyin: "miǎn", meaning: "免费", example: "免票" },
@@ -199,14 +159,6 @@ export const SIMILAR_CHAR_GROUPS: SimilarCharGroup[] = [
       { char: "方", pinyin: "fāng", meaning: "方形", example: "方向" }
     ],
     hint: "万上面没有点，方上面有一点"
-  },
-  {
-    id: "cuo-zuo",
-    characters: [
-      { char: "错", pinyin: "cuò", meaning: "错误", example: "不错" },
-      { char: "昨", pinyin: "zuó", meaning: "昨天", example: "昨天" }
-    ],
-    hint: "错是金字旁，昨是日字旁"
   },
   {
     id: "hou-hou-3",
@@ -290,14 +242,6 @@ export const SIMILAR_CHAR_GROUPS: SimilarCharGroup[] = [
     hint: "休单人旁，体单人旁"
   },
   {
-    id: "ming-ming",
-    characters: [
-      { char: "明", pinyin: "míng", meaning: "明亮", example: "明天" },
-      { char: "名", pinyin: "míng", meaning: "名字", example: "姓名" }
-    ],
-    hint: "明日旁，名夕旁"
-  },
-  {
     id: "yuan-yuan-2",
     characters: [
       { char: "元", pinyin: "yuán", meaning: "一元", example: "元旦" },
@@ -346,14 +290,6 @@ export const SIMILAR_CHAR_GROUPS: SimilarCharGroup[] = [
     hint: "家有点，冢没点"
   },
   {
-    id: "yun-dong",
-    characters: [
-      { char: "运", pinyin: "yùn", meaning: "运动", example: "运走" },
-      { char: "动", pinyin: "dòng", meaning: "动作", example: "动物" }
-    ],
-    hint: "运走之旁，动力字旁"
-  },
-  {
     id: "zhen-zhi",
     characters: [
       { char: "真", pinyin: "zhēn", meaning: "真实", example: "真的" },
@@ -376,14 +312,6 @@ export const SIMILAR_CHAR_GROUPS: SimilarCharGroup[] = [
       { char: "问", pinyin: "wèn", meaning: "问题", example: "问题" }
     ],
     hint: "间是日，问是口"
-  },
-  {
-    id: "mou-mei",
-    characters: [
-      { char: "某", pinyin: "mǒu", meaning: "某人", example: "某地" },
-      { char: "梅", pinyin: "méi", meaning: "梅花", example: "梅花" }
-    ],
-    hint: "某是木字旁，梅是木字旁"
   },
   {
     id: "che-dong",
@@ -456,14 +384,6 @@ export const SIMILAR_CHAR_GROUPS: SimilarCharGroup[] = [
       { char: "杨", pinyin: "yáng", meaning: "杨树", example: "杨树" }
     ],
     hint: "扬是提手旁，杨是木字旁"
-  },
-  {
-    id: "ping-ping-3",
-    characters: [
-      { char: "苹", pinyin: "píng", meaning: "苹果", example: "苹果" },
-      { char: "凭", pinyin: "píng", meaning: "凭借", example: "凭借" }
-    ],
-    hint: "苹是草字头，凭是任字头"
   },
   {
     id: "you-you-2",
@@ -546,14 +466,6 @@ export const SIMILAR_CHAR_GROUPS: SimilarCharGroup[] = [
     hint: "歌有欠，哥没有欠"
   },
   {
-    id: "kuan-kuan",
-    characters: [
-      { char: "宽", pinyin: "kuān", meaning: "宽广", example: "宽阔" },
-      { char: "宣", pinyin: "xuān", meaning: "宣布", example: "宣传" }
-    ],
-    hint: "宽是宝盖头，宣是宝盖头"
-  },
-  {
     id: "ji-ji-2",
     characters: [
       { char: "技", pinyin: "jì", meaning: "技术", example: "技术" },
@@ -592,22 +504,6 @@ export const SIMILAR_CHAR_GROUPS: SimilarCharGroup[] = [
       { char: "编", pinyin: "biān", meaning: "编织", example: "编写" }
     ],
     hint: "遍是走之旁，编是绞丝旁"
-  },
-  {
-    id: "zhou-zhou-2",
-    characters: [
-      { char: "洲", pinyin: "zhōu", meaning: "绿洲", example: "绿洲" },
-      { char: "舟", pinyin: "zhōu", meaning: "小船", example: "舟船" }
-    ],
-    hint: "洲是两点水，舟是一撇"
-  },
-  {
-    id: "qing-qing-3",
-    characters: [
-      { char: "轻", pinyin: "qīng", meaning: "轻重", example: "轻轻" },
-      { char: "青", pinyin: "qīng", meaning: "青色", example: "青年" }
-    ],
-    hint: "轻是车字旁，青是十一横"
   },
   {
     id: "yang-yang-3",

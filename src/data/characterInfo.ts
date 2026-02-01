@@ -8,12 +8,14 @@ export { textbookOptions } from './types';
 import { baseCharacters } from './baseCharacters';
 import { grade1Vol1Characters } from './grade1Vol1Characters';
 import { grade1Vol2Characters } from './grade1Vol2Characters';
+import { radicalCharacters } from './radicalCharacters';
 
 // Merge all character databases (later entries override earlier ones for duplicates)
 export const characterDatabase: CharacterDatabase = {
   ...baseCharacters,
   ...grade1Vol1Characters,
   ...grade1Vol2Characters,
+  ...radicalCharacters, // 补充部首例字数据
 };
 
 // Character sets for filtering by textbook
