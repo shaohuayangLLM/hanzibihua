@@ -20,6 +20,8 @@ import StrokeNames from "./pages/StrokeNames";
 import CharacterFinder from "./pages/CharacterFinder";
 import FindDifferentGame from "./pages/FindDifferentGame";
 import PuzzleGame from "./pages/PuzzleGame";
+import CharacterGraph from "./pages/CharacterGraph";
+
 import NotFound from "./pages/NotFound";
 import MathHome from "./pages/math/Home";
 import MathModulePage from "./pages/math/ModulePage";
@@ -56,6 +58,8 @@ const App = () => (
           <Route path="/character-finder" element={<CharacterFinder />} />
           <Route path="/find-different" element={<FindDifferentGame />} />
           <Route path="/puzzle-game" element={<PuzzleGame />} />
+          <Route path="/character-graph" element={<CharacterGraph />} />
+
           <Route path="/install" element={<Install />} />
           {/* Math Module Routes */}
           <Route path="/math" element={<MathHome />} />

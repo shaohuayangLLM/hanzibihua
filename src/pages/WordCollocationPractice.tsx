@@ -2,8 +2,13 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Check, X, ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
-import { WORD_COLLOCATIONS, COLLOCATION_CATEGORIES, type WordCollocationExercise } from "@/data/wordCollocationData";
+import { ArrowLeft, Check, X, ChevronLeft, ChevronRight, RotateCcw, Lightbulb, AlertTriangle } from "lucide-react";
+import {
+  WORD_COLLOCATION_EXERCISES_NEW,
+  COLLOCATION_CATEGORIES,
+  COLLOCATION_CATEGORY_INFO,
+  type CollocationExercise
+} from "@/data/wordCollocationDataNew";
 import { toast } from "sonner";
 
 type QuizState = "intro" | "playing" | "result";
@@ -20,15 +25,25 @@ const WordCollocationPractice = () => {
   const [answerState, setAnswerState] = useState<AnswerState>({ selected: "", isCorrect: null });
   const [score, setScore] = useState(0);
   const [completedCount, setCompletedCount] = useState(0);
-  const [selectedCategory, setSelectedCategory] = useState("全部");
+  const [selectedCategory, setSelectedCategory] = useState<string>("全部");
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("全部");
 
-  // 根据分类筛选题目
+  // 根据分类和难度筛选题目
   const filteredExercises = useMemo(() => {
-    if (selectedCategory === "全部") {
-      return WORD_COLLOCATIONS;
+    let result = WORD_COLLOCATION_EXERCISES_NEW;
+
+    // 按分类筛选
+    if (selectedCategory !== "全部") {
+      result = result.filter(ex => ex.category === selectedCategory);
     }
-    return WORD_COLLOCATIONS.filter(ex => ex.category === selectedCategory);
-  }, [selectedCategory]);
+
+    // 按难度筛选
+    if (selectedDifficulty !== "全部") {
+      result = result.filter(ex => ex.difficulty === selectedDifficulty);
+    }
+
+    return result;
+  }, [selectedCategory, selectedDifficulty]);
 
   const currentExercise = filteredExercises[currentIndex];
   const totalQuestions = filteredExercises.length;
@@ -122,8 +137,8 @@ const WordCollocationPractice = () => {
                 <div className="bg-secondary p-4 rounded-lg space-y-2">
                   <p className="font-semibold">练习规则：</p>
                   <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                    <li>共 {WORD_COLLOCATIONS.length} 道练习题</li>
-                    <li>包含形容词+名词、动词+名词等多种搭配</li>
+                    <li>共 {WORD_COLLOCATION_EXERCISES_NEW.length} 道练习题</li>
+                    <li>包含 {COLLOCATION_CATEGORIES.length} 种搭配类型</li>
                     <li>可按分类筛选练习</li>
                     <li>每题 4 个选项，选择正确的搭配</li>
                   </ul>
@@ -131,12 +146,18 @@ const WordCollocationPractice = () => {
 
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg space-y-2">
                   <p className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-2">
-                    搭配示例：
+                    搭配类型：
                   </p>
                   <div className="space-y-1 text-sm">
-                    <p><strong>形容词 + 名词：</strong>美丽的花朵、蓝蓝的天空</p>
-                    <p><strong>动词 + 名词：</strong>唱歌、读书、拍皮球</p>
-                    <p><strong>形容词 + 动词：</strong>认真听、大声读</p>
+                    {COLLOCATION_CATEGORIES.map((cat) => {
+                      const info = COLLOCATION_CATEGORY_INFO[cat];
+                      return (
+                        <p key={cat}>
+                          <strong>{info.name}：</strong>
+                          <span className="text-muted-foreground">{info.example}</span>
+                        </p>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -236,35 +257,84 @@ const WordCollocationPractice = () => {
           />
         </div>
 
-        {/* 分类选择 */}
+        {/* 分类和难度选择 */}
         {currentIndex === 0 && answerState.isCorrect === null && (
-          <Card className="p-3">
-            <div className="flex flex-wrap gap-2">
-              {COLLOCATION_CATEGORIES.map((category) => (
-                <Button
-                  key={category}
-                  variant={selectedCategory === category ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedCategory(category)}
-                >
-                  {category}
-                </Button>
-              ))}
+          <Card className="p-3 space-y-3">
+            {/* 分类选择 */}
+            <div>
+              <p className="text-xs text-muted-foreground mb-2 font-semibold">搭配类型：</p>
+              <div className="flex flex-wrap gap-2">
+                {COLLOCATION_CATEGORIES.map((category) => {
+                  const info = COLLOCATION_CATEGORY_INFO[category];
+                  return (
+                    <Button
+                      key={category}
+                      variant={selectedCategory === category ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedCategory(category)}
+                      title={info.description}
+                    >
+                      <span className="mr-1">{info.icon}</span>
+                      {category}
+                    </Button>
+                  );
+                })}
+              </div>
             </div>
+
+            {/* 难度选择 */}
+            <div>
+              <p className="text-xs text-muted-foreground mb-2 font-semibold">难度等级：</p>
+              <div className="flex flex-wrap gap-2">
+                {["全部", "easy", "medium", "hard"].map((difficulty) => (
+                  <Button
+                    key={difficulty}
+                    variant={selectedDifficulty === difficulty ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedDifficulty(difficulty)}
+                  >
+                    {difficulty === "easy" && "🟢 简单"}
+                    {difficulty === "medium" && "🟡 中等"}
+                    {difficulty === "hard" && "🔴 困难"}
+                    {difficulty === "全部" && "全部"}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* 重置筛选 */}
+            {(selectedCategory !== "全部" || selectedDifficulty !== "全部") && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSelectedCategory("全部");
+                  setSelectedDifficulty("全部");
+                }}
+                className="w-full"
+              >
+                重置筛选
+              </Button>
+            )}
           </Card>
         )}
 
         {/* 当前题目 */}
         <Card className="p-6">
           <div className="text-center space-y-4">
-            {/* 分类标签 */}
-            <div className="flex justify-center gap-2">
-              <div className="px-3 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                {currentExercise.partOfSpeech}
+            {/* 分类标签和描述 */}
+            <div className="mb-4">
+              <div className="flex justify-center gap-2 mb-2">
+                <div className="px-3 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                  {currentExercise.leftPos}
+                </div>
+                <div className="px-3 py-0.5 rounded-full bg-purple-500/10 text-purple-600 text-xs font-medium">
+                  {currentExercise.category}
+                </div>
               </div>
-              <div className="px-3 py-0.5 rounded-full bg-purple-500/10 text-purple-600 text-xs font-medium">
-                {currentExercise.category}
-              </div>
+              <p className="text-sm text-muted-foreground">
+                {currentExercise.categoryDescription}
+              </p>
             </div>
 
             {/* 问题 */}
@@ -273,13 +343,14 @@ const WordCollocationPractice = () => {
                 请选择正确的词语填空
               </div>
 
-              {/* 填空题 */}
+              {/* 填空题 - 显示 left + connector + ___ */}
               <div className="py-6">
-                <div className="text-5xl font-bold text-foreground">
-                  {currentExercise.word}
-                  {/* 形容词+名词需要加"的" */}
-                  {currentExercise.partOfSpeech === "形容词" && currentExercise.category === "形容词+名词" && <span className="text-foreground mx-1">的</span>}
-                  <span className="text-primary mx-2">___</span>
+                <div className="flex items-center justify-center text-4xl font-bold text-foreground flex-wrap gap-2">
+                  <span>{currentExercise.left}</span>
+                  {currentExercise.connector && (
+                    <span className="text-foreground px-1">{currentExercise.connector}</span>
+                  )}
+                  <span className="text-primary px-2 py-1 border-b-2 border-primary/30">___</span>
                 </div>
               </div>
             </div>
@@ -287,15 +358,15 @@ const WordCollocationPractice = () => {
             {/* 答案选项 */}
             <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
               {currentExercise.options.map((option) => {
-                const isSelected = answerState.selected === option;
+                const isSelected = answerState.selected === option.text;
                 const showResult = answerState.isCorrect !== null;
-                const isCorrectOption = option === currentExercise.correct;
+                const isCorrectOption = option.text === currentExercise.correct;
 
                 return (
                   <Button
-                    key={option}
+                    key={option.text}
                     size="lg"
-                    onClick={() => selectAnswer(option)}
+                    onClick={() => selectAnswer(option.text)}
                     disabled={showResult}
                     variant={showResult && isCorrectOption ? "default" : "outline"}
                     className={`h-20 text-xl font-semibold transition-all ${
@@ -306,7 +377,10 @@ const WordCollocationPractice = () => {
                         : ""
                     }`}
                   >
-                    {option}
+                    <span className="flex flex-col items-center">
+                      <span>{option.text}</span>
+                      <span className="text-xs text-muted-foreground font-normal">{option.pinyin}</span>
+                    </span>
                   </Button>
                 );
               })}
@@ -318,12 +392,39 @@ const WordCollocationPractice = () => {
                 <p className="text-sm text-muted-foreground mb-2">
                   正确答案：
                 </p>
-                <p className="text-3xl font-bold text-primary">
-                  {currentExercise.word}
-                  {/* 形容词+名词需要加"的" */}
-                  {currentExercise.partOfSpeech === "形容词" && currentExercise.category === "形容词+名词" && <span>的</span>}
-                  {currentExercise.correct}
-                </p>
+                <div className="text-2xl font-bold text-primary">
+                  <span>{currentExercise.left}</span>
+                  {currentExercise.connector && (
+                    <span className="text-foreground px-1">{currentExercise.connector}</span>
+                  )}
+                  <span className="text-green-600 px-1">{currentExercise.correct}</span>
+                  <span className="text-sm text-muted-foreground">({currentExercise.rightPos})</span>
+                </div>
+                {/* 搭配规律提示 */}
+                {currentExercise.tip && (
+                  <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <p className="text-sm text-blue-700 dark:text-blue-300">
+                      <Lightbulb className="inline h-4 w-4 mr-1" />
+                      <span className="font-semibold">提示：</span>{currentExercise.tip}
+                    </p>
+                  </div>
+                )}
+                {/* 常见错误 */}
+                {currentExercise.commonMistakes && currentExercise.commonMistakes.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-xs text-muted-foreground mb-1">
+                      <AlertTriangle className="inline h-3 w-3 mr-1" />
+                      常见错误：
+                    </p>
+                    <div className="space-y-1">
+                      {currentExercise.commonMistakes.map((mistake, idx) => (
+                        <p key={idx} className="text-sm text-red-600 font-medium">
+                          {mistake}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -349,16 +450,44 @@ const WordCollocationPractice = () => {
             )}
 
             {/* 例句展示 */}
-            {answerState.isCorrect !== null && currentExercise.examples && (
+            {answerState.isCorrect !== null && currentExercise.examples && currentExercise.examples.length > 0 && (
               <div className="bg-secondary/50 p-3 rounded-lg">
-                <p className="text-xs font-semibold mb-1">例句：</p>
-                <div className="space-y-0.5">
+                <p className="text-xs font-semibold mb-1">
+                  💡 例句
+                  {currentExercise.difficulty && (
+                    <span className={`ml-2 px-2 py-0.5 rounded text-xs font-medium ${
+                      currentExercise.difficulty === "easy" ? "bg-green-100 text-green-700" :
+                      currentExercise.difficulty === "medium" ? "bg-yellow-100 text-yellow-700" :
+                      "bg-red-100 text-red-700"
+                    }`}>
+                      {currentExercise.difficulty === "easy" ? "简单" :
+                       currentExercise.difficulty === "medium" ? "中等" : "困难"}
+                    </span>
+                  )}
+                </p>
+                <div className="space-y-2">
                   {currentExercise.examples.map((example, idx) => (
                     <p key={idx} className="text-base">
-                      {example}
+                      <span className="text-primary font-semibold">{example.highlight}</span>
+                      <span className="text-muted-foreground">
+                        {example.sentence.replace(example.highlight, "")}
+                      </span>
                     </p>
                   ))}
                 </div>
+                {/* 标签 */}
+                {currentExercise.tags && currentExercise.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {currentExercise.tags.map((tag, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2 py-0.5 rounded-full bg-secondary text-xs text-muted-foreground"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -398,8 +527,8 @@ const WordCollocationPractice = () => {
 
         {/* 全部词语概览 */}
         <Card className="p-4">
-          <h2 className="text-lg font-bold mb-3">全部词语</h2>
-          <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
+          <h2 className="text-lg font-bold mb-3">全部词语 ({filteredExercises.length})</h2>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
             {filteredExercises.map((exercise, idx) => (
               <button
                 key={exercise.id}
@@ -416,9 +545,13 @@ const WordCollocationPractice = () => {
                   }
                 `}
               >
-                <div className="text-sm font-medium truncate">{exercise.word}</div>
+                <div className="text-sm font-medium truncate">
+                  {exercise.left}
+                  {exercise.connector && <span className="text-muted-foreground text-xs">{exercise.connector}</span>}
+                  <span className="text-primary font-semibold">{exercise.correct}</span>
+                </div>
                 <div className="text-[10px] text-muted-foreground truncate">
-                  {exercise.correct}
+                  {exercise.category}
                 </div>
               </button>
             ))}

@@ -514,3 +514,27 @@ export const SIMILAR_CHAR_GROUPS: SimilarCharGroup[] = [
     hint: "洋是三点水，样是木字旁"
   }
 ];
+
+/**
+ * 形近字快速查找映射
+ * 用于汉字图谱的形近字关联功能
+ */
+export const similarCharMap: Record<string, string[]> = {};
+
+// 从分组数据生成映射
+for (const group of SIMILAR_CHAR_GROUPS) {
+  const chars = group.characters.map(c => c.char);
+  for (const char of chars) {
+    const similar = chars.filter(c => c !== char);
+    if (similar.length > 0) {
+      similarCharMap[char] = similar;
+    }
+  }
+}
+
+/**
+ * 获取指定汉字的形近字列表
+ */
+export const getSimilarCharacters = (char: string): string[] => {
+  return similarCharMap[char] || [];
+};

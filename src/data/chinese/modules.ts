@@ -132,6 +132,14 @@ export const CHINESE_MODULES: ChineseModule[] = [
     route: '/sentence-expansion',
     disabled: true,
   },
+  {
+    id: 'character-graph',
+    title: '汉字图谱',
+    icon: '🕸️',
+    color: 'bg-cyan-500',
+    description: '探索汉字关系,追踪学习路径,智能推荐下一个字',
+    route: '/character-graph',
+  },
 ];
 
 // 获取模块配置

@@ -25,16 +25,20 @@ export interface CharacterInfo {
   additionalReadings?: PinyinReading[];
   // 拼音测试语境（用于多音字测试）
   quizContexts?: QuizContext[];
+  // 教材归属（用于图谱筛选）
+  textbook?: 'grade1-vol1' | 'grade1-vol2' | 'grade2-vol1' | 'grade2-vol2' | 'common' | 'radical';
 }
 
 export type CharacterDatabase = Record<string, CharacterInfo>;
 
-export type TextbookVolume = 'all' | 'grade1-vol1' | 'grade1-vol2';
+export type TextbookVolume = 'all' | 'grade1-vol1' | 'grade1-vol2' | 'grade2-vol1' | 'grade2-vol2';
 
 export const textbookOptions = [
   { value: 'all' as TextbookVolume, label: '全部生字' },
   { value: 'grade1-vol1' as TextbookVolume, label: '一年级上册' },
   { value: 'grade1-vol2' as TextbookVolume, label: '一年级下册' },
+  { value: 'grade2-vol1' as TextbookVolume, label: '二年级上册' },
+  { value: 'grade2-vol2' as TextbookVolume, label: '二年级下册' },
 ] as const;
 
 // ==================== 拼音测试相关类型 ====================
@@ -125,3 +129,5 @@ export type QuizAction =
   | { type: 'PRONUNCIATION_START' }
   | { type: 'PRONUNCIATION_RESULT'; result: RecognitionResult }
   | { type: 'PRONUNCIATION_RETRY' };
+
+
