@@ -8,7 +8,11 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "validate:collocation": "esbuild scripts/validate-collocation-uniqueness.ts --bundle --platform=node --format=cjs --outfile=/tmp/validate-collocation-uniqueness.cjs >/dev/null && node /tmp/validate-collocation-uniqueness.cjs",
+    "report:collocation": "esbuild scripts/report-collocation-quality.ts --bundle --platform=node --format=cjs --outfile=/tmp/report-collocation-quality.cjs >/dev/null && node /tmp/report-collocation-quality.cjs",
+    "validate:word-building": "esbuild scripts/validate-word-building.ts --bundle --platform=node --format=cjs --outfile=/tmp/validate-word-building.cjs >/dev/null && node /tmp/validate-word-building.cjs",
+    "report:word-building": "esbuild scripts/report-word-building.ts --bundle --platform=node --format=cjs --outfile=/tmp/report-word-building.cjs >/dev/null && node /tmp/report-word-building.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

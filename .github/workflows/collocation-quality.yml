@@ -1,0 +1,44 @@
+name: Collocation Quality Gate
+
+on:
+  pull_request:
+    paths:
+      - "src/pages/WordCollocationPractice.tsx"
+      - "src/data/wordCollocation*.ts"
+      - "scripts/validate-collocation-uniqueness.ts"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/collocation-quality.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "src/pages/WordCollocationPractice.tsx"
+      - "src/data/wordCollocation*.ts"
+      - "scripts/validate-collocation-uniqueness.ts"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/collocation-quality.yml"
+
+jobs:
+  collocation-quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate collocation uniqueness
+        run: npm run validate:collocation
+
+      - name: Build
+        run: npm run build

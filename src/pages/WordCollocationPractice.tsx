@@ -1,14 +1,21 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { ArrowLeft, Check, X, ChevronLeft, ChevronRight, RotateCcw, Lightbulb, AlertTriangle } from "lucide-react";
 import {
-  WORD_COLLOCATION_EXERCISES_NEW,
   COLLOCATION_CATEGORIES,
   COLLOCATION_CATEGORY_INFO,
-  type CollocationExercise
 } from "@/data/wordCollocationDataNew";
+import {
+  WORD_COLLOCATION_QUESTIONS_V2,
+  WORD_COLLOCATION_QUESTIONS_V2_ALL,
+} from "@/data/wordCollocationV2";
+import type {
+  CollocationAmbiguityFeedback,
+  CollocationQuestionV2,
+  OptionRationale,
+} from "@/data/wordCollocationTypes";
 import { toast } from "sonner";
 
 type QuizState = "intro" | "playing" | "result";
@@ -18,26 +25,56 @@ interface AnswerState {
   isCorrect: boolean | null;
 }
 
+interface QuestionResult {
+  selected: string;
+  isCorrect: boolean;
+}
+
+const AMBIGUITY_FEEDBACK_STORAGE_KEY = "k12_collocation_ambiguity_feedback";
+
+const readAmbiguityFeedback = (): CollocationAmbiguityFeedback[] => {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(AMBIGUITY_FEEDBACK_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as CollocationAmbiguityFeedback[]) : [];
+  } catch {
+    return [];
+  }
+};
+
+const writeAmbiguityFeedback = (items: CollocationAmbiguityFeedback[]): void => {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(AMBIGUITY_FEEDBACK_STORAGE_KEY, JSON.stringify(items));
+};
+
 const WordCollocationPractice = () => {
   const navigate = useNavigate();
   const [quizState, setQuizState] = useState<QuizState>("intro");
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [answerState, setAnswerState] = useState<AnswerState>({ selected: "", isCorrect: null });
-  const [score, setScore] = useState(0);
-  const [completedCount, setCompletedCount] = useState(0);
+  const [answersByExercise, setAnswersByExercise] = useState<Record<string, QuestionResult>>({});
+  const [reportedAmbiguityIds, setReportedAmbiguityIds] = useState<Record<string, boolean>>({});
   const [selectedCategory, setSelectedCategory] = useState<string>("全部");
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>("全部");
 
+  useEffect(() => {
+    const feedbackItems = readAmbiguityFeedback();
+    const reportedMap: Record<string, boolean> = {};
+    for (const item of feedbackItems) {
+      reportedMap[item.questionId] = true;
+    }
+    setReportedAmbiguityIds(reportedMap);
+  }, []);
+
   // 根据分类和难度筛选题目
   const filteredExercises = useMemo(() => {
-    let result = WORD_COLLOCATION_EXERCISES_NEW;
+    let result = WORD_COLLOCATION_QUESTIONS_V2;
 
-    // 按分类筛选
     if (selectedCategory !== "全部") {
       result = result.filter(ex => ex.category === selectedCategory);
     }
 
-    // 按难度筛选
     if (selectedDifficulty !== "全部") {
       result = result.filter(ex => ex.difficulty === selectedDifficulty);
     }
@@ -45,31 +82,52 @@ const WordCollocationPractice = () => {
     return result;
   }, [selectedCategory, selectedDifficulty]);
 
-  const currentExercise = filteredExercises[currentIndex];
   const totalQuestions = filteredExercises.length;
+
+  useEffect(() => {
+    if (totalQuestions === 0) {
+      if (currentIndex !== 0) {
+        setCurrentIndex(0);
+      }
+      return;
+    }
+
+    if (currentIndex >= totalQuestions) {
+      setCurrentIndex(0);
+    }
+  }, [currentIndex, totalQuestions]);
+
+  const currentExercise = filteredExercises[currentIndex] as CollocationQuestionV2 | undefined;
+  const answerState: AnswerState = currentExercise && answersByExercise[currentExercise.id]
+    ? answersByExercise[currentExercise.id]
+    : { selected: "", isCorrect: null };
+  const completedCount = Object.keys(answersByExercise).length;
+  const score = Object.values(answersByExercise).filter(result => result.isCorrect).length;
 
   // 选择答案
   const selectAnswer = (option: string) => {
-    if (answerState.isCorrect !== null) return;
+    if (!currentExercise || answerState.isCorrect !== null) return;
 
     const isCorrect = option === currentExercise.correct;
-    setAnswerState({ selected: option, isCorrect });
+
+    setAnswersByExercise(prev => ({
+      ...prev,
+      [currentExercise.id]: { selected: option, isCorrect },
+    }));
 
     if (isCorrect) {
       toast.success("✅ 回答正确！");
-      setScore(prev => prev + 1);
-      setCompletedCount(prev => prev + 1);
     } else {
       toast.error(`❌ 不对哦，正确答案是"${currentExercise.correct}"`);
-      setCompletedCount(prev => prev + 1);
     }
   };
 
   // 下一题
   const handleNext = () => {
+    if (totalQuestions === 0) return;
+
     if (currentIndex < totalQuestions - 1) {
       setCurrentIndex(prev => prev + 1);
-      setAnswerState({ selected: "", isCorrect: null });
     } else {
       setQuizState("result");
     }
@@ -79,25 +137,26 @@ const WordCollocationPractice = () => {
   const handlePrevious = () => {
     if (currentIndex > 0) {
       setCurrentIndex(prev => prev - 1);
-      setAnswerState({ selected: "", isCorrect: null });
     }
   };
 
   // 重置当前题目
   const resetCurrent = () => {
-    if (!answerState.isCorrect) {
-      setCompletedCount(prev => prev - 1);
-    }
-    setAnswerState({ selected: "", isCorrect: null });
+    if (!currentExercise) return;
+
+    setAnswersByExercise(prev => {
+      if (!prev[currentExercise.id]) return prev;
+      const next = { ...prev };
+      delete next[currentExercise.id];
+      return next;
+    });
   };
 
   // 开始练习
   const startQuiz = () => {
     setQuizState("playing");
     setCurrentIndex(0);
-    setScore(0);
-    setCompletedCount(0);
-    setAnswerState({ selected: "", isCorrect: null });
+    setAnswersByExercise({});
   };
 
   // 返回主页
@@ -108,6 +167,31 @@ const WordCollocationPractice = () => {
   // 计算正确率
   const calculateScore = () => {
     return completedCount > 0 ? Math.round((score / completedCount) * 100) : 0;
+  };
+
+  const reportAmbiguity = () => {
+    if (!currentExercise || answerState.selected === "") return;
+    if (reportedAmbiguityIds[currentExercise.id]) return;
+
+    const allFeedback = readAmbiguityFeedback();
+    const alreadyExists = allFeedback.some(item => item.questionId === currentExercise.id);
+    if (alreadyExists) {
+      setReportedAmbiguityIds(prev => ({ ...prev, [currentExercise.id]: true }));
+      toast.info("这道题已提交过歧义反馈");
+      return;
+    }
+
+    const feedback: CollocationAmbiguityFeedback = {
+      questionId: currentExercise.id,
+      category: currentExercise.category,
+      selectedOption: answerState.selected,
+      correctOption: currentExercise.correct,
+      stem: currentExercise.stem,
+      createdAt: new Date().toISOString(),
+    };
+    writeAmbiguityFeedback([...allFeedback, feedback]);
+    setReportedAmbiguityIds(prev => ({ ...prev, [currentExercise.id]: true }));
+    toast.success("已记录歧义反馈，后续会用于题目修订");
   };
 
   // 介绍页面
@@ -137,7 +221,8 @@ const WordCollocationPractice = () => {
                 <div className="bg-secondary p-4 rounded-lg space-y-2">
                   <p className="font-semibold">练习规则：</p>
                   <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                    <li>共 {WORD_COLLOCATION_EXERCISES_NEW.length} 道练习题</li>
+                    <li>共 {WORD_COLLOCATION_QUESTIONS_V2.length} 道练习题（已通过去歧义校验）</li>
+                    <li>已暂时下线 {WORD_COLLOCATION_QUESTIONS_V2_ALL.length - WORD_COLLOCATION_QUESTIONS_V2.length} 道高歧义风险题</li>
                     <li>包含 {COLLOCATION_CATEGORIES.length} 种搭配类型</li>
                     <li>可按分类筛选练习</li>
                     <li>每题 4 个选项，选择正确的搭配</li>
@@ -229,6 +314,51 @@ const WordCollocationPractice = () => {
     );
   }
 
+  if (!currentExercise) {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="w-full py-6 px-4 border-b border-border/50 bg-card/50 backdrop-blur-sm">
+          <div className="max-w-4xl mx-auto flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={goHome}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-2xl font-bold">词语搭配</h1>
+          </div>
+        </header>
+
+        <main className="max-w-4xl mx-auto px-4 py-8">
+          <Card className="p-8 text-center space-y-6">
+            <h2 className="text-2xl font-bold">当前筛选暂无题目</h2>
+            <p className="text-muted-foreground">
+              请调整筛选条件后再开始练习。
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button
+                onClick={() => {
+                  setSelectedCategory("全部");
+                  setSelectedDifficulty("全部");
+                  setCurrentIndex(0);
+                }}
+              >
+                重置筛选
+              </Button>
+              <Button variant="outline" onClick={goHome}>
+                返回主页
+              </Button>
+            </div>
+          </Card>
+        </main>
+      </div>
+    );
+  }
+
+  const selectedRationale: OptionRationale | undefined =
+    answerState.selected !== ""
+      ? currentExercise.feedback.rationales.find(r => r.option === answerState.selected)
+      : undefined;
+  const correctRationale: OptionRationale | undefined =
+    currentExercise.feedback.rationales.find(r => r.isCorrect);
+
   // 练习页面
   return (
     <div className="min-h-screen bg-background">
@@ -252,7 +382,7 @@ const WordCollocationPractice = () => {
           <div
             className="bg-primary h-1.5 rounded-full transition-all duration-300"
             style={{
-              width: `${((currentIndex + 1) / totalQuestions) * 100}%`,
+              width: `${totalQuestions > 0 ? ((currentIndex + 1) / totalQuestions) * 100 : 0}%`,
             }}
           />
         </div>
@@ -271,7 +401,10 @@ const WordCollocationPractice = () => {
                       key={category}
                       variant={selectedCategory === category ? "default" : "outline"}
                       size="sm"
-                      onClick={() => setSelectedCategory(category)}
+                      onClick={() => {
+                        setSelectedCategory(category);
+                        setCurrentIndex(0);
+                      }}
                       title={info.description}
                     >
                       <span className="mr-1">{info.icon}</span>
@@ -291,7 +424,10 @@ const WordCollocationPractice = () => {
                     key={difficulty}
                     variant={selectedDifficulty === difficulty ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setSelectedDifficulty(difficulty)}
+                    onClick={() => {
+                      setSelectedDifficulty(difficulty);
+                      setCurrentIndex(0);
+                    }}
                   >
                     {difficulty === "easy" && "🟢 简单"}
                     {difficulty === "medium" && "🟡 中等"}
@@ -310,6 +446,7 @@ const WordCollocationPractice = () => {
                 onClick={() => {
                   setSelectedCategory("全部");
                   setSelectedDifficulty("全部");
+                  setCurrentIndex(0);
                 }}
                 className="w-full"
               >
@@ -331,9 +468,15 @@ const WordCollocationPractice = () => {
                 <div className="px-3 py-0.5 rounded-full bg-purple-500/10 text-purple-600 text-xs font-medium">
                   {currentExercise.category}
                 </div>
+                <div className="px-3 py-0.5 rounded-full bg-cyan-500/10 text-cyan-700 text-xs font-medium">
+                  {currentExercise.quality.reviewStatus}
+                </div>
               </div>
               <p className="text-sm text-muted-foreground">
                 {currentExercise.categoryDescription}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                考点：{currentExercise.competency}
               </p>
             </div>
 
@@ -342,16 +485,19 @@ const WordCollocationPractice = () => {
               <div className="text-2xl text-muted-foreground">
                 请选择正确的词语填空
               </div>
+              <p className="text-sm text-muted-foreground">
+                基于句子语境，选择唯一最合适的搭配
+              </p>
 
-              {/* 填空题 - 显示 left + connector + ___ */}
-              <div className="py-6">
-                <div className="flex items-center justify-center text-4xl font-bold text-foreground flex-wrap gap-2">
-                  <span>{currentExercise.left}</span>
-                  {currentExercise.connector && (
-                    <span className="text-foreground px-1">{currentExercise.connector}</span>
-                  )}
-                  <span className="text-primary px-2 py-1 border-b-2 border-primary/30">___</span>
-                </div>
+              <div className="py-4 px-4 sm:px-6 rounded-lg bg-secondary/50 border text-left">
+                <p className="text-xl sm:text-2xl font-semibold leading-relaxed">
+                  {currentExercise.stem}
+                </p>
+                {currentExercise.answerMode === "word" && (
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    搭配提示：{currentExercise.left}{currentExercise.connector ?? ""}___
+                  </p>
+                )}
               </div>
             </div>
 
@@ -361,6 +507,9 @@ const WordCollocationPractice = () => {
                 const isSelected = answerState.selected === option.text;
                 const showResult = answerState.isCorrect !== null;
                 const isCorrectOption = option.text === currentExercise.correct;
+                const optionPhrase = `${currentExercise.left}${currentExercise.connector ?? ""}${option.text}`;
+                const optionLabel =
+                  currentExercise.answerMode === "word" ? option.text : optionPhrase;
 
                 return (
                   <Button
@@ -378,7 +527,7 @@ const WordCollocationPractice = () => {
                     }`}
                   >
                     <span className="flex flex-col items-center">
-                      <span>{option.text}</span>
+                      <span>{optionLabel}</span>
                       <span className="text-xs text-muted-foreground font-normal">{option.pinyin}</span>
                     </span>
                   </Button>
@@ -425,6 +574,9 @@ const WordCollocationPractice = () => {
                     </div>
                   </div>
                 )}
+                <p className="mt-3 text-sm text-muted-foreground">
+                  完整句子：{currentExercise.contextSentence}
+                </p>
               </div>
             )}
 
@@ -446,6 +598,42 @@ const WordCollocationPractice = () => {
                     </span>
                   </>
                 )}
+              </div>
+            )}
+
+            {/* 错因解释 */}
+            {answerState.isCorrect !== null && (
+              <div className="w-full text-left bg-secondary/50 p-3 rounded-lg space-y-2">
+                {selectedRationale && !selectedRationale.isCorrect && (
+                  <div className="p-2 rounded bg-red-50 dark:bg-red-900/20">
+                    <p className="text-sm font-semibold text-red-700 dark:text-red-300">
+                      你选择的“{selectedRationale.option}”为什么不对
+                    </p>
+                    <p className="text-sm text-muted-foreground">{selectedRationale.reason}</p>
+                    {selectedRationale.contrastExample && (
+                      <p className="text-xs text-muted-foreground mt-1">{selectedRationale.contrastExample}</p>
+                    )}
+                  </div>
+                )}
+                {correctRationale && (
+                  <div className="p-2 rounded bg-green-50 dark:bg-green-900/20">
+                    <p className="text-sm font-semibold text-green-700 dark:text-green-300">
+                      正确答案“{correctRationale.option}”为什么对
+                    </p>
+                    <p className="text-sm text-muted-foreground">{correctRationale.reason}</p>
+                  </div>
+                )}
+                <div className="pt-1">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={reportAmbiguity}
+                    disabled={reportedAmbiguityIds[currentExercise.id]}
+                  >
+                    {reportedAmbiguityIds[currentExercise.id] ? "已提交歧义反馈" : "这题有歧义"}
+                  </Button>
+                </div>
               </div>
             )}
 
@@ -532,16 +720,13 @@ const WordCollocationPractice = () => {
             {filteredExercises.map((exercise, idx) => (
               <button
                 key={exercise.id}
-                onClick={() => {
-                  setCurrentIndex(idx);
-                  setAnswerState({ selected: "", isCorrect: null });
-                }}
+                onClick={() => setCurrentIndex(idx)}
                 className={`
                   p-2 rounded-lg border-2 transition-all text-center
                   ${
                     idx === currentIndex
-                      ? 'border-primary bg-primary/10 scale-105'
-                      : 'border-border hover:border-primary/50 hover:bg-secondary/50'
+                      ? "border-primary bg-primary/10 scale-105"
+                      : "border-border hover:border-primary/50 hover:bg-secondary/50"
                   }
                 `}
               >

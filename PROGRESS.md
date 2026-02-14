@@ -1,5 +1,210 @@
 # K12-Education 项目开发进度
 
+## 2026-02-12 - 组词训练 V1 首版实现（400题）
+
+### 本次完成
+- **新增组词模块**
+  - 新增页面：`/word-building`
+  - 首页新增“组词训练”入口卡片
+  - 四玩法统一练习流程：单字组选 / 拼字成词 / 语境选词 / 开放输入
+
+- **题库与类型系统落地**
+  - 新增 `wordBuildingTypes.ts`：完整题型与质量字段
+  - 新增 `wordBuildingLexicon.ts`：基于现有字库提取 2 字词词库
+  - 新增 `wordBuildingQuestions.ts`：按年级与玩法生成 400 题发布集
+  - 分布满足：4 年级段 × 4 玩法 × 每组 25 题
+
+- **学习闭环功能**
+  - 支持按年级+玩法自由练习
+  - 结果页显示正确率、错题回顾
+  - 支持“错题重练”（仅抽取本轮错题）
+  - 错题本本地持久化：`k12_word_building_wrongbook_v1`
+
+- **质量门禁脚本**
+  - 新增 `validate:word-building`：校验 400 题结构/分布/唯一性规则
+  - 新增 `report:word-building`：输出按年级/玩法/难度分布报告
+
+### 受影响文件
+```
+src/data/wordBuildingTypes.ts
+src/data/wordBuildingLexicon.ts
+src/data/wordBuildingQuestions.ts
+src/pages/WordBuildingPractice.tsx
+src/components/word-building/ChoiceQuestionPanel.tsx
+src/components/word-building/DragQuestionPanel.tsx
+src/components/word-building/ContextQuestionPanel.tsx
+src/components/word-building/InputQuestionPanel.tsx
+scripts/validate-word-building.ts
+scripts/report-word-building.ts
+src/App.tsx
+src/data/chinese/modules.ts
+package.json
+```
+
+### 验证结果
+- ✅ `npm run validate:word-building` 通过（400 题，0 问题）
+- ✅ `npm run report:word-building` 通过（总计 400 题）
+- ✅ `npm run build` 通过
+
+---
+
+## 2026-02-12 - 词语搭配全量下线与重构规划
+
+### 本次完成
+- **全量下线**
+  - 首页模块入口 `word-collocation` 已置为禁用
+  - 路由 `/word-collocation` 已切换为下线提示页
+  - 用户无法继续进入旧版词语搭配练习流程
+
+- **重构规划文档重写**
+  - 输出全量重构版 PRD：
+    - `/docs/WORD_COLLOCATION_REDESIGN_PRD.md`
+  - 明确 V3 题型、数据模型、门禁规则、实施里程碑与验收指标
+
+### 受影响文件
+```
+src/data/chinese/modules.ts
+src/App.tsx
+src/pages/WordCollocationOffline.tsx
+docs/WORD_COLLOCATION_REDESIGN_PRD.md
+```
+
+### 验证结果
+- ✅ 首页“词语搭配”显示为禁用态
+- ✅ 直接访问 `/word-collocation` 显示“功能重构中，暂时下线”
+- ✅ `npm run build` 通过
+
+---
+
+## 2026-02-12 - 词语搭配去歧义门禁（第二轮）
+
+### 本次完成
+- **新增语境强度校验**
+  - 在 `wordCollocationV2.ts` 增加 `contextSignal` 规则
+  - 对“句末短题干 + 开放搭配”场景自动降级为 `draft`
+  - `uniquenessCheck` 新增 `hitCount` / `correctHit` / `contextSignalPassed` / `contextSignalNote`
+  - 新增“最佳例句自动选择”逻辑，优先使用语境信息更充分的例句生成题干
+
+- **题库发布口径调整**
+  - 仅发布通过“词命中唯一 + 语境强度”双重校验的题目
+  - 新增导出：
+    - `WORD_COLLOCATION_QUESTIONS_V2_ALL`
+    - `WORD_COLLOCATION_QUESTIONS_V2`（发布集）
+    - `WORD_COLLOCATION_QUESTIONS_V2_DRAFT`（待修订集）
+  - 截图反馈题 `wc026`、`wc027` 已从发布集下线
+  - 新增高风险题强制下线清单（地点泛化、近义补语、程度近义词等）
+
+- **质量脚本升级**
+  - `validate:collocation` 增加 `contextSignalPassed` 强校验
+  - `report:collocation` 增加 all/passed/draft 统计与 draft 原因分布
+
+- **页面文案同步**
+  - 词语搭配介绍页显示“通过去歧义校验题量”
+  - 显示“暂时下线的高歧义风险题量”
+
+### 验证结果
+- ✅ `npm run validate:collocation` 通过（发布题 34，0 问题）
+- ✅ `npm run report:collocation` 通过（all: 82 / passed: 34 / draft: 48）
+- ✅ `npm run build` 通过
+
+---
+
+## 2026-02-12 - 词语搭配 V2 完整实现
+
+### 本次完成
+- **V2 模型落地完成**
+  - 新增 `CollocationQuestionV2` 质量字段：`quality.source`、`quality.reviewStatus`
+  - 新增歧义反馈结构：`CollocationAmbiguityFeedback`
+  - 新增解释体系：`OptionRationale` / `CollocationFeedbackV2`
+
+- **数据适配与解释能力升级**
+  - 新增 `wordCollocationV2.ts`：将历史题库转换为 V2 结构
+  - 新增分类级解释模板（7 类搭配）
+  - 新增人工精修解释覆盖机制（首批 5 题）
+  - 自动打标 `reviewStatus`：`auto_checked` / `reviewed`
+
+- **前端功能闭环**
+  - 页面切换到 V2 数据源渲染
+  - 增加“考点”与“审核状态”展示
+  - 增加“这题有歧义”反馈按钮
+  - 歧义反馈本地持久化（localStorage）
+
+- **质量门禁完善**
+  - 增强唯一性校验脚本，新增字段完整性与质量状态校验
+  - 新增质量报告脚本：输出分类、难度、审核状态、来源统计
+  - 新增 CI 工作流：PR/Push 自动执行 `validate:collocation` + `build`
+
+### 验证结果
+- ✅ `npm run validate:collocation` 通过（82题，0问题）
+- ✅ `npm run report:collocation` 通过（`reviewed: 5`，`auto_checked: 77`）
+- ✅ `npm run build` 通过
+- ✅ 相关文件 ESLint 通过
+
+### 新增/修改文件
+```
+src/data/wordCollocationTypes.ts
+src/data/wordCollocationV2.ts
+src/data/wordCollocationRationaleOverrides.ts
+src/pages/WordCollocationPractice.tsx
+scripts/validate-collocation-uniqueness.ts
+scripts/report-collocation-quality.ts
+.github/workflows/collocation-quality.yml
+package.json
+```
+
+---
+
+## 2026-02-12 - 词语搭配唯一正确性修复与专项验证
+
+### 问题背景
+- 词语搭配页面存在“选项语义接近导致误导”的风险
+- 筛选组合可能出现 0 题，存在 `currentExercise` 空引用风险
+- 计分可被“重置后重复作答”影响，准确性不足
+
+### 关键修复
+- **题目语境化**
+  - 将题目统一升级为“句子语境填空”
+  - 优先使用完整搭配（`left + connector + correct`）在句子中挖空
+  - 选项展示按题型自动切换：完整搭配或填空词（当前数据集均为完整搭配）
+
+- **唯一正确性收紧**
+  - 页面仅保留可语境化出题的数据（不可语境化题目不进入练习）
+  - 强化提示文案：基于句子语境选择唯一最合适搭配
+  - 答题后展示完整句子，帮助校验理解
+
+- **稳定性与计分修复**
+  - 修复筛选后 0 题时的空引用和进度条除零风险
+  - 将计分逻辑改为按题目 ID 去重记录（`answersByExercise`）
+  - 修复重置题目时统计回退逻辑，防止刷分
+
+- **数据口径一致性**
+  - `wordCollocationDataNew.ts` 统计改为动态计算，移除硬编码题量
+  - 修正文档与注释中的旧口径：当前实际数据为 82 题（非 120）
+
+### 验证结果
+- ✅ 唯一正确性自动校验通过
+  - 总题数：82
+  - 语境题模式：82
+  - 歧义命中问题：0
+- ✅ `eslint src/pages/WordCollocationPractice.tsx` 通过
+- ✅ `npm run build` 通过
+
+### 受影响文件
+```
+src/pages/WordCollocationPractice.tsx
+src/data/wordCollocationDataNew.ts
+src/data/wordCollocationDataNew_Part1.ts
+```
+
+### 当前状态
+**✅ 词语搭配“唯一正确”约束已落地并通过自动化验证**
+
+### 下一步计划
+- 逐题补全 Part1 数据，恢复至完整目标题量（120）
+- 对新增题目继续执行“语境唯一命中”自动校验
+
+---
+
 ## 2026-02-11 - 词语搭配数据重构与集成
 
 ### 重大更新

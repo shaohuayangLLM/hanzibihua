@@ -2,6 +2,172 @@
 
 所有重要变更都将记录在此文件中。
 
+## [1.5.0] - 2026-02-12
+
+### ✨ 新增功能：组词训练模块（Word Building）
+
+- 新增模块入口：`组词训练`（`/word-building`）
+- 新增四种玩法并统一在同一练习页：
+  - `choice` 单字组选
+  - `drag` 拼字成词
+  - `context` 语境选词
+  - `input` 开放输入（词库精确匹配）
+
+### 📚 题库与类型系统
+
+- 新增 `src/data/wordBuildingTypes.ts`（完整题型定义）
+- 新增 `src/data/wordBuildingLexicon.ts`（词库提取层）
+- 新增 `src/data/wordBuildingQuestions.ts`（400 题发布集）
+- 题量与分布：
+  - 总计 400 题
+  - 四年级段各 100 题
+  - 四玩法各 100 题
+  - 每个“年级+玩法”25 题，难度 15/8/2
+
+### 🧩 学习闭环
+
+- 结果页新增“错题回顾”
+- 支持“错题重练”（仅重练本轮错题）
+- 本地错题本持久化：`k12_word_building_wrongbook_v1`
+
+### 🛡️ 质量门禁
+
+- 新增 `validate:word-building` 校验脚本
+- 新增 `report:word-building` 质量报告脚本
+- `package.json` 新增对应 npm scripts
+
+### ✅ 验证
+
+- `npm run validate:word-building` 通过（400 题，0 问题）
+- `npm run report:word-building` 通过（分布符合设计）
+- `npm run build` 通过
+
+## [1.4.4] - 2026-02-12
+
+### 🚫 词语搭配全量下线
+
+- 首页模块 `word-collocation` 已设置 `disabled: true`
+- 路由 `/word-collocation` 切换为下线提示页 `WordCollocationOffline`
+- 暂停旧版题库对外练习，避免继续产生歧义误导
+
+### 📘 重构规划
+
+- 重写词语搭配重构 PRD：`docs/WORD_COLLOCATION_REDESIGN_PRD.md`
+- 新版规划覆盖：
+  - V3 题型（语境填空 / 搭配辨析 / 场景选择）
+  - 题目硬规则与高风险题策略
+  - 新数据模型与质量门禁
+  - 分阶段恢复计划与验收指标
+
+### ✅ 验证
+
+- `/word-collocation` 可访问且仅展示“重构中”提示
+- `npm run build` 通过
+
+## [1.4.3] - 2026-02-12
+
+### 🛡️ 去歧义门禁升级
+
+**词语搭配新增“语境强度”校验**
+- 在 `wordCollocationV2.ts` 新增 `contextSignal` 规则
+- 仅当“词命中唯一 + 语境强度通过”时才进入发布题库
+- 新增“最佳例句自动选择”策略，优先使用语境更完整的例句生成题干
+- `uniquenessCheck` 新增字段：
+  - `hitCount`
+  - `correctHit`
+  - `contextSignalPassed`
+  - `contextSignalNote`
+
+### 📦 题库导出调整
+
+- 新增完整/发布/草稿三套导出：
+  - `WORD_COLLOCATION_QUESTIONS_V2_ALL`
+  - `WORD_COLLOCATION_QUESTIONS_V2`
+  - `WORD_COLLOCATION_QUESTIONS_V2_DRAFT`
+- 截图反馈中的歧义题（`wc026`、`wc027`）已从发布集移除
+- 新增高风险题强制下线清单（地点泛化、近义补语、程度近义词等）
+
+### 📊 质量脚本增强
+
+- `validate:collocation` 新增 `contextSignalPassed` 校验项
+- `report:collocation` 新增：
+  - all/passed/draft 题量
+  - draft 原因分布统计
+
+### 🖥️ 页面提示优化
+
+- 词语搭配介绍页增加“通过去歧义校验题量”
+- 增加“高歧义风险下线题量”提示
+
+### ✅ 验证
+
+- `npm run validate:collocation` 通过（passed: 34）
+- `npm run report:collocation` 通过（all: 82 / passed: 34 / draft: 48）
+- `npm run build` 通过
+
+## [1.4.2] - 2026-02-12
+
+### ✨ 新增功能
+
+**词语搭配 V2 模型完整实现**
+- 新增 `CollocationQuestionV2` 质量元数据（`source` / `reviewStatus`）
+- 新增歧义反馈数据结构 `CollocationAmbiguityFeedback`
+- 新增 `wordCollocationV2.ts` 适配层：历史题库自动转换为 V2 题目
+
+### 🧠 教学反馈增强
+
+**错因解释系统升级**
+- 按搭配类型提供差异化解释模板（7 类）
+- 新增人工精修解释覆盖机制（首批 5 题）
+- 页面展示“所选项为什么错 + 正确项为什么对”
+
+### 🖥️ 交互完善
+
+- 词语搭配页面新增“考点”与“审核状态”展示
+- 新增“这题有歧义”反馈按钮
+- 歧义反馈写入 localStorage，避免重复提交
+
+### 🛡️ 质量门禁
+
+- 增强 `validate:collocation` 校验规则（唯一性、解释完整性、审核状态一致性）
+- 新增 `report:collocation` 质量报告命令
+- 新增 GitHub Actions 工作流 `collocation-quality.yml`，PR/Push 自动执行校验与构建
+
+### ✅ 验证
+
+- `npm run validate:collocation` 通过（82 题，0 问题）
+- `npm run report:collocation` 通过（reviewed: 5，auto_checked: 77）
+- `npm run build` 通过
+
+## [1.4.1] - 2026-02-12
+
+### 🐛 问题修复
+
+**词语搭配唯一正确性与稳定性修复**
+- 修复筛选后 0 题导致的空引用风险（`currentExercise` 兜底渲染）
+- 修复进度条在 0 题场景下的除零问题
+- 修复重置题目后的计分不准确问题，改为按题目 ID 去重计分
+
+### 🎯 题目质量优化
+
+**从“词组匹配”升级为“句子语境填空”**
+- 题目基于例句语境挖空，降低多选项语义接近的误导
+- 优先使用完整搭配短语挖空（`left + connector + correct`）
+- 选项展示支持按题型切换（完整搭配 / 填空词）
+- 答题后展示完整句子，便于理解与复盘
+
+### 📊 数据与口径修正
+
+- 将词语搭配统计改为动态计算，移除硬编码分类计数
+- 修正文档注释口径：当前实际题量为 82（待补全至 120）
+- 修正 Part1 分类统计（形容词+名词当前为 4 题）
+
+### ✅ 验证
+
+- 唯一正确性自动校验通过（82 题，歧义命中问题 0）
+- `eslint src/pages/WordCollocationPractice.tsx` 通过
+- `npm run build` 通过
+
 ## [1.4.0] - 2026-02-11
 
 ### ✨ 新增功能

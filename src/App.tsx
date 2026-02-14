@@ -14,7 +14,8 @@ import PolyphonePractice from "./pages/PolyphonePractice";
 import SimilarCharacters from "./pages/SimilarCharacters";
 import QuantityWordPractice from "./pages/QuantityWordPractice";
 import AntonymSynonymPractice from "./pages/AntonymSynonymPractice";
-import WordCollocationPractice from "./pages/WordCollocationPractice";
+import WordCollocationOffline from "./pages/WordCollocationOffline";
+import WordBuildingPractice from "./pages/WordBuildingPractice";
 import SentenceExpansionPractice from "./pages/SentenceExpansionPractice";
 import StrokeNames from "./pages/StrokeNames";
 import CharacterFinder from "./pages/CharacterFinder";
@@ -52,7 +53,8 @@ const App = () => (
           <Route path="/similar-characters" element={<SimilarCharacters />} />
           <Route path="/quantity-words" element={<QuantityWordPractice />} />
           <Route path="/antonym-synonym" element={<AntonymSynonymPractice />} />
-          <Route path="/word-collocation" element={<WordCollocationPractice />} />
+          <Route path="/word-building" element={<WordBuildingPractice />} />
+          <Route path="/word-collocation" element={<WordCollocationOffline />} />
           <Route path="/sentence-expansion" element={<SentenceExpansionPractice />} />
           <Route path="/stroke-names" element={<StrokeNames />} />
           <Route path="/character-finder" element={<CharacterFinder />} />

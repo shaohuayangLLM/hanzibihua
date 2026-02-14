@@ -3,10 +3,10 @@
  * 修正了所有概念错误，提升教学价值
  *
  * 数据来源：
- * - Part 1: 形容词+名词、量词+名词、动词+宾语 (60题)
- * - Part 2: 副词+动词、副词+形容词、名词合成词、动词+补语 (60题)
+ * - Part 1: 形容词+名词、量词+名词、动词+宾语
+ * - Part 2: 副词+动词、副词+形容词、名词合成词、动词+补语
  *
- * 总计：120 道高质量练习题
+ * 题量以实际导入的数据为准
  */
 
 import type { CollocationExercise } from "./wordCollocationTypes";
@@ -21,18 +21,23 @@ import { WORD_COLLOCATION_EXERCISES_PART1_TEMP as WORD_COLLOCATION_EXERCISES_PAR
  * 词语搭配练习完整数据集
  *
  * 包含7大搭配类型：
- * 1. 形容词+名词 (25题) - 形容词用"的"修饰名词
- * 2. 量词+名词 (15题) - 量词和名词搭配
- * 3. 动词+宾语 (20题) - 动词直接接宾语
- * 4. 副词+动词 (20题) - 副词用"地"修饰动词
- * 5. 副词+形容词 (15题) - 副词修饰形容词表示程度
- * 6. 名词合成词 (15题) - 两个名词组合成新词
- * 7. 动词+补语 (10题) - 动词后接补语说明结果/趋向
+ * 1. 形容词+名词 - 形容词用"的"修饰名词
+ * 2. 量词+名词 - 量词和名词搭配
+ * 3. 动词+宾语 - 动词直接接宾语
+ * 4. 副词+动词 - 副词用"地"修饰动词
+ * 5. 副词+形容词 - 副词修饰形容词表示程度
+ * 6. 名词合成词 - 两个名词组合成新词
+ * 7. 动词+补语 - 动词后接补语说明结果/趋向
  */
 export const WORD_COLLOCATION_EXERCISES_NEW: CollocationExercise[] = [
   ...WORD_COLLOCATION_EXERCISES_PART1,
   ...WORD_COLLOCATION_EXERCISES_PART2,
 ];
+
+const byCategory = COLLOCATION_CATEGORIES.reduce<Record<string, number>>((acc, category) => {
+  acc[category] = WORD_COLLOCATION_EXERCISES_NEW.filter(ex => ex.category === category).length;
+  return acc;
+}, {});
 
 /**
  * 按分类获取练习题
@@ -74,15 +79,7 @@ export const getExercisesRange = (
  */
 export const COLLOCATION_STATS = {
   total: WORD_COLLOCATION_EXERCISES_NEW.length,
-  byCategory: {
-    "形容词+名词": 25,
-    "量词+名词": 15,
-    "动词+宾语": 20,
-    "副词+动词": 20,
-    "副词+形容词": 15,
-    "名词合成词": 15,
-    "动词+补语": 10,
-  },
+  byCategory,
   byDifficulty: {
     easy: WORD_COLLOCATION_EXERCISES_NEW.filter(ex => ex.difficulty === "easy").length,
     medium: WORD_COLLOCATION_EXERCISES_NEW.filter(ex => ex.difficulty === "medium").length,

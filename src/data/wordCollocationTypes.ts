@@ -47,6 +47,54 @@ export interface CollocationExample {
   highlight: string;             // 高亮部分（正确搭配）
 }
 
+export type CollocationAnswerMode = "phrase" | "word";
+export type CollocationReviewStatus = "draft" | "auto_checked" | "reviewed" | "published";
+
+export interface OptionRationale {
+  option: string;
+  isCorrect: boolean;
+  reason: string;
+  contrastExample?: string;
+}
+
+export interface CollocationFeedbackV2 {
+  tip?: string;
+  rationales: OptionRationale[];
+}
+
+export interface CollocationQuestionV2 extends CollocationExercise {
+  competency: string;
+  contextSentence: string;
+  blankTarget: string;
+  stem: string;
+  answerMode: CollocationAnswerMode;
+  uniquenessCheck: {
+    mode: "context-word";
+    expectedMatchCount: 1;
+    lastCheckedAt: string;
+    hitCount: number;
+    correctHit: boolean;
+    contextSignalPassed: boolean;
+    contextSignalNote?: string;
+    passed: boolean;
+  };
+  quality: {
+    source: "v1-adapted" | "manual";
+    reviewStatus: CollocationReviewStatus;
+    reviewerNote?: string;
+  };
+  feedback: CollocationFeedbackV2;
+}
+
+export interface CollocationAmbiguityFeedback {
+  questionId: string;
+  category: CollocationCategory;
+  selectedOption: string;
+  correctOption: string;
+  stem: string;
+  createdAt: string;
+}
+
 // ============ 枚举类型 ============
 
 export type CollocationCategory =

@@ -2,13 +2,13 @@
  * 词语搭配练习数据 - 重构版 Part 1 (Clean Version)
  * 形容词+名词、量词+名词、动词+宾语
  *
- * 注意：tip 字段暂时移除，待后续添加
+ * 当前为精简版：22 题（形容词+名词 4 题，量词+名词 8 题，动词+宾语 10 题）
  */
 
 import type { CollocationExercise } from "./wordCollocationTypes";
 
 export const WORD_COLLOCATION_EXERCISES_PART1_CLEAN: CollocationExercise[] = [
-  // ============ 形容词+名词 (25题) ============
+  // ============ 形容词+名词 (4题，待补全) ============
   {
     id: "wc001",
     category: "形容词+名词",
@@ -614,7 +614,7 @@ export const getExercisesRange = (
 export const COLLOCATION_STATS_PART1 = {
   total: WORD_COLLOCATION_EXERCISES_PART1_TEMP.length,
   byCategory: {
-    "形容词+名词": 12,
+    "形容词+名词": 4,
     "量词+名词": 8,
     "动词+宾语": 10,
   },
