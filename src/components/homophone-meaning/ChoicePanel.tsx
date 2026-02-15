@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
-import type { HomophoneChoiceQuestion } from "@/data/homophoneMeaningTypes";
+import type { HomophoneChoiceQuestion, HomophoneChoiceQuestionV2 } from "@/data/homophoneMeaningTypes";
 
 interface ChoicePanelProps {
-  question: HomophoneChoiceQuestion;
+  question: HomophoneChoiceQuestion | HomophoneChoiceQuestionV2;
   selected: string;
   checked: boolean;
   onSubmit: (answer: string) => void;
@@ -12,7 +12,7 @@ export const ChoicePanel = ({ question, selected, checked, onSubmit }: ChoicePan
   return (
     <div className="space-y-4">
       <div className="rounded-lg border bg-secondary/40 p-4 text-left space-y-2">
-        <p className="text-sm text-muted-foreground">同音词辨义（同拼音同声调）</p>
+        <p className="text-sm text-muted-foreground">词义建构：同音词语义区分</p>
         <p className="text-lg font-semibold">读音：{question.targetPinyin}</p>
         <p className="text-xl font-bold leading-relaxed">{question.promptMeaning}</p>
       </div>

@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
-import type { HomophoneContextQuestion } from "@/data/homophoneMeaningTypes";
+import type { HomophoneContextQuestion, HomophoneContextQuestionV2 } from "@/data/homophoneMeaningTypes";
 
 interface ContextPanelProps {
-  question: HomophoneContextQuestion;
+  question: HomophoneContextQuestion | HomophoneContextQuestionV2;
   selected: string;
   checked: boolean;
   onSubmit: (answer: string) => void;
@@ -12,7 +12,7 @@ export const ContextPanel = ({ question, selected, checked, onSubmit }: ContextP
   return (
     <div className="space-y-4">
       <div className="rounded-lg border bg-secondary/40 p-4 text-left space-y-2">
-        <p className="text-sm text-muted-foreground">根据句子语境，选择最合适的同音词</p>
+        <p className="text-sm text-muted-foreground">语境应用：根据线索选择更恰当的词语</p>
         <p className="text-xl font-bold leading-relaxed">{question.stem}</p>
       </div>
 

@@ -24,7 +24,7 @@ export const MathHome: React.FC = () => {
             <Calculator className="h-5 w-5 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-foreground">
-            一年级数学（苏教版上册）
+            数学学习中心
           </h1>
         </div>
       </header>
@@ -36,7 +36,7 @@ export const MathHome: React.FC = () => {
             选择学习模块
           </h2>
           <p className="text-muted-foreground">
-            点击卡片开始练习或测试
+            按学习路径循序练习，逐步完成知识巩固
           </p>
         </div>
 
@@ -99,7 +99,7 @@ export const MathHome: React.FC = () => {
         {/* Bottom Info */}
         <div className="mt-12 text-center">
           <p className="text-sm text-muted-foreground">
-            💡 提示：每个模块都包含练习模式和测试模式
+            💡 提示：先完成基础概念，再进行综合巩固
           </p>
         </div>
       </main>

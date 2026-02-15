@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import type { HomophoneInputQuestion } from "@/data/homophoneMeaningTypes";
+import type { HomophoneInputQuestion, HomophoneInputQuestionV2 } from "@/data/homophoneMeaningTypes";
 
 interface InputPanelProps {
-  question: HomophoneInputQuestion;
+  question: HomophoneInputQuestion | HomophoneInputQuestionV2;
   selected: string;
   checked: boolean;
   onSubmit: (answer: string) => void;
@@ -19,7 +19,7 @@ export const InputPanel = ({ question, selected, checked, onSubmit }: InputPanel
   return (
     <div className="space-y-4">
       <div className="rounded-lg border bg-secondary/40 p-4 text-left space-y-2">
-        <p className="text-sm text-muted-foreground">输入作答（仅精确匹配判对）</p>
+        <p className="text-sm text-muted-foreground">输入练习（用于主动表达与迁移）</p>
         <p className="text-lg font-semibold leading-relaxed">{question.prompt}</p>
       </div>
 

@@ -33,9 +33,9 @@ export const RadarSummary = ({ modeAccuracy }: RadarSummaryProps) => {
           <RadarChart data={data} outerRadius="72%">
             <PolarGrid stroke="hsl(var(--border))" />
             <PolarAngleAxis dataKey="metric" tick={{ fill: "hsl(var(--foreground))", fontSize: 12 }} />
-            <Tooltip formatter={(value: number) => [`${value}%`, "正确率"]} />
+            <Tooltip formatter={(value: number) => [`${value}%`, "掌握度"]} />
             <Radar
-              name="正确率"
+              name="掌握度"
               dataKey="accuracy"
               stroke="hsl(var(--primary))"
               fill="hsl(var(--primary))"

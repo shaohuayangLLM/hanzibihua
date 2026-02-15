@@ -1,10 +1,6 @@
 import React from 'react';
-import { MathQuestion, MathQuestionType, BaseQuestion } from '@/data/math/types';
-import { PlaceValueRenderer } from './renderers/PlaceValueRenderer';
-import { PictureOperationRenderer } from './renderers/PictureOperationRenderer';
+import { MathQuestion, MathQuestionType } from '@/data/math/types';
 import { CalculationRenderer } from './renderers/CalculationRenderer';
-import { QueueRenderer } from './renderers/QueueRenderer';
-import { DefaultRenderer } from './renderers/DefaultRenderer';
 
 interface QuestionRendererProps {
   question: MathQuestion;
@@ -19,7 +15,6 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
   selectedAnswer,
   onAnswer
 }) => {
-  // 临时禁用可视化渲染器，只显示题目文字和选项
   const hasCalculationType = [
     MathQuestionType.NUMBER_COMPOSITION,
     MathQuestionType.MAKE_TEN_METHOD,
@@ -35,6 +30,10 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
           {question.question}
         </h3>
       </div>
+
+      {hasCalculationType && (
+        <CalculationRenderer question={question} showAnswer={showAnswer} />
+      )}
 
       {/* 选项交互 */}
       {onAnswer && question.options && (
@@ -72,14 +71,14 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
       )}
 
       {/* 说明文字 */}
-      {showAnswer && question.explanation && (
+      {showAnswer && question.explanation && !hasCalculationType && (
         <div className="mt-4 p-4 bg-muted/50 rounded-xl border border-border mx-auto max-w-2xl">
           <p className="text-sm text-foreground text-center">{question.explanation}</p>
         </div>
       )}
 
       {/* 提示 */}
-      {question.hint && !showAnswer && !selectedAnswer && (
+      {question.hint && !showAnswer && !selectedAnswer && !hasCalculationType && (
         <div className="mt-2 px-4 py-2 bg-amber-50 dark:bg-amber-950 rounded-lg border border-amber-200 dark:border-amber-800 mx-auto w-fit">
           <p className="text-sm text-amber-700 dark:text-amber-300">
             💡 {question.hint}
@@ -89,4 +88,3 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
     </div>
   );
 };
-

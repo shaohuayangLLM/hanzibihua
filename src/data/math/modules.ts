@@ -44,33 +44,30 @@ export const MATH_MODULES: MathModule[] = [
   },
   {
     id: 'final-exam',
-    title: '期末测评',
+    title: '综合巩固',
     icon: '📝',
     color: 'bg-pink-500',
-    description: '期末综合测评：规律、相邻数、填未知数、符号填空等',
+    description: '综合复习核心知识点：规律、相邻数、填未知数、符号填空等',
     questionTypes: Object.values(MathQuestionType), // 包含所有题型
   },
   {
     id: 'comprehensive',
-    title: '综合测试',
+    title: '能力闯关',
     icon: '🎯',
     color: 'bg-red-500',
-    description: '综合考察所有知识点，检验学习成果',
+    description: '分层挑战多类题型，提升数学应用与思维能力',
     questionTypes: Object.values(MathQuestionType),
   },
   {
     id: 'calculation',
-    title: '计算与凑十法',
+    title: '凑十法与破十法',
     icon: '➕',
     color: 'bg-purple-500',
-    description: '学习数的分与合、凑十法和20以内进位加法',
+    description: '学习20以内加减法中的凑十法和破十法',
     questionTypes: [
-      MathQuestionType.NUMBER_COMPOSITION,
       MathQuestionType.MAKE_TEN_METHOD,
       MathQuestionType.ADDITION_WITHIN_20_CARRY,
-      MathQuestionType.NUMBER_LINE_CALCULATION,
     ],
-    disabled: true, // 暂时禁用此模块
   },
 ];
 

@@ -95,3 +95,85 @@ export const COMPETENCY_LABELS: Record<HomophoneMode, HomophoneQuestionBase["com
   context: "语境应用",
   input: "主动输出",
 };
+
+export type MisconceptionType =
+  | "字形联想"
+  | "近义误判"
+  | "搭配不当"
+  | "语境忽略";
+
+export type AcceptanceMode = "exact" | "normalized" | "semantic-set";
+
+export interface HomophoneQuestionEvidence {
+  sourceType: "textbook" | "editorial";
+  sourceId: string;
+  excerpt: string;
+}
+
+export interface HomophoneDistractorRationale {
+  option: string;
+  reason: string;
+  misconceptionType?: MisconceptionType;
+}
+
+export interface HomophoneAcceptancePolicy {
+  mode: AcceptanceMode;
+  answers: string[];
+  normalizeRule?: "trim-lower-fullwidth";
+}
+
+export interface HomophoneQuestionV2Base extends HomophoneQuestionBase {
+  version: "v2";
+  learningObjective: string;
+  knowledgePointId: string;
+  misconceptionType?: MisconceptionType;
+  contextQualityScore: number;
+  distractorRationales: HomophoneDistractorRationale[];
+  evidence: HomophoneQuestionEvidence;
+  acceptance: HomophoneAcceptancePolicy;
+}
+
+export interface HomophoneChoiceQuestionV2 extends HomophoneQuestionV2Base {
+  mode: "choice";
+  promptMeaning: string;
+  options: HomophoneOption[];
+  correct: string;
+}
+
+export interface HomophoneContextQuestionV2 extends HomophoneQuestionV2Base {
+  mode: "context";
+  stem: string;
+  contextSentence: string;
+  options: HomophoneOption[];
+  correct: string;
+}
+
+export interface HomophoneInputQuestionV2 extends HomophoneQuestionV2Base {
+  mode: "input";
+  prompt: string;
+  acceptedAnswers: string[];
+  normalizeRule: "trim-lower-fullwidth";
+}
+
+export type HomophoneQuestionV2 =
+  | HomophoneChoiceQuestionV2
+  | HomophoneContextQuestionV2
+  | HomophoneInputQuestionV2;
+
+export interface HomophoneVisualItem {
+  word: string;
+  pinyin: string;
+  pinyinTone: string;
+  meaning: string;
+  example: string;
+  illustrationLabel: string;
+  illustrationEmoji: string;
+}
+
+export interface HomophoneVisualLesson {
+  knowledgePointId: string;
+  grade: GradeBand;
+  pinyin: string;
+  pinyinTone: string;
+  items: HomophoneVisualItem[];
+}
