@@ -123,6 +123,14 @@ export const CHINESE_MODULES: ChineseModule[] = [
     route: '/word-building',
   },
   {
+    id: 'homophone-meaning',
+    title: '同音词辨义',
+    icon: '🎧',
+    color: 'bg-sky-500',
+    description: '同音不同义，训练字义辨析和语境应用',
+    route: '/homophone-meaning',
+  },
+  {
     id: 'word-collocation',
     title: '词语搭配',
     icon: '🔗',

@@ -2,6 +2,45 @@
 
 所有重要变更都将记录在此文件中。
 
+## [1.6.0] - 2026-02-15
+
+### ✨ 新增功能：同音词辨义模块（Homophone Meaning）
+
+- 新增模块入口：`同音词辨义`（`/homophone-meaning`）
+- 新增三种玩法并统一在同一练习页：
+  - `choice` 辨义选择
+  - `context` 语境填空
+  - `input` 输入作答（精确匹配）
+
+### 📚 题库与类型系统
+
+- 新增 `src/data/homophoneMeaningTypes.ts`（完整题型定义）
+- 新增 `src/data/homophoneLexicon.ts`（同音词词库提取与分组）
+- 新增 `src/data/homophoneMeaningQuestions.ts`（V1 首发 120 题）
+- 题量与分布：
+  - 总计 120 题
+  - 四年级段各 30 题
+  - 三玩法各 40 题
+  - 每个“年级+玩法”10 题，难度 6/3/1
+
+### 🧩 学习闭环
+
+- 结果页新增“知识点雷达图”（字义辨析/语境应用/主动输出）
+- 支持错题回顾与错题重练
+- 本地错题本持久化：`k12_homophone_meaning_wrongbook_v1`
+
+### 🛡️ 质量门禁
+
+- 新增 `validate:homophone-meaning` 校验脚本
+- 新增 `report:homophone-meaning` 质量报告脚本
+- `package.json` 新增对应 npm scripts
+
+### ✅ 验证
+
+- `npm run validate:homophone-meaning` 通过（120 题，0 问题）
+- `npm run report:homophone-meaning` 通过（分布符合设计）
+- `npm run build` 通过
+
 ## [1.5.0] - 2026-02-12
 
 ### ✨ 新增功能：组词训练模块（Word Building）

@@ -1,5 +1,52 @@
 # K12-Education 项目开发进度
 
+## 2026-02-15 - 同音词辨义 V1 首发实现（120题）
+
+### 本次完成
+- **新增同音词辨义模块**
+  - 新增页面：`/homophone-meaning`
+  - 首页新增“同音词辨义”入口卡片
+  - 三玩法统一流程：辨义选择 / 语境填空 / 输入作答
+
+- **题库与类型系统落地**
+  - 新增 `homophoneMeaningTypes.ts`：题型、质量字段、错题记录类型
+  - 新增 `homophoneLexicon.ts`：同音词词库提取与分组
+  - 新增 `homophoneMeaningQuestions.ts`：首发 120 题（4 年级段 × 3 玩法 × 每组 10 题）
+  - 难度分布满足：每个“年级+玩法”`easy 6 / medium 3 / hard 1`
+
+- **学习闭环与反馈**
+  - 结果页展示：正确率 + 知识点雷达图（字义辨析/语境应用/主动输出）
+  - 支持错题回顾与错题重练
+  - 错题本本地持久化：`k12_homophone_meaning_wrongbook_v1`
+
+- **质量门禁脚本**
+  - 新增 `validate:homophone-meaning`：校验题量、分布、唯一正确、拼音一致性
+  - 新增 `report:homophone-meaning`：输出分布与质量统计
+
+### 受影响文件
+```
+src/data/homophoneMeaningTypes.ts
+src/data/homophoneLexicon.ts
+src/data/homophoneMeaningQuestions.ts
+src/pages/HomophoneMeaningPractice.tsx
+src/components/homophone-meaning/ChoicePanel.tsx
+src/components/homophone-meaning/ContextPanel.tsx
+src/components/homophone-meaning/InputPanel.tsx
+src/components/homophone-meaning/RadarSummary.tsx
+scripts/validate-homophone-meaning.ts
+scripts/report-homophone-meaning.ts
+src/App.tsx
+src/data/chinese/modules.ts
+package.json
+```
+
+### 验证结果
+- ✅ `npm run validate:homophone-meaning` 通过（120 题，0 问题）
+- ✅ `npm run report:homophone-meaning` 通过（分布符合设计）
+- ✅ `npm run build` 通过
+
+---
+
 ## 2026-02-12 - 组词训练 V1 首版实现（400题）
 
 ### 本次完成

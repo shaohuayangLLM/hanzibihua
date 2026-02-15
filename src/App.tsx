@@ -16,6 +16,7 @@ import QuantityWordPractice from "./pages/QuantityWordPractice";
 import AntonymSynonymPractice from "./pages/AntonymSynonymPractice";
 import WordCollocationOffline from "./pages/WordCollocationOffline";
 import WordBuildingPractice from "./pages/WordBuildingPractice";
+import HomophoneMeaningPractice from "./pages/HomophoneMeaningPractice";
 import SentenceExpansionPractice from "./pages/SentenceExpansionPractice";
 import StrokeNames from "./pages/StrokeNames";
 import CharacterFinder from "./pages/CharacterFinder";
@@ -54,6 +55,7 @@ const App = () => (
           <Route path="/quantity-words" element={<QuantityWordPractice />} />
           <Route path="/antonym-synonym" element={<AntonymSynonymPractice />} />
           <Route path="/word-building" element={<WordBuildingPractice />} />
+          <Route path="/homophone-meaning" element={<HomophoneMeaningPractice />} />
           <Route path="/word-collocation" element={<WordCollocationOffline />} />
           <Route path="/sentence-expansion" element={<SentenceExpansionPractice />} />
           <Route path="/stroke-names" element={<StrokeNames />} />

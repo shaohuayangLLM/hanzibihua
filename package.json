@@ -12,7 +12,9 @@
     "validate:collocation": "esbuild scripts/validate-collocation-uniqueness.ts --bundle --platform=node --format=cjs --outfile=/tmp/validate-collocation-uniqueness.cjs >/dev/null && node /tmp/validate-collocation-uniqueness.cjs",
     "report:collocation": "esbuild scripts/report-collocation-quality.ts --bundle --platform=node --format=cjs --outfile=/tmp/report-collocation-quality.cjs >/dev/null && node /tmp/report-collocation-quality.cjs",
     "validate:word-building": "esbuild scripts/validate-word-building.ts --bundle --platform=node --format=cjs --outfile=/tmp/validate-word-building.cjs >/dev/null && node /tmp/validate-word-building.cjs",
-    "report:word-building": "esbuild scripts/report-word-building.ts --bundle --platform=node --format=cjs --outfile=/tmp/report-word-building.cjs >/dev/null && node /tmp/report-word-building.cjs"
+    "report:word-building": "esbuild scripts/report-word-building.ts --bundle --platform=node --format=cjs --outfile=/tmp/report-word-building.cjs >/dev/null && node /tmp/report-word-building.cjs",
+    "validate:homophone-meaning": "esbuild scripts/validate-homophone-meaning.ts --bundle --platform=node --format=cjs --outfile=/tmp/validate-homophone-meaning.cjs >/dev/null && node /tmp/validate-homophone-meaning.cjs",
+    "report:homophone-meaning": "esbuild scripts/report-homophone-meaning.ts --bundle --platform=node --format=cjs --outfile=/tmp/report-homophone-meaning.cjs >/dev/null && node /tmp/report-homophone-meaning.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
