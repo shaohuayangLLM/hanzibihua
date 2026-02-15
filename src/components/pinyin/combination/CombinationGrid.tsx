@@ -186,7 +186,7 @@ export function CombinationGrid({ data, initials, finals }: CombinationGridProps
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8"
-                        onClick={(e) => handleSpeak(tone.combination, e)}
+                        onClick={(e) => handleSpeak(tone.examples[0]?.word || tone.examples[0]?.char || tone.combination, e)}
                         disabled={isLoading}
                       >
                         {isLoading ? <RotateCw className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4 text-emerald-600" />}

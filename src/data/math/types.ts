@@ -17,7 +17,7 @@ export enum MathQuestionType {
   // 计算与凑十法
   NUMBER_COMPOSITION = 'number_composition',                   // 数的分与合（2-10）
   MAKE_TEN_METHOD = 'make_ten_method',                         // 凑十法
-  ADDITION_WITHIN_20_CARRY = 'addition_within_20_carry',       // 20以内进位加法
+  ADDITION_WITHIN_20_CARRY = 'addition_within_20_carry',       // 20以内破十减法（复用枚举值）
   NUMBER_LINE_CALCULATION = 'number_line_calculation',         // 数轴计算
 
   // 排队与位置
@@ -81,6 +81,22 @@ export interface CalculationQuestion extends BaseQuestion {
   targetNumber?: number;        // 凑十目标数
   composition?: Array<[number, number]>; // 数的分与合组合
   visualData?: {
+    makeTenTemplate?: {
+      base: number;
+      addend: number;
+      splitToTen: number;
+      splitRest: number;
+      tenResult: number;
+      finalResult: number;
+    };
+    breakTenTemplate?: {
+      minuend: number;
+      subtrahend: number;
+      tenPart: 10;
+      onesPart: number;
+      bridge: number;
+      finalResult: number;
+    };
     steps?: Array<{ label: string; value: number }>;
     numberLine?: {
       start: number;

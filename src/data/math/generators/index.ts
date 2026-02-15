@@ -18,8 +18,7 @@ export function generateQuestions(moduleId: string, config: GeneratorConfig = { 
         return generatePictureOperationQuestions(count);
 
       case 'calculation':
-        // 暂时禁用 calculation 模块
-        return [];
+        return generateCalculationQuestions(count);
 
       case 'queue-position':
         return generateQueueQuestions(count);
@@ -40,11 +39,11 @@ export function generateQuestions(moduleId: string, config: GeneratorConfig = { 
 
 // 综合测试题目生成
 function generateComprehensiveQuestions(count: number): BaseQuestion[] {
-  const perModule = Math.ceil(count / 3); // 3个模块，不是4个
+  const perModule = Math.ceil(count / 4);
   return [
     ...generatePlaceValueQuestions(perModule),
     ...generatePictureOperationQuestions(perModule),
-    // ...generateCalculationQuestions(perModule), // 暂时禁用 calculation 模块
+    ...generateCalculationQuestions(perModule),
     ...generateQueueQuestions(perModule),
   ]
     .slice(0, count)
@@ -57,12 +56,12 @@ export function generateQuestionsByType(types: MathQuestionType[], count: number
   const allGenerators = [
     { types: [MathQuestionType.PLACE_VALUE_TENS_UNITS, MathQuestionType.PLACE_VALUE_POSITION, MathQuestionType.PLACE_VALUE_DIGIT_COUNT, MathQuestionType.PLACE_VALUE_LEFT_RIGHT], generator: generatePlaceValueQuestions },
     { types: [MathQuestionType.PICTURE_ADDITION, MathQuestionType.PICTURE_SUBTRACTION, MathQuestionType.OPERATION_DISTINGUISH, MathQuestionType.PICTURE_APPLIED_INCLUDE_SELF], generator: generatePictureOperationQuestions },
-    // { types: [MathQuestionType.NUMBER_COMPOSITION, MathQuestionType.MAKE_TEN_METHOD, MathQuestionType.ADDITION_WITHIN_20_CARRY, MathQuestionType.NUMBER_LINE_CALCULATION], generator: generateCalculationQuestions }, // 暂时禁用
+    { types: [MathQuestionType.NUMBER_COMPOSITION, MathQuestionType.MAKE_TEN_METHOD, MathQuestionType.ADDITION_WITHIN_20_CARRY, MathQuestionType.NUMBER_LINE_CALCULATION], generator: generateCalculationQuestions },
     { types: [MathQuestionType.QUEUE_LEAVE_EFFECT, MathQuestionType.QUEUE_POSITION_FROM_SIDE, MathQuestionType.QUEUE_POSITION_VS_COUNT, MathQuestionType.QUEUE_ROW_COLUMN, MathQuestionType.POSITION_REFERENCE], generator: generateQueueQuestions },
   ];
 
   allGenerators.forEach(({ generator }) => {
-    const generated = generator(Math.ceil(count / 3)); // 3个生成器
+    const generated = generator(Math.ceil(count / allGenerators.length));
     questions.push(...generated);
   });
 

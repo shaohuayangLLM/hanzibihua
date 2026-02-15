@@ -3,11 +3,11 @@
  * 声母 × 韵母 组合网格学习
  */
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ArrowLeft from "lucide-react/dist/esm/icons/arrow-left";
-import { CombinationGrid } from "@/components/pinyin/combination";
+import { CombinationCardNew } from "@/components/pinyin/combination";
 import {
   getGroupData,
   getGroupInitials,
@@ -15,6 +15,7 @@ import {
   INITIAL_GROUP_LABELS,
   type InitialGroup,
 } from "@/data/pinyin/combinations";
+import type { CombinationItem, CombinationData } from "@/types/pinyin";
 
 // 所有韵母（按开口类型分组）
 const ALL_FINALS = [
@@ -24,13 +25,53 @@ const ALL_FINALS = [
   "ang", "eng", "ing", "ong"
 ];
 
+// 将数据扁平化为卡片列表
+const flattenCombinations = (data: CombinationData): CombinationItem[] => {
+  const result: CombinationItem[] = [];
+
+  // 按韵母顺序遍历
+  for (const final of ALL_FINALS) {
+    const items = data[final];
+    if (items && items.length > 0) {
+      // 添加该韵母下的所有声母组合
+      for (const item of items) {
+        if (item.tones.length > 0) {
+          result.push(item);
+        }
+      }
+    }
+  }
+
+  return result;
+};
+
 const PinyinCombination = () => {
   const navigate = useNavigate();
-  const [selectedGroup, setSelectedGroup] = useState<InitialGroup>("group1");
+  const [selectedGroup, setSelectedGroup] = useState<InitialGroup | "all">("group1");
 
   // 获取当前分组的声母和数据
-  const currentInitials = getGroupInitials(selectedGroup);
-  const currentData = getGroupData(selectedGroup);
+  const currentInitials = selectedGroup === "all"
+    ? INITIAL_GROUPS.flatMap(group => getGroupInitials(group))
+    : getGroupInitials(selectedGroup);
+
+  const currentData = selectedGroup === "all"
+    ? INITIAL_GROUPS.reduce((acc, group) => {
+        const groupData = getGroupData(group);
+        for (const [final, items] of Object.entries(groupData)) {
+          if (!acc[final]) {
+            acc[final] = [];
+          }
+          acc[final].push(...items);
+        }
+        return acc;
+      }, {} as CombinationData)
+    : getGroupData(selectedGroup);
+
+  // 扁平化数据为卡片列表
+  const combinationList = useMemo(
+    () => flattenCombinations(currentData),
+    [currentData]
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -50,7 +91,7 @@ const PinyinCombination = () => {
                 拼
               </span>
               <h1 className="text-2xl font-bold text-foreground">
-                声韵组合练习
+                拼音组合学习
               </h1>
             </div>
           </div>
@@ -62,6 +103,21 @@ const PinyinCombination = () => {
         <section className="animate-fade-in">
           <div className="bg-white rounded-xl p-1.5 border border-border shadow-sm">
             <div className="flex flex-wrap gap-1.5">
+              {/* "所有"按钮 */}
+              <button
+                onClick={() => setSelectedGroup("all")}
+                className={`
+                  px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200
+                  ${selectedGroup === "all"
+                    ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-sm"
+                    : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                  }
+                `}
+              >
+                所有声母
+              </button>
+
+              {/* 6个声母组 */}
               {INITIAL_GROUPS.map((group) => (
                 <button
                   key={group}
@@ -86,17 +142,35 @@ const PinyinCombination = () => {
           <div className="text-gray-600">
             声母：<span className="font-bold text-emerald-600">{currentInitials.join("、")}</span>
             <span className="mx-3 text-gray-300">|</span>
-            点击卡片听朗读
+            共 <span className="font-bold text-emerald-600">{combinationList.length}</span> 个组合
+          </div>
+          <div className="text-gray-500">
+            点击卡片或例词听朗读
           </div>
         </section>
 
-        {/* 组合网格 */}
+        {/* 卡片网格 */}
         <section className="animate-fade-in" style={{ animationDelay: "0.1s" }}>
-          <CombinationGrid
-            data={currentData}
-            initials={currentInitials}
-            finals={ALL_FINALS}
-          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {combinationList.map((item) => (
+              <div
+                key={`${item.initial}-${item.final}`}
+                className="animate-fade-in"
+                style={{
+                  animationDelay: `${Math.min(combinationList.indexOf(item) * 0.02, 1)}s`
+                }}
+              >
+                <CombinationCardNew item={item} />
+              </div>
+            ))}
+          </div>
+
+          {/* 空状态 */}
+          {combinationList.length === 0 && (
+            <div className="text-center py-12 text-gray-400">
+              <p className="text-lg">该声母组暂无有效组合</p>
+            </div>
+          )}
         </section>
       </main>
     </div>

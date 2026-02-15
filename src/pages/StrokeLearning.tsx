@@ -9,6 +9,7 @@ import Pencil from 'lucide-react/dist/esm/icons/pencil';
 import Sparkles from 'lucide-react/dist/esm/icons/sparkles';
 import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -29,18 +30,47 @@ const StrokeLearning = () => {
       setCharacterInfo(dbInfo);
       return;
     }
-    
+
+    // Check cache
+    const cacheKey = `char_info_${char}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      try {
+        const { info, timestamp } = JSON.parse(cached);
+        // 缓存有效期 30 天
+        const isExpired = Date.now() - timestamp > 30 * 24 * 60 * 60 * 1000;
+        if (!isExpired) {
+          setCharacterInfo(info);
+          return;
+        }
+      } catch (e) {
+        // 缓存解析失败，继续请求
+      }
+    }
+
     // If not in local database, fetch from AI
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('get-character-info', {
-        body: { character: char }
+      const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+      const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/get-character-info`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'apikey': SUPABASE_KEY,
+        },
+        body: JSON.stringify({ character: char })
       });
 
-      if (error) {
-        console.error('Edge function error:', error);
-        throw new Error(error.message || '获取汉字信息失败');
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Edge Function error:', response.status, errorText);
+        throw new Error(`获取失败: ${response.status}`);
       }
+
+      const data = await response.json();
 
       if (data.error) {
         throw new Error(data.error);
@@ -60,6 +90,12 @@ const StrokeLearning = () => {
       };
 
       setCharacterInfo(info);
+
+      // Save to cache
+      localStorage.setItem(cacheKey, JSON.stringify({
+        info,
+        timestamp: Date.now()
+      }));
     } catch (error) {
       console.error('Failed to fetch character info:', error);
       toast.error(error instanceof Error ? error.message : '获取汉字信息失败，请稍后再试');
@@ -138,8 +174,8 @@ const StrokeLearning = () => {
         {/* Results section */}
         {character && !isLoading && (
           <section className="space-y-8 animate-fade-in">
-            {/* Reset button */}
-            <div className="flex justify-center">
+            {/* Action buttons */}
+            <div className="flex justify-center gap-3">
               <Button
                 onClick={handleReset}
                 variant="outline"
@@ -148,6 +184,7 @@ const StrokeLearning = () => {
                 <ArrowLeft className="h-4 w-4" />
                 重新输入
               </Button>
+
             </div>
 
             {/* Character display */}

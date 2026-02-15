@@ -1,18 +1,39 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Trophy, RotateCcw, Lightbulb, ChevronLeft, ChevronRight, CheckCircle2, XCircle } from "lucide-react";
-import { PUZZLE_QUESTIONS, getPuzzleByDifficulty, getPuzzleByType, getRandomPuzzle } from "@/data/puzzleData";
+import {
+  ArrowLeft,
+  Trophy,
+  RotateCcw,
+  Lightbulb,
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle2,
+  XCircle,
+  BookOpen,
+  Coins,
+  Sparkles
+} from "lucide-react";
+import {
+  VERIFIED_PUZZLE_QUESTIONS as PUZZLE_QUESTIONS,
+  getPuzzleByDifficulty,
+  getPuzzleByType,
+  getRandomPuzzle,
+  getPuzzleStats
+} from "@/data/puzzleDataV2";
+import { useWrongQuestions } from "@/hooks/useWrongQuestions";
+import { useHintSystem } from "@/hooks/useHintSystem";
 import { toast } from "sonner";
 
-type GameState = "menu" | "playing" | "result";
+type GameState = "menu" | "playing" | "result" | "wrong-review";
 
 interface QuestionResult {
   questionId: string;
   isCorrect: boolean;
   userAnswer: string;
   timeSpent: number;
+  hintsUsed: number;
 }
 
 const PuzzleGame = () => {
@@ -25,6 +46,26 @@ const PuzzleGame = () => {
   const [showExplanation, setShowExplanation] = useState(false);
   const [startTime, setStartTime] = useState<number>(0);
   const [totalTime, setTotalTime] = useState(0);
+  const [currentHint, setCurrentHint] = useState<string | null>(null);
+
+  // 错题本系统
+  const {
+    wrongQuestions,
+    addWrongQuestion,
+    markAsMastered,
+    clearAllWrongQuestions,
+    getUnmasteredQuestions,
+    stats: wrongStats,
+  } = useWrongQuestions();
+
+  // 提示系统
+  const {
+    thinkingCoins,
+    useHint,
+    rewardCoins,
+    resetHintForQuestion,
+    getHintLevelForQuestion,
+  } = useHintSystem();
 
   // 开始游戏
   const startGame = (mode?: 'easy' | 'medium' | 'hard', type?: string) => {
@@ -40,6 +81,15 @@ const PuzzleGame = () => {
       selectedQuestions = getPuzzleByType('meaning');
     } else if (type === 'logic') {
       selectedQuestions = getPuzzleByType('logic');
+    } else if (type === 'wrong-review') {
+      // 错题复习模式
+      const unmasteredWrong = getUnmasteredQuestions();
+      if (unmasteredWrong.length === 0) {
+        toast.info('暂无未掌握的错题！');
+        return;
+      }
+      selectedQuestions = unmasteredWrong.map(wq => wq.question);
+      toast.success(`开始复习 ${selectedQuestions.length} 道错题`);
     } else {
       // 随机10题
       selectedQuestions = getRandomPuzzle(10);
@@ -50,15 +100,35 @@ const PuzzleGame = () => {
     setResults([]);
     setSelectedAnswer(null);
     setShowExplanation(false);
+    setCurrentHint(null);
     setGameState("playing");
   };
+
+  // 开始错题复习
+  const startWrongReview = useCallback(() => {
+    startGame(undefined, 'wrong-review');
+  }, [getUnmasteredQuestions]);
 
   // 加载题目
   const loadQuestion = useCallback((index: number) => {
     setCurrentIndex(index);
     setSelectedAnswer(null);
     setShowExplanation(false);
+    setCurrentHint(null);
   }, []);
+
+  // 使用提示
+  const handleUseHint = useCallback(() => {
+    const currentQuestion = questions[currentIndex];
+    const hint = useHint(currentQuestion.id, currentQuestion);
+
+    if (hint) {
+      setCurrentHint(hint.text);
+      if (hint.cost > 0) {
+        toast.info(`使用了 ${hint.cost} 个思考币`);
+      }
+    }
+  }, [questions, currentIndex, useHint]);
 
   // 处理答案选择
   const handleAnswer = (answer: string) => {
@@ -67,6 +137,7 @@ const PuzzleGame = () => {
     const currentQuestion = questions[currentIndex];
     const isCorrect = answer === currentQuestion.correctAnswer;
     const timeSpent = Date.now() - startTime;
+    const hintsUsed = getHintLevelForQuestion(currentQuestion.id) !== 'none' ? 1 : 0;
 
     setSelectedAnswer(answer);
     setShowExplanation(true);
@@ -76,15 +147,20 @@ const PuzzleGame = () => {
       questionId: currentQuestion.id,
       isCorrect,
       userAnswer: answer,
-      timeSpent
+      timeSpent,
+      hintsUsed,
     };
 
     setResults(prev => [...prev, result]);
 
     if (isCorrect) {
       toast.success("回答正确！");
+      // 奖励思考币
+      rewardCoins(hintsUsed === 0 ? 2 : 1); // 无提示答对奖励2个，使用提示奖励1个
     } else {
       toast.error("再想想看...");
+      // 添加到错题本
+      addWrongQuestion(currentQuestion, answer);
     }
   };
 
@@ -128,18 +204,54 @@ const PuzzleGame = () => {
 
   // 菜单界面
   if (gameState === "menu") {
+    const stats = getPuzzleStats();
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900">
         <header className="w-full py-6 px-4 border-b border-border/50 bg-card/50 backdrop-blur-sm">
-          <div className="max-w-4xl mx-auto flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-3xl font-bold">🤔 汉字推理题</h1>
+          <div className="max-w-4xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <h1 className="text-3xl font-bold">🤔 汉字推理题</h1>
+            </div>
+            {/* 思考币显示 */}
+            <div className="flex items-center gap-2 bg-yellow-100 dark:bg-yellow-900/30 px-4 py-2 rounded-full">
+              <Coins className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+              <span className="font-bold text-yellow-700 dark:text-yellow-300">{thinkingCoins}</span>
+            </div>
           </div>
         </header>
 
         <main className="max-w-4xl mx-auto px-4 py-12 space-y-8">
+          {/* 错题本卡片 */}
+          {wrongStats.total > 0 && (
+            <Card className="p-6 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 border-red-200 dark:border-red-800">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <BookOpen className="h-10 w-10 text-red-600 dark:text-red-400" />
+                  <div>
+                    <h3 className="text-xl font-bold">错题本</h3>
+                    <p className="text-sm text-muted-foreground">
+                      共 {wrongStats.total} 道错题，{wrongStats.unmastered} 道未掌握
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  onClick={startWrongReview}
+                  variant="default"
+                  size="lg"
+                  className="gap-2"
+                  disabled={wrongStats.unmastered === 0}
+                >
+                  <Sparkles className="h-5 w-5" />
+                  开始复习
+                </Button>
+              </div>
+            </Card>
+          )}
+
           {/* 游戏说明 */}
           <Card className="p-8 bg-white/80 dark:bg-slate-800/80 backdrop-blur">
             <div className="text-center space-y-4">
@@ -148,7 +260,12 @@ const PuzzleGame = () => {
               <div className="text-lg space-y-2 text-muted-foreground">
                 <p>观察汉字的规律和逻辑</p>
                 <p>从四个选项中选择正确答案</p>
-                <p>答完后会显示详细的解析</p>
+                <p>答对获得思考币，可用于提示</p>
+                <p className="text-sm">💡 提示：答对无提示题奖励 2 币，使用提示奖励 1 币</p>
+              </div>
+              {/* 题库统计 */}
+              <div className="text-sm text-muted-foreground pt-4 border-t">
+                题库共 {stats.total} 题 | 简单 {stats.byDifficulty.easy} | 中等 {stats.byDifficulty.medium} | 困难 {stats.byDifficulty.hard}
               </div>
             </div>
           </Card>
@@ -280,6 +397,11 @@ const PuzzleGame = () => {
               </div>
             </div>
             <div className="flex items-center gap-4">
+              {/* 思考币显示 */}
+              <div className="flex items-center gap-2 bg-yellow-100 dark:bg-yellow-900/30 px-3 py-1 rounded-full">
+                <Coins className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                <span className="font-bold text-yellow-700 dark:text-yellow-300">{thinkingCoins}</span>
+              </div>
               <div className="text-sm text-muted-foreground">
                 正确: {results.filter(r => r.isCorrect).length}/{results.length}
               </div>
@@ -313,6 +435,32 @@ const PuzzleGame = () => {
                currentQuestion.type === "meaning" ? "💭 语义" : "🧠 逻辑"}
             </span>
           </div>
+
+          {/* 提示按钮（答题前可用） */}
+          {!hasAnswered && (
+            <div className="flex justify-center">
+              <Button
+                onClick={handleUseHint}
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                disabled={thinkingCoins < 1 && getHintLevelForQuestion(currentQuestion.id) !== 'none'}
+              >
+                <Lightbulb className="h-4 w-4" />
+                使用提示 {getHintLevelForQuestion(currentQuestion.id) !== 'none' && `(已用)`}
+              </Button>
+            </div>
+          )}
+
+          {/* 当前提示显示 */}
+          {currentHint && (
+            <Card className="p-4 bg-blue-50 dark:bg-blue-900/20 border-blue-300">
+              <div className="flex items-start gap-2">
+                <Lightbulb className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-blue-800 dark:text-blue-200">{currentHint}</p>
+              </div>
+            </Card>
+          )}
 
           {/* 问题卡片 */}
           <Card className="p-8 bg-white/80 dark:bg-slate-800/80 backdrop-blur">
@@ -480,6 +628,8 @@ const PuzzleGame = () => {
     const totalCount = results.length;
     const accuracy = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
     const skippedCount = results.filter(r => r.userAnswer === "跳过").length;
+    const wrongCount = totalCount - correctCount - skippedCount;
+    const hintsUsedCount = results.reduce((sum, r) => sum + r.hintsUsed, 0);
 
     // 分析表现
     let message = "";
@@ -516,13 +666,13 @@ const PuzzleGame = () => {
               <div className="text-8xl">{emoji}</div>
               <h2 className="text-3xl font-bold">{message}</h2>
 
-              <div className="grid grid-cols-4 gap-8 py-8">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-8 py-8">
                 <div>
                   <div className="text-4xl font-bold text-primary">{correctCount}</div>
                   <div className="text-sm text-muted-foreground">答对</div>
                 </div>
                 <div>
-                  <div className="text-4xl font-bold text-red-600">{totalCount - correctCount - skippedCount}</div>
+                  <div className="text-4xl font-bold text-red-600">{wrongCount}</div>
                   <div className="text-sm text-muted-foreground">答错</div>
                 </div>
                 <div>
@@ -533,13 +683,45 @@ const PuzzleGame = () => {
                   <div className="text-4xl font-bold text-green-600">{accuracy}%</div>
                   <div className="text-sm text-muted-foreground">正确率</div>
                 </div>
+                <div>
+                  <div className="text-4xl font-bold text-yellow-600">{thinkingCoins}</div>
+                  <div className="text-sm text-muted-foreground">思考币</div>
+                </div>
               </div>
 
-              <div className="text-lg text-muted-foreground">
-                总共挑战了 <span className="font-bold">{totalCount}</span> 题
+              <div className="text-lg text-muted-foreground space-y-2">
+                <p>总共挑战了 <span className="font-bold">{totalCount}</span> 题</p>
+                {hintsUsedCount > 0 && (
+                  <p className="text-sm">使用了 <span className="font-bold">{hintsUsedCount}</span> 次提示</p>
+                )}
               </div>
             </div>
           </Card>
+
+          {/* 错题统计 */}
+          {wrongCount > 0 && (
+            <Card className="p-6 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <BookOpen className="h-8 w-8 text-red-600 dark:text-red-400" />
+                  <div>
+                    <h3 className="text-lg font-bold">新增 {wrongCount} 道错题</h3>
+                    <p className="text-sm text-muted-foreground">
+                      错题已自动添加到错题本，可随时复习
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  onClick={startWrongReview}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <BookOpen className="h-4 w-4" />
+                  立即复习
+                </Button>
+              </div>
+            </Card>
+          )}
 
           {/* 答题详情 */}
           <Card className="p-6 bg-white/80 dark:bg-slate-800/80 backdrop-blur">

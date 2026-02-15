@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>阿里云 TTS 测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        h1 { color: #333; }
+        .test-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            background: #f9f9f9;
+        }
+        button {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover { background: #ff5252; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.loading { background: #fff3cd; color: #856404; }
+        .audio-player { margin-top: 20px; }
+        select {
+            padding: 8px;
+            font-size: 14px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎙️ 阿里云 Qwen-TTS 测试</h1>
+
+    <div class="test-card">
+        <h2>选择音色</h2>
+        <select id="voiceSelect">
+            <option value="Cherry">Cherry - 女声，活泼（推荐）</option>
+            <option value="Aijia">Aijia - 女声，温柔</option>
+            <option value="Zhichu">Zhichu - 男声，沉稳</option>
+            <option value="Aida">Aida - 儿童声</option>
+            <option value="Aimei">Aimei - 女声，亲切</option>
+        </select>
+
+        <h2>测试文本</h2>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button onclick="testTTS('你好，欢迎使用 K12 学习应用')">测试 1</button>
+            <button onclick="testTTS('今天天气真不错')">测试 2</button>
+            <button onclick="testTTS('apple')">测试英文</button>
+            <button onclick="testTTS('一年级数学真有趣')">测试 4</button>
+        </div>
+
+        <div id="status" class="status loading">准备就绪</div>
+
+        <div class="audio-player">
+            <audio id="audioPlayer" controls style="width: 100%;"></audio>
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = 'sk-02ec9469925d458f87276961356a0a10';
+            const API_URL = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation';
+
+        async function testTTS(text) {
+            const voice = document.getElementById('voiceSelect').value;
+            const status = document.getElementById('status');
+            const audioPlayer = document.getElementById('audioPlayer');
+
+            status.className = 'status loading';
+            status.textContent = `正在合成: "${text}" (音色: ${voice})...`;
+
+            try {
+                console.log('[测试] 调用阿里云 TTS:', { text, voice });
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${API_KEY}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model: 'qwen3-tts-flash',
+                        input: { text },
+                        voice: voice,
+                        language_type: 'Chinese',
+                    }),
+                });
+
+                console.log('[测试] 响应状态:', response.status);
+
+                const data = await response.json();
+                console.log('[测试] 响应数据:', data);
+
+                if (data.status_code === 200 && data.output?.audio?.url) {
+                    const audioUrl = data.output.audio.url;
+                    audioPlayer.src = audioUrl;
+
+                    status.className = 'status success';
+                    status.innerHTML = `✅ 成功！<br>音频 ID: ${data.output.audio.id}<br>字符数: ${data.usage?.characters}`;
+
+                    audioPlayer.play();
+                } else {
+                    throw new Error(data.message || 'Unknown error');
+                }
+            } catch (error) {
+                console.error('[测试] 错误:', error);
+                status.className = 'status error';
+                status.textContent = `❌ 失败: ${error.message}`;
+            }
+        }
+
+        // 页面加载完成后的提示
+        window.addEventListener('load', () => {
+            const status = document.getElementById('status');
+            status.className = 'status success';
+            status.textContent = '✅ 准备就绪，点击按钮测试语音合成';
+        });
+    </script>
+</body>
+</html>

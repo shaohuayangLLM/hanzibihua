@@ -8,19 +8,51 @@ export { textbookOptions } from './types';
 import { baseCharacters } from './baseCharacters';
 import { grade1Vol1Characters } from './grade1Vol1Characters';
 import { grade1Vol2Characters } from './grade1Vol2Characters';
+import { grade2Vol1Characters } from './grade2Vol1Characters';
+import { grade2Vol2Characters } from './grade2Vol2Characters';
 import { radicalCharacters } from './radicalCharacters';
+import { commonCharacters } from './commonCharacters';
+import { curriculumCharacters } from './curriculumCharacters';
 
-// Merge all character databases (later entries override earlier ones for duplicates)
+// Helper function to add textbook metadata to characters
+const addTextbookMetadata = (
+  chars: CharacterDatabase,
+  textbook: 'grade1-vol1' | 'grade1-vol2' | 'grade2-vol1' | 'grade2-vol2' | 'common' | 'radical'
+): CharacterDatabase => {
+  const result: CharacterDatabase = {};
+  for (const [char, info] of Object.entries(chars)) {
+    result[char] = { ...info, textbook };
+  }
+  return result;
+};
+
+// Merge all character databases with textbook metadata
+// Note: Later entries override earlier ones for duplicates
+const baseWithMeta = addTextbookMetadata(baseCharacters, 'common');
+const grade1Vol1WithMeta = addTextbookMetadata(grade1Vol1Characters, 'grade1-vol1');
+const grade1Vol2WithMeta = addTextbookMetadata(grade1Vol2Characters, 'grade1-vol2');
+const grade2Vol1WithMeta = addTextbookMetadata(grade2Vol1Characters, 'grade2-vol1');
+const grade2Vol2WithMeta = addTextbookMetadata(grade2Vol2Characters, 'grade2-vol2');
+const radicalWithMeta = addTextbookMetadata(radicalCharacters, 'radical');
+const commonWithMeta = addTextbookMetadata(commonCharacters, 'common');
+const curriculumWithMeta = addTextbookMetadata(curriculumCharacters, 'common');
+
 export const characterDatabase: CharacterDatabase = {
-  ...baseCharacters,
-  ...grade1Vol1Characters,
-  ...grade1Vol2Characters,
-  ...radicalCharacters, // 补充部首例字数据
+  ...baseWithMeta,
+  ...grade1Vol1WithMeta,
+  ...grade1Vol2WithMeta,
+  ...grade2Vol1WithMeta,
+  ...grade2Vol2WithMeta,
+  ...radicalWithMeta, // 补充部首例字数据
+  ...commonWithMeta, // 扩充常用字数据，减少 AI 调用
+  ...curriculumWithMeta, // 小学课本常用字补充
 };
 
 // Character sets for filtering by textbook
 export const grade1Vol1CharacterSet = new Set(Object.keys(grade1Vol1Characters));
 export const grade1Vol2CharacterSet = new Set(Object.keys(grade1Vol2Characters));
+export const grade2Vol1CharacterSet = new Set(Object.keys(grade2Vol1Characters));
+export const grade2Vol2CharacterSet = new Set(Object.keys(grade2Vol2Characters));
 
 // Get character info, returns null if not in database
 export const getCharacterInfo = (char: string, volume?: TextbookVolume): CharacterInfo | null => {
@@ -31,7 +63,13 @@ export const getCharacterInfo = (char: string, volume?: TextbookVolume): Charact
   if (volume === 'grade1-vol2') {
     return grade1Vol2Characters[char] || null;
   }
-  
+  if (volume === 'grade2-vol1') {
+    return grade2Vol1Characters[char] || null;
+  }
+  if (volume === 'grade2-vol2') {
+    return grade2Vol2Characters[char] || null;
+  }
+
   // Return from merged database
   return characterDatabase[char] || null;
 };
@@ -49,6 +87,12 @@ export const createBasicInfo = (char: string, strokeCount: number): CharacterInf
   };
 };
 
+// Get character's textbook classification
+export const getCharacterTextbook = (char: string): 'grade1-vol1' | 'grade1-vol2' | 'grade2-vol1' | 'grade2-vol2' | 'common' | 'radical' | null => {
+  const info = characterDatabase[char];
+  return info?.textbook || null;
+};
+
 // Get character list for a specific volume
 export const getCharacterListByVolume = (volume: TextbookVolume): string[] => {
   switch (volume) {
@@ -56,6 +100,10 @@ export const getCharacterListByVolume = (volume: TextbookVolume): string[] => {
       return Object.keys(grade1Vol1Characters);
     case 'grade1-vol2':
       return Object.keys(grade1Vol2Characters);
+    case 'grade2-vol1':
+      return Object.keys(grade2Vol1Characters);
+    case 'grade2-vol2':
+      return Object.keys(grade2Vol2Characters);
     default:
       return Object.keys(characterDatabase);
   }
