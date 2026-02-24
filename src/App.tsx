@@ -17,6 +17,7 @@ const SimilarCharacters = lazy(() => import("./pages/SimilarCharacters"));
 const QuantityWordPractice = lazy(() => import("./pages/QuantityWordPractice"));
 const AntonymSynonymPractice = lazy(() => import("./pages/AntonymSynonymPractice"));
 const HomophoneMeaningPractice = lazy(() => import("./pages/HomophoneMeaningPractice"));
+const ConnectiveWordsPractice = lazy(() => import("./pages/ConnectiveWordsPractice"));
 const StrokeNames = lazy(() => import("./pages/StrokeNames"));
 const CharacterFinder = lazy(() => import("./pages/CharacterFinder"));
 const FindDifferentGame = lazy(() => import("./pages/FindDifferentGame"));
@@ -54,6 +55,7 @@ const App = () => (
             <Route path="/quantity-words" element={<QuantityWordPractice />} />
             <Route path="/antonym-synonym" element={<AntonymSynonymPractice />} />
             <Route path="/homophone-meaning" element={<HomophoneMeaningPractice />} />
+            <Route path="/connective-words" element={<ConnectiveWordsPractice />} />
             <Route path="/stroke-names" element={<StrokeNames />} />
             <Route path="/character-finder" element={<CharacterFinder />} />
             <Route path="/find-different" element={<FindDifferentGame />} />

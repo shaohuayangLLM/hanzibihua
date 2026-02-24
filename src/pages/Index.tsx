@@ -32,7 +32,7 @@ const CHINESE_LEARNING_GROUPS: Array<{
     id: "applied",
     title: "综合应用",
     description: "通过题型和探索模块，巩固迁移能力",
-    moduleIds: ["pinyin-quiz", "find-different", "puzzle-game", "character-graph"],
+    moduleIds: ["pinyin-quiz", "find-different", "puzzle-game", "connective-words", "character-graph"],
   },
 ];
 
