@@ -20,18 +20,6 @@ const CHINESE_LEARNING_GROUPS: Array<{
     description: "先学读音、笔画、偏旁，搭建稳定识字基础",
     moduleIds: ["stroke-learning", "stroke-names", "pinyin-basics", "pinyin-combination", "radicals", "character-finder"],
   },
-  {
-    id: "discrimination",
-    title: "辨析提升",
-    description: "强化字义和用法区分，减少混淆与误用",
-    moduleIds: ["polyphone", "similar-characters", "quantity-words", "antonym-synonym", "homophone-meaning"],
-  },
-  {
-    id: "applied",
-    title: "综合应用",
-    description: "通过题型和探索模块，巩固迁移能力",
-    moduleIds: ["pinyin-quiz", "find-different", "puzzle-game", "connective-words", "character-graph"],
-  },
 ];
 
 const CHINESE_MODULE_BY_ID = new Map(CHINESE_MODULES.map(module => [module.id, module] as const));
@@ -58,19 +46,13 @@ const MATH_LEARNING_GROUPS: Array<{
     id: "operation-thinking",
     title: "运算理解",
     description: "从情境到算式，理解加减意义与运算过程",
-    moduleIds: ["picture-operation", "calculation"],
+    moduleIds: ["calculation"],
   },
   {
     id: "shape-geometry",
     title: "图形与几何",
     description: "认识平面图形，通过折叠和拼组理解图形变换",
     moduleIds: ["shapes"],
-  },
-  {
-    id: "comprehensive-application",
-    title: "综合应用",
-    description: "通过综合巩固与闯关，提升迁移和解题稳定性",
-    moduleIds: ["final-exam", "comprehensive"],
   },
 ];
 
@@ -294,28 +276,6 @@ const Index = () => {
         )}
 
       </main>
-
-      {/* Lab Entry */}
-      <section className="max-w-4xl mx-auto px-4 py-4 space-y-3">
-        <p className="text-xs font-semibold text-teal-700 uppercase tracking-wider">🔬 Lab · @chenglou/pretext 体验</p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {([
-            { route: "/pretext-demo", icon: "📐", title: "动态排版", desc: "窗口缩放 · 文字实时重排" },
-            { route: "/pretext-masonry", icon: "🧱", title: "瀑布流卡片", desc: "80张同音词卡 · 零DOM测量" },
-            { route: "/pretext-editorial", icon: "✨", title: "编辑引擎", desc: "球体环绕 · 多栏 · 拉引语" },
-          ] as const).map(item => (
-            <button
-              key={item.route}
-              onClick={() => navigate(item.route)}
-              className="group p-4 rounded-xl border-2 border-dashed border-teal-300 bg-teal-50/50 hover:bg-teal-50 hover:border-teal-400 transition-all text-left"
-            >
-              <span className="text-2xl block mb-2 group-hover:scale-110 transition-transform inline-block">{item.icon}</span>
-              <h4 className="text-sm font-bold text-teal-900">{item.title}</h4>
-              <p className="text-[11px] text-teal-700/60 mt-0.5">{item.desc}</p>
-            </button>
-          ))}
-        </div>
-      </section>
 
       {/* Footer */}
       <footer className="w-full py-6 px-4 border-t border-border/50 mt-auto">

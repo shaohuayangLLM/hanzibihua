@@ -73,36 +73,19 @@ portfolio-2025/
 **语文模块：**
 | 路径 | 组件 | 说明 |
 |------|------|------|
-| `/` | `Index.tsx` | 主页（语文/数学/英语入口） |
+| `/` | `Index.tsx` | 主页（语文/数学入口） |
 | `/stroke-learning` | `StrokeLearning.tsx` | 汉字笔画学习 |
 | `/stroke-names` | `StrokeNames.tsx` | 笔画名称学习 |
 | `/pinyin-basics` | `PinyinBasics.tsx` | 拼音基础 |
 | `/pinyin-combination` | `PinyinCombination.tsx` | 声韵母拼合练习 |
-| `/quiz` | `PinyinQuiz.tsx` | 拼音测验（reducer 状态管理） |
 | `/radicals` | `RadicalLearning.tsx` | 偏旁部首学习 |
-| `/polyphone` | `PolyphonePractice.tsx` | 多音字练习 |
-| `/similar-characters` | `SimilarCharacters.tsx` | 形近字辨析 |
-| `/quantity-words` | `QuantityWordPractice.tsx` | 量词练习 |
-| `/antonym-synonym` | `AntonymSynonymPractice.tsx` | 反义词/近义词 |
-| `/homophone-meaning` | `HomophoneMeaningPractice.tsx` | 同音词辨义 |
-| `/connective-words` | `ConnectiveWordsPractice.tsx` | 连接词学习 |
 | `/character-finder` | `CharacterFinder.tsx` | 汉字查找 |
-| `/find-different` | `FindDifferentGame.tsx` | 找不同游戏 |
-| `/puzzle-game` | `PuzzleGame.tsx` | 拼图游戏 |
 
 **形状学习（数学衍生）：**
 
 | 路径 | 组件 | 说明 |
 |------|------|------|
 | `/math/shapes/...` | `src/components/shapes/scenes/` | 33 个折/剪/拼形状动画场景 |
-
-**Pretext 演示页（实验性）：**
-
-| 路径 | 组件 | 说明 |
-|------|------|------|
-| `/pretext-demo` | `PretextDemo.tsx` | Pretext 库实验 |
-| `/pretext-editorial` | `PretextEditorial.tsx` | 编辑式排版 |
-| `/pretext-masonry` | `PretextMasonry.tsx` | 瀑布流排版 |
 
 **数学模块：**
 | 路径 | 说明 |
@@ -293,19 +276,12 @@ VITE_SUPABASE_PROJECT_ID=...
 
 | 文件 | 用途 |
 |------|------|
-| `src/data/polyphoneData.ts` | 多音字数据 |
-| `src/data/similarCharacters.ts` | 形近字数据 |
-| `src/data/quantityWordData.ts` | 量词练习数据 |
-| `src/data/antonymSynonymData.ts` | 反义词/近义词数据 |
-| `src/data/homophoneMeaningV2Bank.ts` | 同音词辨义题库（120题） |
-| `src/data/connectiveWordsData.ts` | 连接词学习数据（28组，56题） |
 | `src/data/wordBuildingQuestions.ts` | 组词训练题库（400题） |
 | `src/data/strokeNames.ts` | 笔画名称数据 |
 
-### 数学/英语数据
+### 数学数据
 
 | 文件 | 用途 |
 |------|------|
 | `src/data/math/` | 数学模块（题型、知识点、生成器） |
-| `src/data/english/` | 英语模块（字母发音、拼读规则） |
 | `src/data/chinese/modules.ts` | 语文模块入口配置 |

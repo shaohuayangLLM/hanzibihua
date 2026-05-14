@@ -8,21 +8,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 const Index = lazy(() => import("./pages/Index"));
 const Install = lazy(() => import("./pages/Install"));
 const StrokeLearning = lazy(() => import("./pages/StrokeLearning"));
-const PinyinQuiz = lazy(() => import("./pages/PinyinQuiz"));
 const PinyinBasics = lazy(() => import("./pages/PinyinBasics"));
 const PinyinCombination = lazy(() => import("./pages/PinyinCombination"));
 const RadicalLearning = lazy(() => import("./pages/RadicalLearning"));
-const PolyphonePractice = lazy(() => import("./pages/PolyphonePractice"));
-const SimilarCharacters = lazy(() => import("./pages/SimilarCharacters"));
-const QuantityWordPractice = lazy(() => import("./pages/QuantityWordPractice"));
-const AntonymSynonymPractice = lazy(() => import("./pages/AntonymSynonymPractice"));
-const HomophoneMeaningPractice = lazy(() => import("./pages/HomophoneMeaningPractice"));
-const ConnectiveWordsPractice = lazy(() => import("./pages/ConnectiveWordsPractice"));
 const StrokeNames = lazy(() => import("./pages/StrokeNames"));
 const CharacterFinder = lazy(() => import("./pages/CharacterFinder"));
-const FindDifferentGame = lazy(() => import("./pages/FindDifferentGame"));
-const PuzzleGame = lazy(() => import("./pages/PuzzleGame"));
-const CharacterGraph = lazy(() => import("./pages/CharacterGraph"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const MathHome = lazy(() => import("./pages/math/Home"));
 const MathModulePage = lazy(() => import("./pages/math/ModulePage"));
@@ -34,9 +24,6 @@ const Grade1Vol2Home = lazy(() => import("./pages/math/grade1Vol2/Grade1Vol2Home
 const G1V2UnitPage = lazy(() => import("./pages/math/grade1Vol2/UnitPage"));
 const G1V2LessonPage = lazy(() => import("./pages/math/grade1Vol2/LessonPage"));
 const VoiceTest = lazy(() => import("./pages/VoiceTest").then(m => ({ default: m.VoiceTest })));
-const PretextDemo = lazy(() => import("./pages/PretextDemo"));
-const PretextMasonry = lazy(() => import("./pages/PretextMasonry"));
-const PretextEditorial = lazy(() => import("./pages/PretextEditorial"));
 
 const queryClient = new QueryClient();
 
@@ -50,21 +37,11 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/stroke-learning" element={<StrokeLearning />} />
-            <Route path="/quiz" element={<PinyinQuiz />} />
             <Route path="/pinyin-basics" element={<PinyinBasics />} />
             <Route path="/pinyin-combination" element={<PinyinCombination />} />
             <Route path="/radicals" element={<RadicalLearning />} />
-            <Route path="/polyphone" element={<PolyphonePractice />} />
-            <Route path="/similar-characters" element={<SimilarCharacters />} />
-            <Route path="/quantity-words" element={<QuantityWordPractice />} />
-            <Route path="/antonym-synonym" element={<AntonymSynonymPractice />} />
-            <Route path="/homophone-meaning" element={<HomophoneMeaningPractice />} />
-            <Route path="/connective-words" element={<ConnectiveWordsPractice />} />
             <Route path="/stroke-names" element={<StrokeNames />} />
             <Route path="/character-finder" element={<CharacterFinder />} />
-            <Route path="/find-different" element={<FindDifferentGame />} />
-            <Route path="/puzzle-game" element={<PuzzleGame />} />
-            <Route path="/character-graph" element={<CharacterGraph />} />
 
             <Route path="/install" element={<Install />} />
             {/* Math Module Routes */}
@@ -78,9 +55,6 @@ const App = () => (
             <Route path="/math/test/:moduleId" element={<MathTestPage />} />
             <Route path="/math/result/:sessionId" element={<MathResultPage />} />
             <Route path="/voice-test" element={<VoiceTest />} />
-            <Route path="/pretext-demo" element={<PretextDemo />} />
-            <Route path="/pretext-masonry" element={<PretextMasonry />} />
-            <Route path="/pretext-editorial" element={<PretextEditorial />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
