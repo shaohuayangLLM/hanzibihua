@@ -1,79 +1,152 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+本文件为 Claude Code（claude.ai/code）在此代码仓库中工作时提供项目指引。
 
-## Project Overview
+## ⚠️ 改代码前必读
 
-K12-Education is a Chinese character learning application for first-grade students, featuring stroke order animation (HanziWriter), pinyin quizzes, and textbook-aligned character practice. It is deployed as a subdirectory SPA (`/k12/`) within a larger portfolio site.
+1. **不要生成新的过程文档**。不写 RELEASE_NOTES / IMPLEMENTATION_SUMMARY / FEATURE_STATUS / *_REFACTOR / *_FIX 之类的 md。**改了什么写 commit message + CHANGELOG.md 就够了**。历史归档在 `docs/archive/`。
+2. **不要随便加新依赖**。已经有 40+ Radix UI，绝大多数 UI 需求可在 `src/components/ui/` 复用。
+3. **每个模块都有对应的 data 文件**（见底部"数据文件"清单）。改逻辑前先看 data 形状。
+4. **修 bug 优先于加新功能**。看到无关 bug 顺手记到 `BUG-TRIAGE.md`（如果存在），不要边修边扩范围。
+5. **路由都在 `src/App.tsx` 一个文件里，懒加载**。加新模块时新增一行 `lazy + Suspense` 即可。
 
-**Live**: https://ainside.cn/k12/
+## 项目概述
 
-## Development Commands
+K12-Education 是一款面向小学生的汉字学习应用，包含笔顺动画（HanziWriter）、拼音练习、语文/数学/英语教学功能，以及与教材对齐的汉字练习。以子目录 SPA 形式部署在 `/k12/` 路径下。
+
+**线上地址**：https://ainside.cn/k12/
+
+## 开发命令
 
 ```bash
-# Start dev server (runs on http://localhost:8080/k12/)
+# 启动开发服务器（运行于 http://localhost:8080/k12/）
 npm run dev
 
-# Production build
+# 生产构建
 npm run build
 
-# Preview production build
+# 预览生产构建
 npm run preview
 
-# Lint code
+# 代码检查
 npm run lint
+
+# 数据校验（词语搭配）
+npm run validate:collocation
+npm run report:collocation
+
+# 数据校验（组词训练）
+npm run validate:word-building
+npm run report:word-building
+
+# 数据校验（同音词辨义）
+npm run validate:homophone-meaning
+npm run report:homophone-meaning
 ```
 
-**Critical**: The dev server runs at `http://localhost:8080/k12/`, NOT root. All routes include the `/k12/` prefix.
+**注意**：开发服务器运行于 `http://localhost:8080/k12/`，而非根路径。所有路由均含 `/k12/` 前缀。
 
-## Deployment Architecture
+## 部署架构
 
-This app is deployed as a **subdirectory** within the parent portfolio repository:
+本应用以**子目录**形式部署在父级 portfolio 仓库中：
 
 ```
 portfolio-2025/
-├── k12/                    # Built output from K12-Education/dist/
-├── K12-Education/          # Source code (this repo, .gitignored in parent)
-├── vercel.json             # Routes /k12/* to k12/*
-└── index.html              # Main portfolio with K12 entry card
+├── k12/                    # K12-Education/dist/ 的构建产物
+├── K12-Education/          # 源代码（本仓库，在父级 .gitignored）
+├── vercel.json             # 将 /k12/* 路由指向 k12/*
+└── index.html              # 主 portfolio 页面（含 K12 入口卡片）
 ```
 
-**Deploy流程:**
-1. In `K12-Education/`: `npm run build`
-2. Copy `dist/*` to `../k12/`
-3. In `portfolio-2025/`: `git add k12/ && git commit && git push`
-4. Vercel auto-deploys
+**部署流程：**
+1. 在 `K12-Education/` 中执行：`npm run build`
+2. 将 `dist/*` 复制到 `../k12/`
+3. 在 `portfolio-2025/` 中执行：`git add k12/ && git commit && git push`
+4. Vercel 自动部署
 
-## High-Level Architecture
+## 高层架构
 
-### Routing
-- React Router v6 with `basename="/k12/"`
-- Routes defined in `src/App.tsx`:
-  - `/` - Main character learning page (`Index.tsx`)
-  - `/quiz` - Pinyin quiz with reducer-based state (`PinyinQuiz.tsx`)
-  - `/pinyin-basics` - Pinyin fundamentals (`PinyinBasics.tsx`)
-  - `/install` - PWA installation guide
+### 路由
 
-### Data Layer (Two-Tier)
+使用 React Router v6，`basename="/k12"`，路由在 `src/App.tsx` 中定义：
 
-**Local First, AI Fallback:**
-1. **Local database** (`src/data/characterInfo.ts`) - Merged from 3 files (~900 characters)
-2. **AI fallback** via Supabase Edge Function (`get-character-info`) for missing characters
+**语文模块：**
+| 路径 | 组件 | 说明 |
+|------|------|------|
+| `/` | `Index.tsx` | 主页（语文/数学/英语入口） |
+| `/stroke-learning` | `StrokeLearning.tsx` | 汉字笔画学习 |
+| `/stroke-names` | `StrokeNames.tsx` | 笔画名称学习 |
+| `/pinyin-basics` | `PinyinBasics.tsx` | 拼音基础 |
+| `/pinyin-combination` | `PinyinCombination.tsx` | 声韵母拼合练习 |
+| `/quiz` | `PinyinQuiz.tsx` | 拼音测验（reducer 状态管理） |
+| `/radicals` | `RadicalLearning.tsx` | 偏旁部首学习 |
+| `/polyphone` | `PolyphonePractice.tsx` | 多音字练习 |
+| `/similar-characters` | `SimilarCharacters.tsx` | 形近字辨析 |
+| `/quantity-words` | `QuantityWordPractice.tsx` | 量词练习 |
+| `/antonym-synonym` | `AntonymSynonymPractice.tsx` | 反义词/近义词 |
+| `/homophone-meaning` | `HomophoneMeaningPractice.tsx` | 同音词辨义 |
+| `/connective-words` | `ConnectiveWordsPractice.tsx` | 连接词学习 |
+| `/character-finder` | `CharacterFinder.tsx` | 汉字查找 |
+| `/find-different` | `FindDifferentGame.tsx` | 找不同游戏 |
+| `/puzzle-game` | `PuzzleGame.tsx` | 拼图游戏 |
+
+**形状学习（数学衍生）：**
+
+| 路径 | 组件 | 说明 |
+|------|------|------|
+| `/math/shapes/...` | `src/components/shapes/scenes/` | 33 个折/剪/拼形状动画场景 |
+
+**Pretext 演示页（实验性）：**
+
+| 路径 | 组件 | 说明 |
+|------|------|------|
+| `/pretext-demo` | `PretextDemo.tsx` | Pretext 库实验 |
+| `/pretext-editorial` | `PretextEditorial.tsx` | 编辑式排版 |
+| `/pretext-masonry` | `PretextMasonry.tsx` | 瀑布流排版 |
+
+**数学模块：**
+| 路径 | 说明 |
+|------|------|
+| `/math` | 数学首页 |
+| `/math/module/:moduleId` | 模块学习页 |
+| `/math/knowledge/:moduleId` | 知识点讲解页 |
+| `/math/test/:moduleId` | 模块测验页 |
+| `/math/result/:sessionId` | 测验结果页 |
+
+**英语模块：**
+| 路径 | 说明 |
+|------|------|
+| `/english/letter-sounds` | 字母发音 |
+| `/english/cvc-practice` | CVC 拼读练习 |
+| `/english/phonics-rules` | 自然拼读规则 |
+
+**其他：**
+| 路径 | 说明 |
+|------|------|
+| `/install` | PWA 安装引导 |
+| `/voice-test` | 阿里云 TTS 音色测试 |
+
+### 数据层（两级缓存）
+
+**本地优先，AI 兜底：**
+1. **本地字库**（`src/data/characterInfo.ts`）—— 汇总自多个文件，约 900+ 字
+2. **AI 兜底**：通过 Supabase Edge Function（`get-character-info`）处理本地未收录的字
 
 ```typescript
-// Data merge pattern in characterInfo.ts
+// characterInfo.ts 中的数据合并模式
 export const characterDatabase = {
   ...baseCharacters,
   ...grade1Vol1Characters,
   ...grade1Vol2Characters,
+  // ...更多字库文件
 };
 
 export const getCharacterInfo = (char: string) => {
-  // Check local first, then call Supabase AI
+  // 先查本地，再调用 Supabase AI
 };
 ```
 
-**Character Data Structure:**
+**汉字数据结构：**
 ```typescript
 interface CharacterInfo {
   character: string;
@@ -89,9 +162,9 @@ interface CharacterInfo {
 }
 ```
 
-### Quiz System (Reducer Pattern)
+### 测验系统（Reducer 模式）
 
-`PinyinQuiz.tsx` uses `useReducer` for complex quiz state:
+`PinyinQuiz.tsx` 使用 `useReducer` 管理复杂测验状态：
 
 ```typescript
 type QuizAction =
@@ -99,41 +172,40 @@ type QuizAction =
   | { type: 'ANSWER'; answer: QuizAnswer }
   | { type: 'NEXT' | 'RESTART' | 'EXIT' };
 
-// Question generation modes:
-// - Comprehensive: Random from all characters
-// - Nasal: Front/back nasal contrast (ang/an, eng/en, ing/in)
-// - Tongue: Flat/curled tongue contrast (zh/z, ch/c, sh/s)
+// 出题模式：
+// - 综合模式：从所有汉字随机抽取
+// - 前后鼻音：ang/an、eng/en、ing/in 对比
+// - 平翘舌：zh/z、ch/c、sh/s 对比
 ```
 
-### Key Algorithms (src/data/characterInfo.ts)
+### 核心算法（`src/data/characterInfo.ts`）
 
-- `removeTones()` - Strip tone marks for pinyin matching
-- `extractTone()` - Extract tone number (1-4)
-- `applyTone()` - Apply tone to first vowel
-- `convertNasal()` - Front/back nasal conversion for quiz distractors
-- `convertTongue()` - Flat/curled tongue conversion for quiz distractors
+- `removeTones()` —— 去除声调标记，用于拼音匹配
+- `extractTone()` —— 提取声调编号（1-4）
+- `applyTone()` —— 将声调应用到第一个韵母
+- `convertNasal()` —— 前后鼻音转换（用于生成干扰项）
+- `convertTongue()` —— 平翘舌转换（用于生成干扰项）
 
-### Component Architecture
+### 组件架构
 
-**Container/Presentational Pattern:**
-- Pages (`src/pages/`) handle state, data fetching, navigation
-- Components (`src/components/`) handle display and user interaction
+**容器/展示组件分离模式：**
+- 页面组件（`src/pages/`）：负责状态管理、数据请求、路由导航
+- UI 组件（`src/components/`）：负责展示与用户交互
 
-**Example:**
 ```typescript
-// Index.tsx (container)
+// Index.tsx（容器组件）
 const [character, setCharacter] = useState("");
 const [characterInfo, setCharacterInfo] = useState<CharacterInfo | null>(null);
-// Fetches data, manages loading state
+// 负责数据获取和加载状态管理
 
-// CharacterDetails.tsx (presentational)
+// CharacterDetails.tsx（展示组件）
 interface Props { info: CharacterInfo; }
-// Only displays data, no fetching logic
+// 只负责展示数据，不包含获取逻辑
 ```
 
-### Specialized Components
+### 专用组件
 
-**HanziWriter Integration** (`StrokeDisplay.tsx`):
+**HanziWriter 集成**（`StrokeDisplay.tsx`）：
 ```typescript
 HanziWriter.create(container, character, {
   strokeAnimationSpeed: 1,
@@ -143,63 +215,104 @@ HanziWriter.create(container, character, {
 });
 ```
 
-**田字格 (Field Grid)** - Pure CSS implementation in `index.css`:
+**田字格**（`index.css` 纯 CSS 实现）：
 ```css
 .mizige {
   border: 2px solid #333;
-  /* Dashed cross lines via repeating-linear-gradient */
+  /* 通过 repeating-linear-gradient 实现虚线十字线 */
 }
 ```
 
-## Configuration Details
+## 配置详情
 
-### Path Aliases (`tsconfig.json`)
+### 路径别名（`tsconfig.json`）
 ```typescript
 "@/*": ["./src/*"]
-// Usage: import { Button } from "@/components/ui/button"
+// 使用示例：import { Button } from "@/components/ui/button"
 ```
 
-### Vite Config (`vite.config.ts`)
-- `base: '/k12/'` - Subdirectory deployment
-- Port 8080
-- PWA with `vite-plugin-pwa` (auto-update service worker)
+### Vite 配置（`vite.config.ts`）
+- `base: '/k12/'` —— 子目录部署
+- 端口：8080
+- PWA：使用 `vite-plugin-pwa`（服务工作线程自动更新）
 
-### Environment Variables (`.env`)
+### 环境变量（`.env`）
 ```bash
 VITE_SUPABASE_URL=...
 VITE_SUPABASE_PUBLISHABLE_KEY=...
 VITE_SUPABASE_PROJECT_ID=...
 ```
 
-## Styling System
+## 样式系统
 
-**CSS Variables** (`index.css`):
+**CSS 变量**（`index.css`）：
 ```css
---primary: 25 95% 55%;        /* Orange-red tone */
---accent: 160 60% 45%;        /* Green tone */
+--primary: 25 95% 55%;        /* 橙红色调 */
+--accent: 160 60% 45%;        /* 绿色调 */
 --radius: 1rem;
 ```
 
-**Font Strategy:**
-- Primary: System Kaiti (楷书) for educational authenticity
-- Fallback: Google Fonts (Ma Shan Zheng, Long Cang)
-- Class: `.font-kaiti`, `.font-brush`
+**字体策略：**
+- 主字体：系统楷书（教育场景的真实感）
+- 降级字体：Google Fonts（马善政、龙藏）
+- CSS 类：`.font-kaiti`、`.font-brush`
 
-## Unique Conventions
+**语音系统：**
+- 主要：阿里云 TTS（Aixia 音色，适合儿童）
+- 降级：Web Speech API（浏览器内置）
+- 缓存：相同内容第二次播放几乎即时（localStorage 缓存）
 
-1. **Pinyin tone handling** - Custom algorithms for tone manipulation, not regex-based
-2. **No form library** - Simple controlled inputs for child-friendly UX
-3. **shadcn/ui** - Copy-paste components (not npm package), in `src/components/ui/`
-4. **Text-to-Speech** - Web Speech API directly in components, not abstracted
-5. **Textbook filtering** - Filter characters by textbook volume (人教版、北师大版、苏教版)
+## 特有约定
 
-## Data Files
+1. **拼音声调处理** —— 使用自定义算法处理声调变换，不依赖正则
+2. **无表单库** —— 使用简单受控输入，适合儿童友好的 UX
+3. **shadcn/ui** —— 复制粘贴式组件（非 npm 包），位于 `src/components/ui/`
+4. **文字转语音** —— Web Speech API 直接在组件中调用，未抽象为服务层
+5. **教材筛选** —— 支持按教材版本筛选汉字（人教版、北师大版、苏教版）
+6. **懒加载路由** —— 所有页面均使用 `lazy + Suspense`，降低首屏加载压力
+7. **质量门禁脚本** —— 各题库均有对应的 validate/report 脚本，PR 前需通过校验
 
-| File | Purpose |
-|------|---------|
-| `src/data/types.ts` | All TypeScript interfaces (centralized) |
-| `src/data/baseCharacters.ts` | ~200 common characters |
-| `src/data/grade1Vol1Characters.ts` | ~300 Grade 1 Vol 1 |
-| `src/data/grade1Vol2Characters.ts` | ~400 Grade 1 Vol 2 |
-| `src/data/characterInfo.ts` | Data access + quiz generation |
-| `src/data/pinyinBasics.ts` | 23 initials, 24 finals, 16 whole-syllable |
+## 数据文件
+
+### 汉字字库
+
+| 文件 | 用途 | 字数 |
+|------|------|------|
+| `src/data/types.ts` | 所有 TypeScript 类型定义（集中管理） | — |
+| `src/data/baseCharacters.ts` | 基础常用字 | ~56 字 |
+| `src/data/commonCharacters.ts` | 扩充常用字 | ~75 字 |
+| `src/data/curriculumCharacters.ts` | 小学 1-2 年级课本高频字 | ~127 字 |
+| `src/data/grade1Vol1Characters.ts` | 一年级上册字 | ~300 字 |
+| `src/data/grade1Vol2Characters.ts` | 一年级下册字 | ~400 字 |
+| `src/data/grade2Vol1Characters.ts` | 二年级上册字 | ~45 字 |
+| `src/data/grade2Vol2Characters.ts` | 二年级下册字 | ~63 字 |
+| `src/data/radicalCharacters.ts` | 偏旁部首相关字 | ~151 字 |
+| `src/data/characterInfo.ts` | 数据访问层 + 测验生成 | — |
+
+### 拼音数据
+
+| 文件 | 用途 |
+|------|------|
+| `src/data/pinyinBasics.ts` | 23 声母、24 韵母、16 整体认读音节 |
+| `src/data/pinyin/` | 声韵母拼合数据（按声母分组） |
+
+### 语文题库
+
+| 文件 | 用途 |
+|------|------|
+| `src/data/polyphoneData.ts` | 多音字数据 |
+| `src/data/similarCharacters.ts` | 形近字数据 |
+| `src/data/quantityWordData.ts` | 量词练习数据 |
+| `src/data/antonymSynonymData.ts` | 反义词/近义词数据 |
+| `src/data/homophoneMeaningV2Bank.ts` | 同音词辨义题库（120题） |
+| `src/data/connectiveWordsData.ts` | 连接词学习数据（28组，56题） |
+| `src/data/wordBuildingQuestions.ts` | 组词训练题库（400题） |
+| `src/data/strokeNames.ts` | 笔画名称数据 |
+
+### 数学/英语数据
+
+| 文件 | 用途 |
+|------|------|
+| `src/data/math/` | 数学模块（题型、知识点、生成器） |
+| `src/data/english/` | 英语模块（字母发音、拼读规则） |
+| `src/data/chinese/modules.ts` | 语文模块入口配置 |
