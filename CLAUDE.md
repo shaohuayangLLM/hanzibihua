@@ -113,13 +113,6 @@ portfolio-2025/
 | `/math/test/:moduleId` | 模块测验页 |
 | `/math/result/:sessionId` | 测验结果页 |
 
-**英语模块：**
-| 路径 | 说明 |
-|------|------|
-| `/english/letter-sounds` | 字母发音 |
-| `/english/cvc-practice` | CVC 拼读练习 |
-| `/english/phonics-rules` | 自然拼读规则 |
-
 **其他：**
 | 路径 | 说明 |
 |------|------|

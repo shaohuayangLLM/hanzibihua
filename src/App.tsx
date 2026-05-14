@@ -29,10 +29,14 @@ const MathModulePage = lazy(() => import("./pages/math/ModulePage"));
 const MathTestPage = lazy(() => import("./pages/math/TestPage"));
 const MathResultPage = lazy(() => import("./pages/math/ResultPage"));
 const KnowledgePage = lazy(() => import("./pages/math/KnowledgePage"));
-const LetterSounds = lazy(() => import("./pages/english/LetterSounds"));
-const CVCPractice = lazy(() => import("./pages/english/CVCPractice"));
-const PhonicsRules = lazy(() => import("./pages/english/PhonicsRules"));
+const ShapeLearning = lazy(() => import("./pages/math/ShapeLearning"));
+const Grade1Vol2Home = lazy(() => import("./pages/math/grade1Vol2/Grade1Vol2Home"));
+const G1V2UnitPage = lazy(() => import("./pages/math/grade1Vol2/UnitPage"));
+const G1V2LessonPage = lazy(() => import("./pages/math/grade1Vol2/LessonPage"));
 const VoiceTest = lazy(() => import("./pages/VoiceTest").then(m => ({ default: m.VoiceTest })));
+const PretextDemo = lazy(() => import("./pages/PretextDemo"));
+const PretextMasonry = lazy(() => import("./pages/PretextMasonry"));
+const PretextEditorial = lazy(() => import("./pages/PretextEditorial"));
 
 const queryClient = new QueryClient();
 
@@ -64,16 +68,19 @@ const App = () => (
 
             <Route path="/install" element={<Install />} />
             {/* Math Module Routes */}
+            <Route path="/math/shapes" element={<ShapeLearning />} />
+            <Route path="/math/g1v2" element={<Grade1Vol2Home />} />
+            <Route path="/math/g1v2/unit/:unitId" element={<G1V2UnitPage />} />
+            <Route path="/math/g1v2/lesson/:lessonId" element={<G1V2LessonPage />} />
             <Route path="/math" element={<MathHome />} />
             <Route path="/math/module/:moduleId" element={<MathModulePage />} />
             <Route path="/math/knowledge/:moduleId" element={<KnowledgePage />} />
             <Route path="/math/test/:moduleId" element={<MathTestPage />} />
             <Route path="/math/result/:sessionId" element={<MathResultPage />} />
-            {/* English Module Routes */}
-            <Route path="/english/letter-sounds" element={<LetterSounds />} />
-            <Route path="/english/cvc-practice" element={<CVCPractice />} />
-            <Route path="/english/phonics-rules" element={<PhonicsRules />} />
             <Route path="/voice-test" element={<VoiceTest />} />
+            <Route path="/pretext-demo" element={<PretextDemo />} />
+            <Route path="/pretext-masonry" element={<PretextMasonry />} />
+            <Route path="/pretext-editorial" element={<PretextEditorial />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -3,12 +3,10 @@ import { useNavigate } from "react-router-dom";
 import Pencil from 'lucide-react/dist/esm/icons/pencil';
 import Sparkles from 'lucide-react/dist/esm/icons/sparkles';
 import Calculator from 'lucide-react/dist/esm/icons/calculator';
-import Globe from 'lucide-react/dist/esm/icons/globe';
 import { MATH_MODULES } from "@/data/math/modules";
 import { CHINESE_MODULES } from "@/data/chinese/modules";
-import { ENGLISH_MODULES } from "@/data/english/modules";
 
-type Subject = 'chinese' | 'math' | 'english';
+type Subject = 'chinese' | 'math';
 
 const CHINESE_LEARNING_GROUPS: Array<{
   id: string;
@@ -63,6 +61,12 @@ const MATH_LEARNING_GROUPS: Array<{
     moduleIds: ["picture-operation", "calculation"],
   },
   {
+    id: "shape-geometry",
+    title: "图形与几何",
+    description: "认识平面图形，通过折叠和拼组理解图形变换",
+    moduleIds: ["shapes"],
+  },
+  {
     id: "comprehensive-application",
     title: "综合应用",
     description: "通过综合巩固与闯关，提升迁移和解题稳定性",
@@ -78,40 +82,6 @@ const MATH_GROUPED_MODULES = MATH_LEARNING_GROUPS.map(group => ({
     .filter((module): module is NonNullable<typeof module> => Boolean(module)),
 }));
 
-const ENGLISH_LEARNING_GROUPS: Array<{
-  id: string;
-  title: string;
-  description: string;
-  moduleIds: string[];
-}> = [
-  {
-    id: "phonics-foundation",
-    title: "拼读基础",
-    description: "从字母发音入门，建立英语声音意识",
-    moduleIds: ["letter-sounds", "cvc-practice"],
-  },
-  {
-    id: "rule-building",
-    title: "规则建构",
-    description: "学习拼读规则，形成稳定的见词能读能力",
-    moduleIds: ["phonics-rules", "word-families"],
-  },
-  {
-    id: "reading-fluency",
-    title: "流利度提升",
-    description: "通过高频词和听音辨词提升阅读流畅度",
-    moduleIds: ["sight-words", "blending-practice"],
-  },
-];
-
-const ENGLISH_MODULE_BY_ID = new Map(ENGLISH_MODULES.map(module => [module.id, module] as const));
-const ENGLISH_GROUPED_MODULES = ENGLISH_LEARNING_GROUPS.map(group => ({
-  ...group,
-  modules: group.moduleIds
-    .map(id => ENGLISH_MODULE_BY_ID.get(id))
-    .filter((module): module is NonNullable<typeof module> => Boolean(module)),
-}));
-
 const Index = () => {
   const navigate = useNavigate();
   const [subject, setSubject] = useState<Subject>('chinese');
@@ -124,20 +94,16 @@ const Index = () => {
           {/* 一行：图标、标题和学科切换 */}
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-button ${
-              subject === 'chinese' ? 'bg-primary' :
-              subject === 'math' ? 'bg-purple-500' :
-              'bg-indigo-500'
+              subject === 'chinese' ? 'bg-primary' : 'bg-purple-500'
             }`}>
               {subject === 'chinese' ? (
                 <Pencil className="h-5 w-5 text-primary-foreground" />
-              ) : subject === 'math' ? (
-                <Calculator className="h-5 w-5 text-white" />
               ) : (
-                <Globe className="h-5 w-5 text-white" />
+                <Calculator className="h-5 w-5 text-white" />
               )}
             </div>
             <h1 className="text-xl font-bold text-foreground">
-              {subject === 'chinese' ? '语文学习中心' : subject === 'math' ? '数学学习中心' : '英语学习中心'}
+              {subject === 'chinese' ? '语文学习中心' : '数学学习中心'}
             </h1>
 
             {/* Subject Tabs */}
@@ -161,16 +127,6 @@ const Index = () => {
                 }`}
               >
                 🔢 数学
-              </button>
-              <button
-                onClick={() => setSubject('english')}
-                className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                  subject === 'english'
-                    ? 'bg-indigo-500 text-white shadow-md'
-                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                }`}
-              >
-                🌍 英语
               </button>
             </div>
           </div>
@@ -285,7 +241,7 @@ const Index = () => {
                     {group.modules.map((module) => (
                       <button
                         key={module.id}
-                        onClick={() => !module.disabled && navigate(`/math/module/${module.id}`)}
+                        onClick={() => !module.disabled && navigate(module.id === 'shapes' ? '/math/shapes' : `/math/module/${module.id}`)}
                         disabled={module.disabled}
                         className={`
                           group relative p-6 rounded-2xl border-2
@@ -337,94 +293,34 @@ const Index = () => {
           </>
         )}
 
-        {/* English Subject Content */}
-        {subject === 'english' && (
-          <>
-            <section className="text-center space-y-4 animate-fade-in">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-sm font-medium">
-                <Sparkles className="h-4 w-4 text-indigo-600" />
-                分模块循序学习
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-                选择学习模块
-              </h2>
-              <p className="text-muted-foreground max-w-md mx-auto">
-                从发音到规则再到流利度，逐步建立英语拼读能力
-              </p>
-            </section>
-
-            <div className="space-y-8 animate-fade-in">
-              {ENGLISH_GROUPED_MODULES.map(group => (
-                <section key={group.id} className="space-y-4">
-                  <div>
-                    <h3 className="text-xl font-bold text-foreground">{group.title}</h3>
-                    <p className="text-sm text-muted-foreground">{group.description}</p>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {group.modules.map((module) => (
-                      <button
-                        key={module.id}
-                        onClick={() => !module.disabled && navigate(module.route)}
-                        disabled={module.disabled}
-                        className={`
-                          group relative p-6 rounded-2xl border-2
-                          shadow-md transition-all duration-300 text-left
-                          ${module.disabled
-                            ? 'bg-muted/30 border-muted opacity-50 cursor-not-allowed'
-                            : 'bg-card border-border hover:shadow-xl hover:scale-105 hover:border-indigo-400 active:scale-95'
-                          }
-                        `}
-                      >
-                        <div className={`
-                          w-16 h-16 rounded-2xl ${module.color} flex items-center justify-center
-                          text-3xl mb-4 shadow-lg transition-transform pointer-events-none
-                          ${module.disabled ? 'grayscale opacity-50' : 'group-hover:scale-110'}
-                        `}>
-                          {module.icon}
-                        </div>
-
-                        <h4 className={`text-xl font-bold mb-2 transition-colors pointer-events-none ${
-                          module.disabled ? 'text-muted-foreground' : 'text-foreground group-hover:text-indigo-600'
-                        }`}>
-                          {module.title}
-                        </h4>
-
-                        <p className="text-sm text-muted-foreground mb-4 pointer-events-none">
-                          {module.description}
-                        </p>
-
-                        <div className={`flex items-center font-medium text-sm pointer-events-none ${
-                          module.disabled ? 'text-muted-foreground' : 'text-indigo-600'
-                        }`}>
-                          {module.disabled ? (
-                            <>🚧 暂不可用</>
-                          ) : (
-                            <>
-                              开始学习
-                              <span className="ml-1 transform group-hover:translate-x-1 transition-transform">
-                                →
-                              </span>
-                            </>
-                          )}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </section>
-              ))}
-            </div>
-          </>
-        )}
       </main>
+
+      {/* Lab Entry */}
+      <section className="max-w-4xl mx-auto px-4 py-4 space-y-3">
+        <p className="text-xs font-semibold text-teal-700 uppercase tracking-wider">🔬 Lab · @chenglou/pretext 体验</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {([
+            { route: "/pretext-demo", icon: "📐", title: "动态排版", desc: "窗口缩放 · 文字实时重排" },
+            { route: "/pretext-masonry", icon: "🧱", title: "瀑布流卡片", desc: "80张同音词卡 · 零DOM测量" },
+            { route: "/pretext-editorial", icon: "✨", title: "编辑引擎", desc: "球体环绕 · 多栏 · 拉引语" },
+          ] as const).map(item => (
+            <button
+              key={item.route}
+              onClick={() => navigate(item.route)}
+              className="group p-4 rounded-xl border-2 border-dashed border-teal-300 bg-teal-50/50 hover:bg-teal-50 hover:border-teal-400 transition-all text-left"
+            >
+              <span className="text-2xl block mb-2 group-hover:scale-110 transition-transform inline-block">{item.icon}</span>
+              <h4 className="text-sm font-bold text-teal-900">{item.title}</h4>
+              <p className="text-[11px] text-teal-700/60 mt-0.5">{item.desc}</p>
+            </button>
+          ))}
+        </div>
+      </section>
 
       {/* Footer */}
       <footer className="w-full py-6 px-4 border-t border-border/50 mt-auto">
         <p className="text-center text-sm text-muted-foreground font-kaiti">
-          专为小学阶段语文学习设计 ❤️ {
-            subject === 'chinese' ? '快乐学汉字' :
-            subject === 'math' ? '轻松学数学' :
-            '趣味学英语'
-          }
+          专为小学阶段语文学习设计 ❤️ {subject === 'chinese' ? '快乐学汉字' : '轻松学数学'}
         </p>
       </footer>
     </div>
