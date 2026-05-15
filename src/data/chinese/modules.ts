@@ -123,6 +123,14 @@ export const CHINESE_MODULES: ChineseModule[] = [
     route: '/homophone-meaning',
   },
   {
+    id: 'connective-words',
+    title: '连接词学习',
+    icon: '🧠',
+    color: 'bg-amber-600',
+    description: '学习常用连接词，理解句子关系与表达逻辑',
+    route: '/connective-words',
+  },
+  {
     id: 'character-graph',
     title: '汉字图谱',
     icon: '🕸️',

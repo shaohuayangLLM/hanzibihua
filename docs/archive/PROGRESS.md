@@ -1,5 +1,100 @@
 # K12-Education 项目开发进度
 
+## 2026-02-24 - 语文新增「连接词学习」模块（教学+练习）并扩容
+
+### 本次完成
+- **新增连接词学习模块**
+  - 新增页面：`/connective-words`
+  - 模块形态：`intro -> learn -> practice -> result`
+  - 学习区按语义分类展示，支持连接词与例句朗读（复用现有 TTS 降级策略）
+  - 练习区支持上一题/下一题、即时反馈、解析、错题回看
+
+- **语文入口与路由接入**
+  - 语文模块新增入口卡片：`连接词学习`
+  - 首页“综合应用”分组已接入该模块
+  - `App` 新增懒加载路由：`/connective-words`
+
+- **连接词内容持续扩容**
+  - 教学卡片从 `12组` 扩充至 `28组`
+  - 练习题从 `24题` 扩充至 `56题`（每组 2 题）
+  - 全量补齐：连接词拼音、例句、例句拼音（含声调）
+
+- **拼音排版修复与可读性优化**
+  - 修复拼音分词粘连导致的错位问题（标点先切分）
+  - 修复 `\u00A0` 字面显示问题
+  - 优化逐字对齐渲染：拼音在上、汉字在下、颜色区分、标点窄宽占位
+  - 调整版式密度：拼音字号与字距收敛，避免拥挤和跳动
+
+### 验证结果
+- ✅ 数据一致性校验通过：`28` 组、`56` 题、每组 `2` 题、选项映射完整
+- ✅ `npm run build` 多轮构建通过
+
+### 关键变更文件（本轮）
+```
+src/data/connectiveWordsData.ts
+src/pages/ConnectiveWordsPractice.tsx
+src/data/chinese/modules.ts
+src/pages/Index.tsx
+src/App.tsx
+PROGRESS.md
+```
+
+---
+
+## 2026-02-15 - 语文/数学教学化重构与生产发布
+
+### 本次完成
+- **语文模块结构优化（教学路径化）**
+  - 语文首页改为分组路径展示：基础识字 / 辨析提升 / 综合应用
+  - 笔画学习调整为语文入口第一优先位
+  - 下线并移除模块：组词训练、词语搭配、短句扩写（入口与路由同步清理）
+
+- **同音字/同音词学习重构**
+  - 同音模块从“考试题流程”改为“教学卡片直学模式”
+  - 拆分为“同音字”与“同音词”两类学习内容
+  - 统一补齐带声调拼音展示，移除示例图标与无效视觉干扰
+  - 扩充词库并修正读音一致性，修复词语换行和卡片布局问题
+
+- **数学模块重构（凑十法与破十法）**
+  - 计算模块改名：`凑十法与破十法`
+  - 题库逻辑改为双方法：凑十法加法 + 破十法退位减法
+  - 题目渲染改为“板书式拆分路径图”，支持分解框、桥接框、口诀展示
+  - 破十法图示按教材结构修正：十几分解、先减后加、结果回填
+
+- **数学/英语首页教学化改造**
+  - 数学与英语首页同步改为学习路径分组，去测试导向文案
+  - 数学模块命名优化：综合巩固 / 能力闯关（替代测评化表述）
+
+- **性能与工程优化**
+  - `App` 路由改为 `lazy + Suspense`，降低首页首屏加载压力
+  - 多处模块配置、数据结构和页面文案统一到教学导向语义
+
+- **生产发布**
+  - 已推送并发布最新版本
+  - `ainside.cn/k12/` 已更新到新构建资源（最新 `index` 资源哈希生效）
+
+### 验证结果
+- ✅ `npm run build` 多轮构建通过
+- ✅ Vercel 生产部署状态 `Ready`
+- ✅ `https://ainside.cn/k12/` 已返回最新版本页面资源
+
+### 关键变更文件（本轮）
+```
+src/pages/Index.tsx
+src/pages/HomophoneMeaningPractice.tsx
+src/data/homophoneMeaningTypes.ts
+src/data/homophoneMeaningV2Bank.ts
+src/data/math/modules.ts
+src/data/math/knowledge.ts
+src/data/math/types.ts
+src/data/math/generators/calculationGenerator.ts
+src/components/math/QuestionRenderer.tsx
+src/components/math/renderers/CalculationRenderer.tsx
+src/App.tsx
+```
+
+---
+
 ## 2026-02-15 - 同音词辨义 V1 首发实现（120题）
 
 ### 本次完成
