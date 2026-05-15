@@ -16,19 +16,6 @@ export const MATH_MODULES: MathModule[] = [
     ],
   },
   {
-    id: 'picture-operation',
-    title: '看图列算式',
-    icon: '🖼️',
-    color: 'bg-green-500',
-    description: '看图列加减法算式，学会区分加减法',
-    questionTypes: [
-      MathQuestionType.PICTURE_ADDITION,
-      MathQuestionType.PICTURE_SUBTRACTION,
-      MathQuestionType.OPERATION_DISTINGUISH,
-      MathQuestionType.PICTURE_APPLIED_INCLUDE_SELF,
-    ],
-  },
-  {
     id: 'queue-position',
     title: '排队与位置',
     icon: '🚶',
@@ -43,22 +30,6 @@ export const MATH_MODULES: MathModule[] = [
     ],
   },
   {
-    id: 'final-exam',
-    title: '综合巩固',
-    icon: '📝',
-    color: 'bg-pink-500',
-    description: '综合复习核心知识点：规律、相邻数、填未知数、符号填空等',
-    questionTypes: Object.values(MathQuestionType), // 包含所有题型
-  },
-  {
-    id: 'comprehensive',
-    title: '能力闯关',
-    icon: '🎯',
-    color: 'bg-red-500',
-    description: '分层挑战多类题型，提升数学应用与思维能力',
-    questionTypes: Object.values(MathQuestionType),
-  },
-  {
     id: 'calculation',
     title: '凑十法与破十法',
     icon: '➕',
@@ -68,6 +39,14 @@ export const MATH_MODULES: MathModule[] = [
       MathQuestionType.MAKE_TEN_METHOD,
       MathQuestionType.ADDITION_WITHIN_20_CARRY,
     ],
+  },
+  {
+    id: 'shapes',
+    title: '认识图形',
+    icon: '🔷',
+    color: 'bg-teal-500',
+    description: '认识平面图形，折一折、拼一拼，理解图形变换',
+    questionTypes: [],
   },
 ];
 
