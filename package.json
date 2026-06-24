@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:subdomain": "VITE_DEPLOY_BASE=/ vite build --outDir dist-subdomain --emptyOutDir",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
