@@ -2,6 +2,27 @@
 
 所有重要变更都将记录在此文件中。
 
+## [1.7.0] - 2026-06-24
+
+### ✨ 新增功能：九九乘法表（Multiplication Table）
+
+- 新增数学模块入口：`九九乘法表`（`/math/multiplication`），首页「数学 → 乘法运算」组
+- 三个 Tab 一体，面向刚开始学乘法的低年级孩子：
+  - `看表`：下三角口诀挂图（9 列一屏铺满）/ 完整 9×9 矩阵切换；点格子高亮，顶部超大显示算式、口诀，并配**点阵图 + 连加式**（理解「乘法就是几个几相加」）
+  - `分组学习`：2~9 逐组大字口诀，「已学会」标记本地持久化
+  - `闯关`：5 关由易到难（3/4 选 1），答对撒花、答错立即显示正确口诀帮记忆，无计时无惩罚，进度本地保存
+
+### 🧩 实现
+
+- 新增 `src/data/math/multiplicationTable.ts`（口诀/出题纯逻辑，含「二五一十」等特例）
+- 新增 `src/pages/math/MultiplicationTable.tsx`（页面，复用 shadcn 组件与 K12 设计系统）
+- 接入 `src/App.tsx` 懒加载路由、`src/data/math/modules.ts` 模块配置、`src/pages/Index.tsx` 首页入口
+- 本地存储 key：`mult_learned`、`mult_quiz_best`
+
+### ✅ 验证
+
+- `npm run build` 通过，新模块正确打包，现有工程不受影响
+
 ## [1.6.0] - 2026-02-15
 
 ### ✨ 新增功能：同音词辨义模块（Homophone Meaning）

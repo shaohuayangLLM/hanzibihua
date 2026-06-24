@@ -48,6 +48,14 @@ export const MATH_MODULES: MathModule[] = [
     description: '认识平面图形，折一折、拼一拼，理解图形变换',
     questionTypes: [],
   },
+  {
+    id: 'multiplication',
+    title: '九九乘法表',
+    icon: '✖️',
+    color: 'bg-indigo-500',
+    description: '看表、分组记忆、闯关练习，理解乘法就是几个几相加',
+    questionTypes: [],
+  },
 ];
 
 // 获取模块配置

@@ -49,6 +49,12 @@ const MATH_LEARNING_GROUPS: Array<{
     moduleIds: ["calculation"],
   },
   {
+    id: "multiplication",
+    title: "乘法运算",
+    description: "从九九乘法表开始，理解并记忆乘法",
+    moduleIds: ["multiplication"],
+  },
+  {
     id: "shape-geometry",
     title: "图形与几何",
     description: "认识平面图形，通过折叠和拼组理解图形变换",
@@ -223,7 +229,7 @@ const Index = () => {
                     {group.modules.map((module) => (
                       <button
                         key={module.id}
-                        onClick={() => !module.disabled && navigate(module.id === 'shapes' ? '/math/shapes' : `/math/module/${module.id}`)}
+                        onClick={() => !module.disabled && navigate(module.id === 'shapes' ? '/math/shapes' : module.id === 'multiplication' ? '/math/multiplication' : `/math/module/${module.id}`)}
                         disabled={module.disabled}
                         className={`
                           group relative p-6 rounded-2xl border-2

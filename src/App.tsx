@@ -20,6 +20,7 @@ const MathTestPage = lazy(() => import("./pages/math/TestPage"));
 const MathResultPage = lazy(() => import("./pages/math/ResultPage"));
 const KnowledgePage = lazy(() => import("./pages/math/KnowledgePage"));
 const ShapeLearning = lazy(() => import("./pages/math/ShapeLearning"));
+const MultiplicationTable = lazy(() => import("./pages/math/MultiplicationTable"));
 const Grade1Vol2Home = lazy(() => import("./pages/math/grade1Vol2/Grade1Vol2Home"));
 const G1V2UnitPage = lazy(() => import("./pages/math/grade1Vol2/UnitPage"));
 const G1V2LessonPage = lazy(() => import("./pages/math/grade1Vol2/LessonPage"));
@@ -46,6 +47,7 @@ const App = () => (
             <Route path="/install" element={<Install />} />
             {/* Math Module Routes */}
             <Route path="/math/shapes" element={<ShapeLearning />} />
+            <Route path="/math/multiplication" element={<MultiplicationTable />} />
             <Route path="/math/g1v2" element={<Grade1Vol2Home />} />
             <Route path="/math/g1v2/unit/:unitId" element={<G1V2UnitPage />} />
             <Route path="/math/g1v2/lesson/:lessonId" element={<G1V2LessonPage />} />
